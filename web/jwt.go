@@ -2,6 +2,7 @@ package web
 
 import (
 	"github.com/god-jason/boat/config"
+	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
 
@@ -10,7 +11,7 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-var JwtKey = "iot-master"
+var JwtKey = "boat"
 var JwtExpire = time.Hour * 24 * 30
 
 func JwtGenerate(id string) (string, error) {

@@ -8,7 +8,7 @@ import (
 const MODULE = "web"
 
 func init() {
-	config.Register(MODULE, "port", 8888)
+	config.Register(MODULE, "port", 8008)
 	config.Register(MODULE, "debug", false)
 	config.Register(MODULE, "cors", false)
 	config.Register(MODULE, "gzip", true)

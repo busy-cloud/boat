@@ -3,7 +3,7 @@ package curd
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"github.com/god-jason/iot-master/db"
+	"github.com/god-jason/boat/db"
 )
 
 func map2struct(m map[string]any, s any) error {

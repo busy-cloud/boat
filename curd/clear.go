@@ -2,7 +2,7 @@ package curd
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/god-jason/iot-master/db"
+	"github.com/god-jason/boat/db"
 )
 
 func ApiClear[T any]() gin.HandlerFunc {

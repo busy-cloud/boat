@@ -42,7 +42,7 @@ func Startup() error {
 	}
 
 	//启用session
-	Engine.Use(sessions.Sessions("iot-master", cookie.NewStore([]byte("iot-master"))))
+	Engine.Use(sessions.Sessions("boat", cookie.NewStore([]byte("boat"))))
 
 	//开启压缩
 	if config.GetBool(MODULE, "gzip") {

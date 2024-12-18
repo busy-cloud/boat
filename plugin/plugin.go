@@ -1,6 +1,6 @@
-package boat
+package plugin
 
-type Application struct {
+type Plugin struct {
 	Name         string   `json:"name"`
 	Version      string   `json:"version"`
 	Description  string   `json:"description,omitempty"`
