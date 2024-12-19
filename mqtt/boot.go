@@ -6,6 +6,6 @@ func init() {
 	boot.Register("mqtt", &boot.Task{
 		Startup:  Startup,
 		Shutdown: Shutdown,
-		Depends:  []string{"config"},
+		Depends:  []string{"config", "broker"},
 	})
 }

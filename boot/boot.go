@@ -33,6 +33,7 @@ func Unregister(name string) {
 
 func Startup() (err error) {
 	start := time.Now().UnixMilli()
+
 	tasks.Range(func(name string, task *Task) bool {
 		//过滤掉依赖启动
 		if task.booting.Load() || task.booted.Load() {
@@ -45,19 +46,25 @@ func Startup() (err error) {
 		}
 		return true
 	})
+
 	end := time.Now().UnixMilli()
-	fmt.Printf("[boot] finished in %dms\n", end-start)
+	fmt.Printf("[boot] startup finished in %dms\n", end-start)
 	return
 }
 
 func Shutdown() (err error) {
+	start := time.Now().UnixMilli()
+
 	tasks.Range(func(name string, task *Task) bool {
 		err = Close(name)
 		if err != nil {
-			return false
+			//return false
 		}
 		return true
 	})
+
+	end := time.Now().UnixMilli()
+	fmt.Printf("[boot] shutdown %dms\n", end-start)
 	return
 }
 
@@ -78,9 +85,12 @@ func Open(name string) error {
 	//启动依赖
 	if len(task.Depends) > 0 {
 		for _, n := range task.Depends {
-			err := Open(n) //TODO 没有递归检查，可能会死循环
-			if err != nil {
-				return err
+			t := tasks.Load(n) //没有找到的依赖项
+			if t != nil {
+				err := Open(n) //TODO 没有递归检查，可能会死循环
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -94,7 +104,7 @@ func Open(name string) error {
 
 	//计算时间
 	end := time.Now().UnixMilli()
-	fmt.Printf("[startup] %s \t %dms\n", name, end-start)
+	fmt.Printf("[boot] open %s \t %dms\n", name, end-start)
 
 	task.booted.Store(true) //不管成功失败，都代表已经启动了
 	if err != nil {
@@ -112,7 +122,8 @@ func Close(name string) error {
 	task.booted.Store(false)
 	if task.Shutdown != nil {
 		//log.Info("[boot] close", name)
-		println("[shutdown]", name)
+		//println("[boot] close", name)
+		fmt.Printf("[boot] close %s\n", name)
 		return task.Shutdown()
 	}
 	return nil

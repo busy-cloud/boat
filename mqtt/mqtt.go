@@ -6,6 +6,7 @@ import (
 	"github.com/god-jason/boat/config"
 	"github.com/god-jason/boat/log"
 	"github.com/god-jason/boat/pool"
+	"time"
 )
 
 var Client paho.Client
@@ -20,7 +21,7 @@ func Startup() error {
 	opts.SetPassword(config.GetString(MODULE, "password"))
 	opts.SetConnectRetry(true) //重试
 
-	opts.SetKeepAlive(20)
+	opts.SetKeepAlive(50 * time.Second)
 
 	//重连时，恢复订阅
 	opts.SetCleanSession(false)
