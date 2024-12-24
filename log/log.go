@@ -3,7 +3,7 @@ package log
 import (
 	"bytes"
 	"fmt"
-	"github.com/god-jason/boat/config"
+	"github.com/busy-cloud/boat/config"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"os"

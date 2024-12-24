@@ -2,8 +2,8 @@ package curd
 
 import (
 	"encoding/json"
+	"github.com/busy-cloud/boat/db"
 	"github.com/gin-gonic/gin"
-	"github.com/god-jason/boat/db"
 )
 
 func map2struct(m map[string]any, s any) error {

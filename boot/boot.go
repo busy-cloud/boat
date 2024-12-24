@@ -2,7 +2,7 @@ package boot
 
 import (
 	"fmt"
-	"github.com/god-jason/boat/lib"
+	"github.com/busy-cloud/boat/lib"
 	"sync/atomic"
 	"time"
 )

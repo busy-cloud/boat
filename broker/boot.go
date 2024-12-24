@@ -1,9 +1,9 @@
 package broker
 
 import (
-	"github.com/god-jason/boat/boot"
-	"github.com/god-jason/boat/config"
-	"github.com/god-jason/boat/web"
+	"github.com/busy-cloud/boat/boot"
+	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/web"
 	mqtt "github.com/mochi-mqtt/server/v2"
 	"github.com/mochi-mqtt/server/v2/hooks/auth"
 	"github.com/mochi-mqtt/server/v2/listeners"

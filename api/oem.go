@@ -1,9 +1,9 @@
 package api
 
 import (
+	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-gonic/gin"
-	"github.com/god-jason/boat/config"
-	"github.com/god-jason/boat/curd"
 )
 
 type OEM struct {

@@ -1,8 +1,8 @@
 package web
 
 import (
-	"github.com/god-jason/boat/config"
-	"github.com/god-jason/boat/lib"
+	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/lib"
 )
 
 const MODULE = "web"

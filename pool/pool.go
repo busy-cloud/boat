@@ -1,9 +1,9 @@
 package pool
 
 import (
-	"github.com/god-jason/boat/config"
-	"github.com/god-jason/boat/exception"
-	"github.com/god-jason/boat/log"
+	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/exception"
+	"github.com/busy-cloud/boat/log"
 	ants "github.com/panjf2000/ants/v2"
 )
 

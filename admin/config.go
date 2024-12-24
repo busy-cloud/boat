@@ -1,6 +1,6 @@
 package admin
 
-import "github.com/god-jason/boat/config"
+import "github.com/busy-cloud/boat/config"
 
 const MODULE = "admin"
 

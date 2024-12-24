@@ -1,8 +1,8 @@
 package admin
 
 import (
-	"github.com/god-jason/boat/boot"
-	"github.com/god-jason/boat/web"
+	"github.com/busy-cloud/boat/boot"
+	"github.com/busy-cloud/boat/web"
 )
 
 func init() {

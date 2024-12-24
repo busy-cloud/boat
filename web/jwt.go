@@ -1,7 +1,7 @@
 package web
 
 import (
-	"github.com/god-jason/boat/config"
+	"github.com/busy-cloud/boat/config"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )

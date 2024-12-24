@@ -1,8 +1,8 @@
 package curd
 
 import (
+	"github.com/busy-cloud/boat/db"
 	"github.com/gin-gonic/gin"
-	"github.com/god-jason/boat/db"
 	"strings"
 )
 

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/god-jason/boat/boot"
+	"github.com/busy-cloud/boat/boot"
 )
 
 func init() {

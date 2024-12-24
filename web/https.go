@@ -1,8 +1,8 @@
 package web
 
 import (
-	"github.com/god-jason/boat/config"
-	"github.com/god-jason/boat/log"
+	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/log"
 	"golang.org/x/crypto/acme/autocert"
 	"net/http"
 )

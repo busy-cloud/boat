@@ -1,14 +1,14 @@
 package main
 
 import (
-	_ "github.com/god-jason/boat/admin"
-	"github.com/god-jason/boat/api"
-	"github.com/god-jason/boat/boot"
-	_ "github.com/god-jason/boat/broker"
-	_ "github.com/god-jason/boat/internal"
-	"github.com/god-jason/boat/log"
-	_ "github.com/god-jason/boat/mqtt"
-	"github.com/god-jason/boat/web"
+	_ "github.com/busy-cloud/boat/admin"
+	"github.com/busy-cloud/boat/api"
+	"github.com/busy-cloud/boat/boot"
+	_ "github.com/busy-cloud/boat/broker"
+	_ "github.com/busy-cloud/boat/internal"
+	"github.com/busy-cloud/boat/log"
+	_ "github.com/busy-cloud/boat/mqtt"
+	"github.com/busy-cloud/boat/web"
 	"github.com/spf13/viper"
 	"os"
 	"os/signal"

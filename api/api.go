@@ -1,10 +1,10 @@
 package api
 
 import (
+	"github.com/busy-cloud/boat/curd"
+	"github.com/busy-cloud/boat/web"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/god-jason/boat/curd"
-	"github.com/god-jason/boat/web"
 	"net/http"
 )
 

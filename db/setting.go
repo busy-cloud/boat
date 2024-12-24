@@ -1,8 +1,8 @@
 package db
 
 import (
-	"github.com/god-jason/boat/setting"
-	"github.com/god-jason/boat/smart"
+	"github.com/busy-cloud/boat/setting"
+	"github.com/busy-cloud/boat/smart"
 )
 
 func init() {

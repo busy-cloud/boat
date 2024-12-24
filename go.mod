@@ -1,4 +1,4 @@
-module github.com/god-jason/boat
+module github.com/busy-cloud/boat
 
 go 1.23.0
 

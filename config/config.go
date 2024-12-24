@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/god-jason/boat/lib"
+	"github.com/busy-cloud/boat/lib"
 	"github.com/spf13/viper"
 )
 

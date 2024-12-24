@@ -1,6 +1,6 @@
 package log
 
-import "github.com/god-jason/boat/boot"
+import "github.com/busy-cloud/boat/boot"
 
 func init() {
 	boot.Register("log", &boot.Task{

@@ -1,9 +1,9 @@
 package api
 
 import (
+	"github.com/busy-cloud/boat/build"
+	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-gonic/gin"
-	"github.com/god-jason/boat/build"
-	"github.com/god-jason/boat/curd"
 	mochi "github.com/mochi-mqtt/server/v2"
 	"runtime"
 )

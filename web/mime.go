@@ -1,7 +1,7 @@
 package web
 
 import (
-	"github.com/god-jason/boat/log"
+	"github.com/busy-cloud/boat/log"
 	"mime"
 )
 

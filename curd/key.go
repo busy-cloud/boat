@@ -1,8 +1,8 @@
 package curd
 
 import (
-	"github.com/god-jason/boat/config"
-	"github.com/god-jason/boat/web"
+	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/web"
 	"github.com/google/uuid"
 	"github.com/lithammer/shortuuid"
 	"github.com/rs/xid"

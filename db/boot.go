@@ -1,6 +1,6 @@
 package db
 
-import "github.com/god-jason/boat/boot"
+import "github.com/busy-cloud/boat/boot"
 
 func init() {
 	boot.Register("database", &boot.Task{

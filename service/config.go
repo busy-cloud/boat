@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/god-jason/boat/config"
+	"github.com/busy-cloud/boat/config"
 )
 
 const MODULE = "service"

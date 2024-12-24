@@ -3,10 +3,10 @@ package admin
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/god-jason/boat/config"
-	"github.com/god-jason/boat/curd"
 )
 
 type loginObj struct {

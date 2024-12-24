@@ -1,10 +1,10 @@
 package api
 
 import (
+	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/curd"
+	"github.com/busy-cloud/boat/setting"
 	"github.com/gin-gonic/gin"
-	"github.com/god-jason/boat/config"
-	"github.com/god-jason/boat/curd"
-	"github.com/god-jason/boat/setting"
 	"github.com/spf13/viper"
 )
 

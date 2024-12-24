@@ -1,8 +1,8 @@
 package setting
 
 import (
-	"github.com/god-jason/boat/lib"
-	"github.com/god-jason/boat/smart"
+	"github.com/busy-cloud/boat/lib"
+	"github.com/busy-cloud/boat/smart"
 )
 
 type Module struct {

@@ -1,9 +1,9 @@
 package admin
 
 import (
+	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"github.com/god-jason/boat/curd"
 )
 
 func logout(ctx *gin.Context) {

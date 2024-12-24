@@ -1,10 +1,10 @@
 package api
 
 import (
+	"github.com/busy-cloud/boat/build"
+	"github.com/busy-cloud/boat/curd"
+	"github.com/busy-cloud/boat/db"
 	"github.com/gin-gonic/gin"
-	"github.com/god-jason/boat/build"
-	"github.com/god-jason/boat/curd"
-	"github.com/god-jason/boat/db"
 	"time"
 )
 
