@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/busy-cloud/boat/config"
-	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,10 +16,10 @@ type OEM struct {
 // @Tags oem
 // @Accept json
 // @Produce json
-// @Success 200 {object} curd.ReplyData[OEM] 返回信息
+// @Success 200 {object} ReplyData[OEM] 返回信息
 // @Router /oem [get]
 func oem(ctx *gin.Context) {
-	curd.OK(ctx, OEM{
+	OK(ctx, OEM{
 		Name: config.GetString("oem", "name"),
 		Logo: config.GetString("oem", "logo"),
 	})
@@ -33,16 +32,16 @@ func oem(ctx *gin.Context) {
 // @Param search body OEM true "信息"
 // @Accept json
 // @Produce json
-// @Success 200 {object} curd.ReplyData[int] 返回nil
+// @Success 200 {object} ReplyData[int] 返回nil
 // @Router /oem [post]
 func oemUpdate(ctx *gin.Context) {
 	var oem OEM
 	err := ctx.ShouldBindJSON(&oem)
 	if err != nil {
-		curd.Error(ctx, err)
+		Error(ctx, err)
 		return
 	}
-	curd.OK(ctx, nil)
+	OK(ctx, nil)
 }
 
 func oemRouter(app *gin.RouterGroup) {

@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/busy-cloud/boat/config"
-	"github.com/busy-cloud/boat/curd"
 	"github.com/busy-cloud/boat/setting"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
@@ -15,10 +14,10 @@ import (
 // @Param module path string true "模块，web database log ..."
 // @Accept json
 // @Produce json
-// @Success 200 {object} curd.ReplyData[map[string]any] 返回配置
+// @Success 200 {object} ReplyData[map[string]any] 返回配置
 // @Router /setting/:module [get]
 func settingGet(ctx *gin.Context) {
-	curd.OK(ctx, viper.GetStringMap(ctx.Param("module")))
+	OK(ctx, viper.GetStringMap(ctx.Param("module")))
 }
 
 // @Summary 修改配置
@@ -29,7 +28,7 @@ func settingGet(ctx *gin.Context) {
 // @Param cfg body map[string]any true "配置内容"
 // @Accept json
 // @Produce json
-// @Success 200 {object} curd.ReplyData[int]
+// @Success 200 {object} ReplyData[int]
 // @Router /setting/:module [post]
 func settingSet(ctx *gin.Context) {
 	m := ctx.Param("module")
@@ -37,7 +36,7 @@ func settingSet(ctx *gin.Context) {
 	var conf map[string]any
 	err := ctx.ShouldBindJSON(&conf)
 	if err != nil {
-		curd.Error(ctx, err)
+		Error(ctx, err)
 		return
 	}
 	for k, v := range conf {
@@ -46,10 +45,10 @@ func settingSet(ctx *gin.Context) {
 
 	err = config.Store()
 	if err != nil {
-		curd.Error(ctx, err)
+		Error(ctx, err)
 		return
 	}
-	curd.OK(ctx, nil)
+	OK(ctx, nil)
 }
 
 // @Summary 查询配置表单
@@ -59,16 +58,16 @@ func settingSet(ctx *gin.Context) {
 // @Param module path string true "模块，web database log ..."
 // @Accept json
 // @Produce json
-// @Success 200 {object} curd.ReplyData[Module] 返回配置表单
+// @Success 200 {object} ReplyData[Module] 返回配置表单
 // @Router /setting/:module/form [get]
 func settingForm(ctx *gin.Context) {
 	m := ctx.Param("module")
 	md := setting.Load(m)
 	if md == nil {
-		curd.Fail(ctx, "模块不存在")
+		Fail(ctx, "模块不存在")
 		return
 	}
-	curd.OK(ctx, md.Form)
+	OK(ctx, md.Form)
 }
 
 // @Summary 查询所有配置
@@ -77,11 +76,11 @@ func settingForm(ctx *gin.Context) {
 // @Tags setting
 // @Accept json
 // @Produce json
-// @Success 200 {object} curd.ReplyData[[]Module] 返回配置表单
+// @Success 200 {object} ReplyData[[]Module] 返回配置表单
 // @Router /setting/modules [get]
 func settingModules(ctx *gin.Context) {
 	ms := setting.Modules()
-	curd.OK(ctx, ms)
+	OK(ctx, ms)
 }
 
 func init() {

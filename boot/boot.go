@@ -3,6 +3,7 @@ package boot
 import (
 	"fmt"
 	"github.com/busy-cloud/boat/lib"
+	"strings"
 	"sync/atomic"
 	"time"
 )
@@ -40,7 +41,7 @@ func Startup() (err error) {
 			return true
 		}
 		//启动
-		err = Open(name)
+		err = Open(name, nil)
 		if err != nil {
 			return false
 		}
@@ -68,7 +69,17 @@ func Shutdown() (err error) {
 	return
 }
 
-func Open(name string) error {
+func Open(name string, parent []string) error {
+	//重复检查
+	if len(parent) > 0 {
+		fmt.Printf("[boot] open %s, depended by %s \n", name, strings.Join(parent, "->"))
+
+		last := parent[len(parent)-1]
+		if last == name {
+			return fmt.Errorf("任务循环依赖 %s", name)
+		}
+	}
+
 	task := tasks.Load(name)
 	if task == nil {
 		return fmt.Errorf("找不到任务 %s", name)
@@ -87,7 +98,8 @@ func Open(name string) error {
 		for _, n := range task.Depends {
 			t := tasks.Load(n) //没有找到的依赖项
 			if t != nil {
-				err := Open(n) //TODO 没有递归检查，可能会死循环
+				//parent = append(parent, name)
+				err := Open(n, append(parent, name)) //没有递归检查，可能会死循环
 				if err != nil {
 					return err
 				}

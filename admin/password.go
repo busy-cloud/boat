@@ -1,8 +1,8 @@
 package admin
 
 import (
+	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/config"
-	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,12 +15,12 @@ func password(ctx *gin.Context) {
 
 	var obj passwordObj
 	if err := ctx.ShouldBind(&obj); err != nil {
-		curd.Error(ctx, err)
+		api.Error(ctx, err)
 		return
 	}
 
 	if obj.Old != config.GetString(MODULE, "password") {
-		curd.Fail(ctx, "密码错误")
+		api.Fail(ctx, "密码错误")
 		return
 	}
 
@@ -29,9 +29,9 @@ func password(ctx *gin.Context) {
 
 	err := config.Store()
 	if err != nil {
-		curd.Error(ctx, err)
+		api.Error(ctx, err)
 		return
 	}
 
-	curd.OK(ctx, nil)
+	api.OK(ctx, nil)
 }

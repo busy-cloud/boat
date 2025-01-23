@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"github.com/busy-cloud/boat/curd"
+	"github.com/busy-cloud/boat/api"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -10,7 +10,7 @@ func logout(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	u := session.Get("user")
 	if u == nil {
-		curd.Fail(ctx, "未登录")
+		api.Fail(ctx, "未登录")
 		return
 	}
 
@@ -19,5 +19,5 @@ func logout(ctx *gin.Context) {
 
 	session.Clear()
 	_ = session.Save()
-	curd.OK(ctx, nil)
+	api.OK(ctx, nil)
 }

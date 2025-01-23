@@ -3,8 +3,8 @@ package admin
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/config"
-	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -26,13 +26,13 @@ func login(ctx *gin.Context) {
 
 	var obj loginObj
 	if err := ctx.ShouldBind(&obj); err != nil {
-		curd.Error(ctx, err)
+		api.Error(ctx, err)
 		return
 	}
 
 	password := config.GetString(MODULE, "password")
 	if password != obj.Password {
-		curd.Fail(ctx, "密码错误")
+		api.Fail(ctx, "密码错误")
 		return
 	}
 
@@ -42,5 +42,5 @@ func login(ctx *gin.Context) {
 	session.Set("user", "admin")
 	_ = session.Save()
 
-	curd.OK(ctx, gin.H{"id": "admin"})
+	api.OK(ctx, gin.H{"id": "admin"})
 }

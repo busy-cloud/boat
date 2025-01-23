@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/busy-cloud/boat/curd"
 	"github.com/busy-cloud/boat/web"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -27,9 +26,9 @@ func catchError(ctx *gin.Context) {
 			//debug.Stack()
 			switch err.(type) {
 			case error:
-				curd.Error(ctx, err.(error))
+				Error(ctx, err.(error))
 			case string:
-				curd.Fail(ctx, err.(string))
+				Fail(ctx, err.(string))
 			default:
 				ctx.JSON(http.StatusOK, gin.H{"error": err})
 			}
@@ -93,14 +92,12 @@ func RegisterRoutes(router *gin.RouterGroup) {
 	//OEM
 	oemRouter(router.Group("/oem"))
 
-	backupRouter(router.Group("/backup"))
-
 	//附件管理
 	//attach.Routers(router.Group("/attach"), "attach")
 
 	//TODO 报接口错误（以下代码不生效，路由好像不是树形处理）
 	router.Use(func(ctx *gin.Context) {
-		curd.Fail(ctx, "Not found")
+		Fail(ctx, "Not found")
 		ctx.Abort()
 	})
 }
