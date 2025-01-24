@@ -1,11 +1,15 @@
 package mqtt
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/busy-cloud/boat/config"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/pool"
 	paho "github.com/eclipse/paho.mqtt.golang"
+	"net/url"
+	"os"
+	"runtime"
 	"time"
 )
 
@@ -15,6 +19,22 @@ func Startup() error {
 
 	//正常流程
 	opts := paho.NewClientOptions()
+
+	//优先使用UnixSocket，速度更快
+	if runtime.GOOS == "windows" {
+		unixsock := os.TempDir() + "/boat.sock"
+		unixsock = "unix:///" + url.PathEscape(unixsock)
+		u, err := url.Parse(unixsock)
+		if err != nil {
+			return err
+		}
+		u.Path = u.Path[1:]          //删除第一个/
+		opts.Servers = []*url.URL{u} //直接添加
+	} else {
+		unixsock := "unix:///var/run/boat.sock"
+		opts.AddBroker(unixsock)
+	}
+
 	opts.AddBroker(config.GetString(MODULE, "url"))
 	opts.SetClientID(config.GetString(MODULE, "clientId"))
 	opts.SetUsername(config.GetString(MODULE, "username"))
@@ -27,22 +47,22 @@ func Startup() error {
 	opts.SetCleanSession(false)
 	opts.SetResumeSubs(true)
 
-	//加上订阅处理
-	opts.SetOnConnectHandler(func(client paho.Client) {
-		//for topic, _ := range subs {
-		//	Client.Subscribe(topic, 0, func(client paho.Client, message paho.Message) {
-		//
-		//		go func() {
-		//			//依次处理回调
-		//			if cbs, ok := subs[topic]; ok {
-		//				for _, cb := range cbs {
-		//					cb(message.Topic(), message.Payload())
-		//				}
-		//			}
-		//		}()
-		//	})
-		//}
-	})
+	//加上订阅处理(上速问题)
+	//opts.SetOnConnectHandler(func(client paho.Client) {
+	//	//for topic, _ := range subs {
+	//	//	Client.Subscribe(topic, 0, func(client paho.Client, message paho.Message) {
+	//	//
+	//	//		go func() {
+	//	//			//依次处理回调
+	//	//			if cbs, ok := subs[topic]; ok {
+	//	//				for _, cb := range cbs {
+	//	//					cb(message.Topic(), message.Payload())
+	//	//				}
+	//	//			}
+	//	//		}()
+	//	//	})
+	//	//}
+	//})
 
 	Client = paho.NewClient(opts)
 	token := Client.Connect()
@@ -56,8 +76,15 @@ func Shutdown() error {
 }
 
 func Publish(topic string, payload any) paho.Token {
-	bytes, _ := json.Marshal(payload)
-	return Client.Publish(topic, 0, false, bytes)
+	switch payload.(type) {
+	case string:
+	case []byte:
+	case bytes.Buffer:
+	default:
+		payload, _ = json.Marshal(payload)
+	}
+	//bytes, _ := json.Marshal(payload)
+	return Client.Publish(topic, 0, false, payload)
 }
 
 func Subscribe(filter string, cb func(topic string, payload []byte)) paho.Token {
@@ -67,6 +94,7 @@ func Subscribe(filter string, cb func(topic string, payload []byte)) paho.Token 
 			cb(message.Topic(), message.Payload())
 		})
 		if err != nil {
+			cb(message.Topic(), message.Payload())
 			log.Error(err)
 			return
 		}

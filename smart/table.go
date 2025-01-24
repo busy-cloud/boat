@@ -1,6 +1,6 @@
 package smart
 
-type TableColumn struct {
+type Column struct {
 	Key      string
 	Label    string
 	Keyword  bool
@@ -10,3 +10,5 @@ type TableColumn struct {
 	Ellipsis bool
 	Break    bool
 }
+
+type Table []Column

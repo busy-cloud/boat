@@ -3,6 +3,7 @@ package broker
 import (
 	"github.com/busy-cloud/boat/boot"
 	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/web"
 	mqtt "github.com/mochi-mqtt/server/v2"
 	"github.com/mochi-mqtt/server/v2/hooks/auth"
@@ -27,14 +28,24 @@ func Startup() (err error) {
 		return nil
 	}
 
+	//解析日志等级
+	loglevel := config.GetString(MODULE, "loglevel")
+	var level slog.Level
+	err = level.UnmarshalText([]byte(loglevel))
+	if err != nil {
+		level = slog.LevelWarn
+	}
+
+	//创建服务
 	opts := &mqtt.Options{
 		InlineClient: true,
 		Logger: slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			Level: slog.LevelWarn,
+			Level: level,
 		})),
 	}
 	server = mqtt.New(opts)
 
+	//匿名
 	if config.GetBool(MODULE, "anonymous") {
 		err = server.AddHook(new(auth.AllowHook), nil)
 	} else {
@@ -45,19 +56,29 @@ func Startup() (err error) {
 		return err
 	}
 
+	//启用unixsock，速度更快
+	if unixsock := config.GetString(MODULE, "unixsock"); unixsock != "" {
+		err = os.Remove(unixsock)
+		if err != nil {
+			if !os.IsNotExist(err) { //TODO 此处没有正常执行
+				//文件被占用
+				log.Fatal("Boat不能重复启动")
+			}
+		}
+
+		err = server.AddListener(listeners.NewUnixSock(listeners.Config{
+			ID:      "unix",
+			Address: unixsock,
+		}))
+		if err != nil {
+			return err
+		}
+	}
+
 	//内置监听
 	err = server.AddListener(listeners.NewTCP(listeners.Config{
 		ID:      "base",
 		Address: ":" + config.GetString(MODULE, "port"),
-	}))
-	if err != nil {
-		return err
-	}
-
-	//启用unixsock，速度更快
-	err = server.AddListener(listeners.NewUnixSock(listeners.Config{
-		ID:      "unix",
-		Address: config.GetString(MODULE, "unixsock"),
 	}))
 	if err != nil {
 		return err
