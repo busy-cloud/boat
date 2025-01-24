@@ -25,11 +25,24 @@ func (h *Hook) Provides(b byte) bool {
 }
 
 func (h *Hook) OnConnectAuthenticate(cl *mqtt.Client, pk packets.Packet) bool {
-	//cl.Net.Listener todo websocket 直接鉴权通过
+	//log.Info("MQTT incoming ", cl.Net.Listener, " ", cl.Net.Remote, " ", cl.ID)
 
-	//TODO 使用
+	//if cl.Net.Listener == "web" {
+	//	return true
+	//}
 
-	return true
+	switch cl.Net.Listener {
+	//unix websocket 直接鉴权通过
+	case "unix", "web":
+		return true
+	case "base":
+		//log.Info("[base] OnConnectAuthenticate ", cl.ID, pk.Connect.Username, pk.Connect.Password)
+		//TODO 检测用户名 和 密码
+
+		return true
+	default:
+		return false
+	}
 }
 
 func (h *Hook) OnACLCheck(cl *mqtt.Client, topic string, write bool) bool {
