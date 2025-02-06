@@ -1,6 +1,7 @@
-package api
+package apis
 
 import (
+	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/build"
 	"github.com/gin-gonic/gin"
 	mochi "github.com/mochi-mqtt/server/v2"
@@ -8,7 +9,7 @@ import (
 )
 
 func info(ctx *gin.Context) {
-	OK(ctx, gin.H{
+	api.OK(ctx, gin.H{
 		"runtime": runtime.Version(),
 		"build":   build.Build,
 		"version": build.Version,

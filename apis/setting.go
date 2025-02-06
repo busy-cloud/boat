@@ -1,6 +1,7 @@
-package api
+package apis
 
 import (
+	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/config"
 	"github.com/busy-cloud/boat/setting"
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,7 @@ import (
 // @Success 200 {object} ReplyData[map[string]any] 返回配置
 // @Router /setting/:module [get]
 func settingGet(ctx *gin.Context) {
-	OK(ctx, viper.GetStringMap(ctx.Param("module")))
+	api.OK(ctx, viper.GetStringMap(ctx.Param("module")))
 }
 
 // @Summary 修改配置
@@ -36,7 +37,7 @@ func settingSet(ctx *gin.Context) {
 	var conf map[string]any
 	err := ctx.ShouldBindJSON(&conf)
 	if err != nil {
-		Error(ctx, err)
+		api.Error(ctx, err)
 		return
 	}
 	for k, v := range conf {
@@ -45,10 +46,10 @@ func settingSet(ctx *gin.Context) {
 
 	err = config.Store()
 	if err != nil {
-		Error(ctx, err)
+		api.Error(ctx, err)
 		return
 	}
-	OK(ctx, nil)
+	api.OK(ctx, nil)
 }
 
 // @Summary 查询配置表单
@@ -64,10 +65,10 @@ func settingForm(ctx *gin.Context) {
 	m := ctx.Param("module")
 	md := setting.Load(m)
 	if md == nil {
-		Fail(ctx, "模块不存在")
+		api.Fail(ctx, "模块不存在")
 		return
 	}
-	OK(ctx, md.Form)
+	api.OK(ctx, md.Form)
 }
 
 // @Summary 查询所有配置
@@ -80,12 +81,12 @@ func settingForm(ctx *gin.Context) {
 // @Router /setting/modules [get]
 func settingModules(ctx *gin.Context) {
 	ms := setting.Modules()
-	OK(ctx, ms)
+	api.OK(ctx, ms)
 }
 
 func init() {
-	Register("POST", "setting/:module", settingSet)
-	Register("GET", "setting/:module", settingGet)
-	Register("GET", "setting/:module/form", settingForm)
-	Register("GET", "setting/modules", settingModules)
+	api.Register("POST", "setting/:module", settingSet)
+	api.Register("GET", "setting/:module", settingGet)
+	api.Register("GET", "setting/:module/form", settingForm)
+	api.Register("GET", "setting/modules", settingModules)
 }

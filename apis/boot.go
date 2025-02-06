@@ -2,7 +2,6 @@ package apis
 
 import (
 	"github.com/busy-cloud/boat/boot"
-	"github.com/busy-cloud/boat/web"
 )
 
 func init() {
@@ -14,8 +13,6 @@ func init() {
 }
 
 func Startup() error {
-
-	web.Engine.POST("api/login", login)
 
 	return nil
 }

@@ -13,9 +13,17 @@ type API struct {
 	Handlers []gin.HandlerFunc
 }
 
+// 接口
 var apis []*API
 
+// 不用鉴权的接口
+var apisUnauthorized []*API
+
 func Register(method, path string, handlers ...gin.HandlerFunc) {
+	apis = append(apis, &API{method, path, handlers})
+}
+
+func RegisterUnAuthorized(method, path string, handlers ...gin.HandlerFunc) {
 	apis = append(apis, &API{method, path, handlers})
 }
 
@@ -36,9 +44,7 @@ func catchError(ctx *gin.Context) {
 		}
 	}()
 	ctx.Next()
-
 	//TODO 内容如果为空，返回404
-
 }
 
 func mustLogin(ctx *gin.Context) {
@@ -78,8 +84,10 @@ func RegisterRoutes(router *gin.RouterGroup) {
 	//错误恢复，并返回至前端
 	router.Use(catchError)
 
-	router.GET("/oem", oem)
-	router.GET("/info", info)
+	//注册接口
+	for _, a := range apisUnauthorized {
+		router.Handle(a.Method, a.Path, a.Handlers...)
+	}
 
 	//检查 session，必须登录
 	router.Use(mustLogin)
@@ -88,9 +96,6 @@ func RegisterRoutes(router *gin.RouterGroup) {
 	for _, a := range apis {
 		router.Handle(a.Method, a.Path, a.Handlers...)
 	}
-
-	//OEM
-	oemRouter(router.Group("/oem"))
 
 	//附件管理
 	//attach.Routers(router.Group("/attach"), "attach")

@@ -6,9 +6,18 @@ import (
 )
 
 func init() {
+
+	api.RegisterUnAuthorized("GET", "oem", oem)
+	api.Register("POST", "oem/update", oemUpdate)
+	api.RegisterUnAuthorized("GET", "info", info)
+	api.RegisterUnAuthorized("POST", "login", login)
 	api.Register("GET", "me", me)
 	api.Register("GET", "logout", logout)
 	api.Register("POST", "password", password)
+
+	//router.GET("/oem", apis2.oem)
+	//router.GET("/info", apis2.info)
+	//apis2.oemRouter(router.Group("/oem"))
 }
 
 func me(ctx *gin.Context) {

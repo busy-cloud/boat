@@ -1,6 +1,7 @@
-package api
+package apis
 
 import (
+	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/config"
 	"github.com/gin-gonic/gin"
 )
@@ -19,7 +20,7 @@ type OEM struct {
 // @Success 200 {object} ReplyData[OEM] 返回信息
 // @Router /oem [get]
 func oem(ctx *gin.Context) {
-	OK(ctx, OEM{
+	api.OK(ctx, OEM{
 		Name: config.GetString("oem", "name"),
 		Logo: config.GetString("oem", "logo"),
 	})
@@ -38,10 +39,10 @@ func oemUpdate(ctx *gin.Context) {
 	var oem OEM
 	err := ctx.ShouldBindJSON(&oem)
 	if err != nil {
-		Error(ctx, err)
+		api.Error(ctx, err)
 		return
 	}
-	OK(ctx, nil)
+	api.OK(ctx, nil)
 }
 
 func oemRouter(app *gin.RouterGroup) {
