@@ -1,4 +1,4 @@
-package admin
+package apis
 
 import (
 	"crypto/md5"

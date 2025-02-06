@@ -1,8 +1,8 @@
 package main
 
 import (
-	_ "github.com/busy-cloud/boat/admin"
 	"github.com/busy-cloud/boat/api"
+	_ "github.com/busy-cloud/boat/apis"
 	"github.com/busy-cloud/boat/boot"
 	_ "github.com/busy-cloud/boat/broker"
 	"github.com/busy-cloud/boat/log"

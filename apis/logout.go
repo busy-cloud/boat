@@ -1,4 +1,4 @@
-package admin
+package apis
 
 import (
 	"github.com/busy-cloud/boat/api"
