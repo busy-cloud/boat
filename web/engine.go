@@ -11,7 +11,6 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"path"
 	"strconv"
 	"time"
 )
@@ -63,74 +62,13 @@ func Shutdown() error {
 	return Server.Shutdown(context.Background())
 }
 
-func _FileSystem2() *FileSystem {
-	var fs FileSystem
-	tm := time.Now()
-	Engine.Use(func(c *gin.Context) {
-		if c.Request.Method == http.MethodGet {
-			f, err := fs.Open(c.Request.URL.Path)
-			if err == nil {
-				defer f.Close()
-				stat, err := f.Stat()
-				if err != nil {
-					c.Next() //500错误
-					return
-				}
-				if !stat.IsDir() {
-					fn := c.Request.URL.Path
-					//fn := c.Request.URL.Path + ".html" //避免DetectContentType
-					http.ServeContent(c.Writer, c.Request, fn, tm, f)
-					return
-				}
-			}
-		}
-	})
-	return &fs
-}
-
-func _RegisterFS(fs http.FileSystem, prefix, index string) {
-	tm := time.Now()
-	Engine.Use(func(c *gin.Context) {
-		if c.Request.Method == http.MethodGet {
-			//支持前端框架的无“#”路由
-			fn := path.Join(prefix, c.Request.URL.Path) //删除查询参数
-			//fn := c.Request.URL.Path
-			f, err := fs.Open(fn)
-			if err == nil {
-				defer f.Close()
-				stat, err := f.Stat()
-				if err != nil {
-					c.Next() //500错误
-					return
-				}
-				if !stat.IsDir() {
-					http.ServeContent(c.Writer, c.Request, fn, tm, f)
-					return
-				}
-			}
-
-			//默认首页
-			fn = path.Join(prefix, index) //删除查询参数
-			f, err = fs.Open(fn)
-			if err != nil {
-				c.Next()
-				return
-			}
-			defer f.Close()
-
-			fn += ".html" //避免DetectContentType
-			http.ServeContent(c.Writer, c.Request, fn, tm, f)
-		}
-	})
-}
-
 func Serve() error {
 
 	//静态文件
 	tm := time.Now()
 	Engine.Use(func(c *gin.Context) {
 		if c.Request.Method == http.MethodGet {
-			f, err := Static.Open(c.Request.URL.Path)
+			f, err := OpenStaticFile(c.Request.URL.Path)
 			if err == nil {
 				defer f.Close()
 				stat, err := f.Stat()
@@ -162,7 +100,7 @@ func Serve() error {
 func ServeHTTP() error {
 	port := config.GetInt(MODULE, "port")
 	addr := ":" + strconv.Itoa(port)
-	log.Info("Web Server", addr)
+	log.Info("web ", port)
 	//return Engine.Run(addr)
 	Server = &http.Server{Addr: addr, Handler: Engine.Handler()}
 	return Server.ListenAndServe()

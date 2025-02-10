@@ -9,51 +9,50 @@ import (
 	"strings"
 )
 
-var Static FileSystem
-
-type fsItem struct {
+type item struct {
 	fs    http.FileSystem
 	path  string
 	base  string
 	index string
 }
 
-type FileSystem struct {
-	items []*fsItem
-	//items map[string]*fsItem
+var items []*item
+
+// Static 静态目录
+// path url路径。
+// base 基本路径（主要用于zip文件）。
+// index 默认首页，index.html 代表SPA应用。
+func Static(fs http.FileSystem, path, base, index string) {
+	items = append(items, &item{fs: fs, path: path, base: base, index: index})
 }
 
-func (f *FileSystem) Put(path string, fs http.FileSystem, base string, index string) {
-	f.items = append(f.items, &fsItem{fs: fs, path: path, base: base, index: index})
+func StaticFS(fs fs.FS, path, base, index string) {
+	items = append(items, &item{fs: http.FS(fs), path: path, base: base, index: index})
 }
 
-func (f *FileSystem) PutFS(path string, fs fs.FS, base string, index string) {
-	f.items = append(f.items, &fsItem{fs: http.FS(fs), path: path, base: base, index: index})
+func StaticDir(dir string, path, base, index string) {
+	items = append(items, &item{fs: http.Dir(dir), path: path, base: base, index: index})
 }
 
-func (f *FileSystem) PutDir(path string, dir string, base string, index string) {
-	f.items = append(f.items, &fsItem{fs: http.Dir(dir), path: path, base: base, index: index})
+func StaticZip(zip string, path, base, index string) {
+	items = append(items, &item{fs: &zipFS{filename: zip}, path: path, base: base, index: index})
 }
 
-func (f *FileSystem) PutZip(path string, zip string, base string, index string) {
-	f.items = append(f.items, &fsItem{fs: &zipFS{filename: zip}, path: path, base: base, index: index})
+func StaticEmbedFS(fs embed.FS, path, base, index string) {
+	items = append(items, &item{fs: http.FS(fs), path: path, base: base, index: index})
 }
 
-func (f *FileSystem) PutEmbedFS(path string, fs embed.FS, base string, index string) {
-	f.items = append(f.items, &fsItem{fs: http.FS(fs), path: path, base: base, index: index})
-}
-
-func (f *FileSystem) Open(name string) (file http.File, err error) {
+func OpenStaticFile(name string) (file http.File, err error) {
 	//低效
-	for _, ff := range f.items {
-		//fn := path.Join(ff.base, name)
+	for _, f := range items {
+		//fn := path.Join(fbase, name)
 		// && !strings.HasPrefix(name, "/$")
-		if ff.path == "" || ff.path != "" && strings.HasPrefix(name, ff.path) {
+		if f.path == "" || f.path != "" && strings.HasPrefix(name, f.path) {
 			//去除前缀
-			fn := path.Join(ff.base, strings.TrimPrefix(name, ff.path))
+			fn := path.Join(f.base, strings.TrimPrefix(name, f.path))
 
 			//查找文件
-			file, err = ff.fs.Open(fn)
+			file, err = f.fs.Open(fn)
 			if file != nil {
 				fi, _ := file.Stat()
 				if !fi.IsDir() {
@@ -62,8 +61,8 @@ func (f *FileSystem) Open(name string) (file http.File, err error) {
 			}
 
 			//尝试默认页
-			if ff.index != "" {
-				file, err = ff.fs.Open(path.Join(ff.base, ff.index))
+			if f.index != "" {
+				file, err = f.fs.Open(path.Join(f.base, f.index))
 				if file != nil {
 					fi, _ := file.Stat()
 					if !fi.IsDir() {
