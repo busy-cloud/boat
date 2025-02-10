@@ -6,6 +6,7 @@ import (
 	"github.com/busy-cloud/boat/boot"
 	_ "github.com/busy-cloud/boat/broker"
 	"github.com/busy-cloud/boat/log"
+	"github.com/busy-cloud/boat/plugin"
 	"github.com/busy-cloud/boat/web"
 	"github.com/spf13/viper"
 	"os"
@@ -36,6 +37,9 @@ func main() {
 
 	//注册接口
 	api.RegisterRoutes(web.Engine.Group("api"))
+
+	//执行插件代理
+	web.Engine.Use(plugin.Proxy)
 
 	//启动服务
 	err = web.Serve()
