@@ -8,7 +8,7 @@ func init() {
 	boot.Register("api", &boot.Task{
 		Startup:  Startup, //启动
 		Shutdown: nil,
-		Depends:  []string{"web", "log", "database", "apis"},
+		Depends:  []string{"web", "log", "database"},
 	})
 }
 
