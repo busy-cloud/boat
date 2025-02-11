@@ -10,8 +10,10 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"net"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -86,13 +88,18 @@ func Serve() error {
 		}
 	})
 
-	https := config.GetString(MODULE, "https")
-
-	if https == "TLS" {
+	//按不同模式启动
+	mode := config.GetString(MODULE, "mode")
+	switch strings.ToLower(mode) {
+	case "http", "tcp":
+		return ServeHTTP()
+	case "https", "tls", "ssl":
 		return ServeTLS()
-	} else if https == "LetsEncrypt" {
-		return ServeLetsEncrypt()
-	} else {
+	case "autocert", "letsencrypt":
+		return ServeAutoCert()
+	case "unix", "socket":
+		return ServeUnix()
+	default:
 		return ServeHTTP()
 	}
 }
@@ -104,4 +111,15 @@ func ServeHTTP() error {
 	//return Engine.Run(addr)
 	Server = &http.Server{Addr: addr, Handler: Engine.Handler()}
 	return Server.ListenAndServe()
+}
+
+func ServeUnix() error {
+	socket := config.GetString(MODULE, "unix_socket")
+	log.Info("web ", socket)
+	Server = &http.Server{Addr: socket, Handler: Engine.Handler()}
+	ln, err := net.Listen("unix", socket)
+	if err != nil {
+		return err
+	}
+	return Server.Serve(ln)
 }

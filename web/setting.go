@@ -23,7 +23,7 @@ func init() {
 					{Label: "LetsEncrypt", Value: "LetsEncrypt"},
 				},
 			},
-			{Key: "cert", Label: "证书cert", Type: "file"},
+			{Key: "tls_cert", Label: "证书cert", Type: "file"},
 			{Key: "Key", Label: "证书key", Type: "file"},
 			{Key: "email", Label: "E-Mail", Type: "text"},
 			{Key: "hosts", Label: "域名", Type: "tags", Default: []string{}},

@@ -16,9 +16,9 @@ func init() {
 	//绑定命令行参数
 	//_ = viper.BindPFlags(pflag.CommandLine)
 
-	//数据目录
-	viper.SetDefault("data", "data")
-	viper.SetDefault("timezone", "Asia/Shanghai")
+	//绑定环境变量
+	viper.SetEnvPrefix("boat")
+	viper.AutomaticEnv()
 }
 
 func Name(name string) {

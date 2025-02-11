@@ -14,18 +14,25 @@ type API struct {
 	Handlers []gin.HandlerFunc
 }
 
+// 不用鉴权的接口
+var apisUnauthorized []*API
+
 // 接口
 var apis []*API
 
-// 不用鉴权的接口
-var apisUnauthorized []*API
+// 管理员接口
+var apisAdmin []*API
+
+func RegisterUnAuthorized(method, path string, handlers ...gin.HandlerFunc) {
+	apisUnauthorized = append(apisUnauthorized, &API{method, path, handlers})
+}
 
 func Register(method, path string, handlers ...gin.HandlerFunc) {
 	apis = append(apis, &API{method, path, handlers})
 }
 
-func RegisterUnAuthorized(method, path string, handlers ...gin.HandlerFunc) {
-	apis = append(apis, &API{method, path, handlers})
+func RegisterAdmin(method, path string, handlers ...gin.HandlerFunc) {
+	apisAdmin = append(apisAdmin, &API{method, path, handlers})
 }
 
 func catchError(ctx *gin.Context) {
@@ -74,7 +81,8 @@ func mustLogin(ctx *gin.Context) {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			ctx.Abort()
 		} else {
-			ctx.Set("user", claims.Id) //与session统一
+			ctx.Set("user", claims.ID) //与session统一
+			ctx.Set("admin", claims.Admin)
 			ctx.Next()
 		}
 		return
@@ -84,11 +92,27 @@ func mustLogin(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	if user := session.Get("user"); user != nil {
 		ctx.Set("user", user)
+		ctx.Set("admin", session.Get("admin"))
 		ctx.Next()
 	} else {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		ctx.Abort()
 	}
+}
+
+func mustBeAdmin(ctx *gin.Context) {
+	val, has := ctx.Get("admin")
+	if !has {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "不是管理员"})
+		ctx.Abort()
+		return
+	}
+	if v, ok := val.(bool); !ok || !v {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "不是管理员"})
+		ctx.Abort()
+		return
+	}
+	ctx.Next()
 }
 
 func registerRoutes(base string) {
@@ -112,6 +136,14 @@ func registerRoutes(base string) {
 
 	//注册接口
 	for _, a := range apis {
+		router.Handle(a.Method, a.Path, a.Handlers...)
+	}
+
+	//检查 session，必须登录
+	router.Use(mustBeAdmin)
+
+	//注册接口
+	for _, a := range apisAdmin {
 		router.Handle(a.Method, a.Path, a.Handlers...)
 	}
 

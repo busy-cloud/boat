@@ -40,7 +40,8 @@ func login(ctx *gin.Context) {
 
 	//存入session
 	session.Set("user", "admin")
+	session.Set("admin", true)
 	_ = session.Save()
 
-	api.OK(ctx, gin.H{"id": "admin"})
+	api.OK(ctx, gin.H{"id": "admin", "admin": true})
 }

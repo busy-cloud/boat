@@ -8,8 +8,8 @@ import (
 )
 
 func ServeTLS() error {
-	cert := config.GetString(MODULE, "cert")
-	key := config.GetString(MODULE, "key")
+	cert := config.GetString(MODULE, "tls_cert")
+	key := config.GetString(MODULE, "tls_key")
 
 	log.Info("Web Server tls", cert, key)
 	//return Engine.RunTLS(":443", cert, key)
@@ -17,7 +17,7 @@ func ServeTLS() error {
 	return Server.ListenAndServeTLS(cert, key)
 }
 
-func ServeLetsEncrypt() error {
+func ServeAutoCert() error {
 	hosts := config.GetStringSlice(MODULE, "hosts")
 	log.Info("Web Server with LetsEncrypt", hosts)
 
