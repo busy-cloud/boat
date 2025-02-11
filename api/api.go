@@ -5,6 +5,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 type API struct {
@@ -48,15 +49,25 @@ func catchError(ctx *gin.Context) {
 }
 
 func mustLogin(ctx *gin.Context) {
+	//优先使用 query参数 token
 	token := ctx.Request.URL.Query().Get("token")
 	if token == "" {
+		//使用JWT
 		token = ctx.Request.Header.Get("Authorization")
 		if token != "" {
 			//此处需要去掉 Bearer
-			token = token[7:]
+			if tkn, has := strings.CutPrefix(token, "Bearer "); has {
+				token = tkn
+			} else {
+				//error
+				ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Bearer token required"})
+				ctx.Abort()
+				return
+			}
 		}
 	}
 
+	//验证JWT
 	if token != "" {
 		claims, err := web.JwtVerify(token)
 		if err != nil {
@@ -80,11 +91,18 @@ func mustLogin(ctx *gin.Context) {
 	}
 }
 
-func RegisterRoutes(router *gin.RouterGroup) {
+func registerRoutes(base string) {
+	//默认api开头
+	if base == "" {
+		base = "api"
+	}
+
+	router := web.Engine.Group(base)
+
 	//错误恢复，并返回至前端
 	router.Use(catchError)
 
-	//注册接口
+	//注册接口（不需要鉴权的）
 	for _, a := range apisUnauthorized {
 		router.Handle(a.Method, a.Path, a.Handlers...)
 	}

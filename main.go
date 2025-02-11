@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/busy-cloud/boat/api"
+	_ "github.com/busy-cloud/boat/api"
 	_ "github.com/busy-cloud/boat/apis"
 	"github.com/busy-cloud/boat/boot"
 	_ "github.com/busy-cloud/boat/broker"
@@ -34,9 +34,6 @@ func main() {
 		log.Error(err)
 		return
 	}
-
-	//注册接口
-	api.RegisterRoutes(web.Engine.Group("api"))
 
 	//执行插件代理
 	web.Engine.Use(plugin.Proxy)
