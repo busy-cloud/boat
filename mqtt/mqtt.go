@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+var CustomConnectionFunc paho.OpenConnectionFunc
+
 var Client paho.Client
 
 func Startup() error {
@@ -46,6 +48,9 @@ func Startup() error {
 	//重连时，恢复订阅
 	opts.SetCleanSession(false)
 	opts.SetResumeSubs(true)
+
+	//使用虚拟连接，直通broker，免进程间通讯
+	opts.SetCustomOpenConnectionFn(CustomConnectionFunc)
 
 	//加上订阅处理(上速问题)
 	//opts.SetOnConnectHandler(func(client paho.Client) {

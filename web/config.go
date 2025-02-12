@@ -21,7 +21,7 @@ func init() {
 	config.Register(MODULE, "jwt_expire", 24*30) //小时
 	config.Register(MODULE, "unix_socket", "")
 
-	//通过环境变量，强制修改监听类型和端口
+	//可以通过环境变量，强制修改监听类型和端口
 	//BOAT_WEB.MODE=unix;
 	//BOAT_WEB.UNIX_SOCKET=boat.sock
 

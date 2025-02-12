@@ -3,12 +3,17 @@ package broker
 import (
 	"github.com/busy-cloud/boat/boot"
 	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/lib"
 	"github.com/busy-cloud/boat/log"
+	client "github.com/busy-cloud/boat/mqtt"
 	"github.com/busy-cloud/boat/web"
+	paho "github.com/eclipse/paho.mqtt.golang"
 	mqtt "github.com/mochi-mqtt/server/v2"
 	"github.com/mochi-mqtt/server/v2/hooks/auth"
 	"github.com/mochi-mqtt/server/v2/listeners"
 	"log/slog"
+	"net"
+	"net/url"
 	"os"
 )
 
@@ -18,6 +23,7 @@ func init() {
 		Shutdown: Shutdown,
 		Depends:  []string{"web", "log", "database"},
 	})
+
 }
 
 var server *mqtt.Server
@@ -86,6 +92,19 @@ func Startup() (err error) {
 
 	//监听Websocket
 	web.Engine.GET("/mqtt", GinBridge)
+
+	//向mqtt客户端注册内部连接方式
+	client.CustomConnectionFunc = func(uri *url.URL, options paho.ClientOptions) (net.Conn, error) {
+		c1, c2 := lib.NewVConn()
+		//EstablishConnection会读取connect，导致拥堵
+		go func() {
+			err := server.EstablishConnection("internal", c1)
+			if err != nil {
+				log.Error(err)
+			}
+		}()
+		return c2, nil
+	}
 
 	return server.Serve()
 }
