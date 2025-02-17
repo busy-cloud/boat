@@ -20,7 +20,7 @@ func JwtGenerate(id string, admin bool) (string, error) {
 	claims.Admin = admin
 	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(JwtExpire))
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(JwtKey)
+	return token.SignedString([]byte(JwtKey))
 }
 
 func JwtVerify(str string) (*Claims, error) {
