@@ -10,9 +10,9 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	//_ "github.com/godror/godror" //Oracle
 	//_ "github.com/lib/pq" //PostgreSQL
-	_ "github.com/jackc/pgx/v5" //PostgreSQL pgx/v5
+	//_ "github.com/jackc/pgx/v5" //PostgreSQL pgx/v5
 	//_ "modernc.org/sqlite"
-	_ "github.com/mattn/go-sqlite3" //CGO版本
+	//_ "github.com/mattn/go-sqlite3" //CGO版本
 	//_ "github.com/glebarez/go-sqlite" //纯Go版本 使用ccgo翻译的，偶有文件锁问题
 )
 

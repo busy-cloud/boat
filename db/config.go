@@ -7,8 +7,8 @@ import (
 const MODULE = "database"
 
 func init() {
-	config.Register(MODULE, "type", "sqlite3")
-	config.Register(MODULE, "url", "boat.db") //"root:root@tcp(localhost:3306)/master?charset=utf8"
+	config.Register(MODULE, "type", "mysql")
+	config.Register(MODULE, "url", "root:123456@tcp(localhost:3306)/boat?charset=utf8")
 	config.Register(MODULE, "debug", false)
 	config.Register(MODULE, "sync", true)
 }
