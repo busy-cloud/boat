@@ -16,6 +16,7 @@ var JwtExpire = time.Hour * 24 * 30
 
 func JwtGenerate(id string, admin bool) (string, error) {
 	var claims Claims
+	claims.ID = id
 	claims.Admin = admin
 	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(JwtExpire))
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
