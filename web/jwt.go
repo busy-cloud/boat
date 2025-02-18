@@ -1,7 +1,6 @@
 package web
 
 import (
-	"github.com/busy-cloud/boat/config"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
@@ -26,7 +25,8 @@ func JwtGenerate(id string, admin bool) (string, error) {
 func JwtVerify(str string) (*Claims, error) {
 	var claims Claims
 	token, err := jwt.ParseWithClaims(str, &claims, func(token *jwt.Token) (any, error) {
-		return config.GetString(MODULE, "jwt_key"), nil
+		return []byte(JwtKey), nil
+		//return config.GetString(MODULE, "jwt_key"), nil
 	})
 	if token.Valid {
 		return &claims, nil
