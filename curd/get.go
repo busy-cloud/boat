@@ -7,7 +7,11 @@ import (
 
 func ApiGet[T any](fields ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id := ctx.MustGet("id")
+		id, err := GetId(ctx)
+		if err != nil {
+			Error(ctx, err)
+			return
+		}
 
 		query := db.Engine.ID(id)
 		//查询字段
@@ -33,7 +37,11 @@ func ApiGet[T any](fields ...string) gin.HandlerFunc {
 
 func ApiGetHook[T any](after func(m *T) error, fields ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id := ctx.MustGet("id")
+		id, err := GetId(ctx)
+		if err != nil {
+			Error(ctx, err)
+			return
+		}
 
 		query := db.Engine.ID(id)
 		//查询字段
@@ -67,7 +75,11 @@ func ApiGetHook[T any](after func(m *T) error, fields ...string) gin.HandlerFunc
 
 func ApiGetMapHook[T any](after func(m map[string]any) error, fields ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id := ctx.MustGet("id")
+		id, err := GetId(ctx)
+		if err != nil {
+			Error(ctx, err)
+			return
+		}
 
 		query := db.Engine.ID(id)
 		//查询字段

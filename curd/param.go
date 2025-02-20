@@ -1,6 +1,7 @@
 package curd
 
 import (
+	"errors"
 	"github.com/busy-cloud/boat/db"
 	"github.com/gin-gonic/gin"
 	"reflect"
@@ -157,6 +158,19 @@ func ParseParamStringId(ctx *gin.Context) {
 	}
 	ctx.Set("id", pid.Id)
 	ctx.Next()
+}
+
+func GetId(ctx *gin.Context) (any, error) {
+	if v, ok := ctx.Get("id"); ok {
+		return v, nil
+	}
+	if v, ok := ctx.Params.Get("id"); ok {
+		return v, nil
+	}
+	if v, ok := ctx.GetQuery("id"); ok {
+		return v, nil
+	}
+	return nil, errors.New("id not found")
 }
 
 type ParamList struct {

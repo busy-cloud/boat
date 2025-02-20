@@ -49,7 +49,12 @@ func ApiListByIdWith[T any](field string, withs []*With, fields ...string) gin.H
 		}
 
 		//添加条件
-		id := ctx.MustGet("id")
+		id, err := GetId(ctx)
+		if err != nil {
+			Error(ctx, err)
+			return
+		}
+
 		query.Where(table+"."+db.Engine.Quote(field)+"=?", id)
 
 		var datum []*T

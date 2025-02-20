@@ -7,10 +7,14 @@ import (
 
 func ApiDelete[T any]() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id := ctx.MustGet("id")
+		id, err := GetId(ctx)
+		if err != nil {
+			Error(ctx, err)
+			return
+		}
 
 		var data T
-		_, err := db.Engine.ID(id).Delete(&data)
+		_, err = db.Engine.ID(id).Delete(&data)
 		if err != nil {
 			Error(ctx, err)
 			return
@@ -22,7 +26,11 @@ func ApiDelete[T any]() gin.HandlerFunc {
 
 func ApiDeleteHook[T any](before, after func(m *T) error) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id := ctx.MustGet("id")
+		id, err := GetId(ctx)
+		if err != nil {
+			Error(ctx, err)
+			return
+		}
 
 		var data T
 		has, err := db.Engine.ID(id).Get(&data)

@@ -50,7 +50,7 @@ func Startup() error {
 		Engine.Use(gzip.Gzip(gzip.DefaultCompression)) //gzip.WithExcludedPathsRegexs([]string{".*"})
 	}
 
-	JwtKey = config.GetString(MODULE, "jwt_key")
+	JwtKey = []byte(config.GetString(MODULE, "jwt_key"))
 	JwtExpire = time.Hour * time.Duration(config.GetInt(MODULE, "jwt_expire"))
 
 	//Engine.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

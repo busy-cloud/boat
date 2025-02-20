@@ -22,7 +22,12 @@ func ApiListById[T any](field string, fields ...string) gin.HandlerFunc {
 		}
 
 		//添加条件
-		id := ctx.MustGet("id")
+		id, err := GetId(ctx)
+		if err != nil {
+			Error(ctx, err)
+			return
+		}
+
 		query.Where(field+"=?", id)
 
 		var datum []*T

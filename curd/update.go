@@ -27,7 +27,12 @@ func struct2map(s any) (m map[string]any, err error) {
 func ApiUpdate[T any](fields ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		//写入ID
-		id := ctx.MustGet("id")
+		id, err := GetId(ctx)
+		if err != nil {
+			Error(ctx, err)
+			return
+		}
+
 		var data T
 
 		var fs = fields
@@ -59,7 +64,7 @@ func ApiUpdate[T any](fields ...string) gin.HandlerFunc {
 		}
 
 		//value.Elem().FieldByName("id").Set(reflect.ValueOf(id))
-		_, err := db.Engine.ID(id).Cols(fs...).Update(&data)
+		_, err = db.Engine.ID(id).Cols(fs...).Update(&data)
 		if err != nil {
 			Error(ctx, err)
 			return
@@ -71,7 +76,12 @@ func ApiUpdate[T any](fields ...string) gin.HandlerFunc {
 
 func ApiUpdateHook[T any](before, after func(m *T) error, fields ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		id := ctx.MustGet("id")
+		id, err := GetId(ctx)
+		if err != nil {
+			Error(ctx, err)
+			return
+		}
+
 		var data T
 
 		var fs = fields
@@ -111,7 +121,7 @@ func ApiUpdateHook[T any](before, after func(m *T) error, fields ...string) gin.
 		}
 
 		//value.Elem().FieldByName("id").Set(reflect.ValueOf(id))
-		_, err := db.Engine.ID(id).Cols(fs...).Update(&data)
+		_, err = db.Engine.ID(id).Cols(fs...).Update(&data)
 		if err != nil {
 			Error(ctx, err)
 			return

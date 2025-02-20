@@ -10,7 +10,7 @@ type Claims struct {
 	Admin bool `json:"admin,omitempty"`
 }
 
-var JwtKey = "boat"
+var JwtKey = []byte("boat")
 var JwtExpire = time.Hour * 24 * 30
 
 func JwtGenerate(id string, admin bool) (string, error) {
