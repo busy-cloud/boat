@@ -15,7 +15,11 @@ import (
 
 var CustomConnectionFunc paho.OpenConnectionFunc
 
-var Client paho.Client
+var client paho.Client
+
+func Client() paho.Client {
+	return client
+}
 
 func Startup() error {
 
@@ -53,9 +57,9 @@ func Startup() error {
 	opts.SetCustomOpenConnectionFn(CustomConnectionFunc)
 
 	//加上订阅处理(上速问题)
-	//opts.SetOnConnectHandler(func(client paho.Client) {
+	//opts.SetOnConnectHandler(func(client paho.client) {
 	//	//for topic, _ := range subs {
-	//	//	Client.Subscribe(topic, 0, func(client paho.Client, message paho.Message) {
+	//	//	client.Subscribe(topic, 0, func(client paho.client, message paho.Message) {
 	//	//
 	//	//		go func() {
 	//	//			//依次处理回调
@@ -69,14 +73,14 @@ func Startup() error {
 	//	//}
 	//})
 
-	Client = paho.NewClient(opts)
-	token := Client.Connect()
+	client = paho.NewClient(opts)
+	token := client.Connect()
 	//token.Wait()
 	return token.Error()
 }
 
 func Shutdown() error {
-	Client.Disconnect(0)
+	client.Disconnect(0)
 	return nil
 }
 
@@ -89,11 +93,11 @@ func Publish(topic string, payload any) paho.Token {
 		payload, _ = json.Marshal(payload)
 	}
 	//bytes, _ := json.Marshal(payload)
-	return Client.Publish(topic, 0, false, payload)
+	return client.Publish(topic, 0, false, payload)
 }
 
 func Subscribe(filter string, cb func(topic string, payload []byte)) paho.Token {
-	return Client.Subscribe(filter, 0, func(client paho.Client, message paho.Message) {
+	return client.Subscribe(filter, 0, func(client paho.Client, message paho.Message) {
 		err := pool.Insert(func() {
 			//c(message.Topic(), &value)
 			cb(message.Topic(), message.Payload())
@@ -107,7 +111,7 @@ func Subscribe(filter string, cb func(topic string, payload []byte)) paho.Token 
 }
 
 func SubscribeStruct[T any](filter string, cb func(topic string, data *T)) paho.Token {
-	return Client.Subscribe(filter, 0, func(client paho.Client, message paho.Message) {
+	return client.Subscribe(filter, 0, func(client paho.Client, message paho.Message) {
 		err := pool.Insert(func() {
 			var value T
 			if len(message.Payload()) > 0 {
@@ -142,7 +146,7 @@ func SubscribeExt[T any](filter string, cb func(topic string, value *T)) {
 	subs[filter] = append(cbs, cb)
 
 	//初次订阅
-	Client.Subscribe(filter, 0, func(client paho.Client, message paho.Message) {
+	client.Subscribe(filter, 0, func(client paho.Client, message paho.Message) {
 		cbs := subs[filter]
 		cs := cbs.([]func(topic string, value *T))
 

@@ -91,5 +91,5 @@ func TestMqtt(t *testing.T) {
 		t.Error(e)
 	}
 
-	mqtt.Client.Disconnect(0)
+	mqtt.Client().Disconnect(0)
 }
