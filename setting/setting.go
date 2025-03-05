@@ -5,16 +5,16 @@ import (
 	"github.com/busy-cloud/boat/smart"
 )
 
-type Module struct {
+type Form struct {
 	Name   string     `json:"name"`
 	Module string     `json:"module"`
 	Title  string     `json:"title,omitempty"`
 	Form   smart.Form `json:"-"`
 }
 
-var modules lib.Map[Module]
+var modules lib.Map[Form]
 
-func Register(module string, form *Module) {
+func Register(module string, form *Form) {
 	modules.Store(module, form)
 }
 
@@ -22,13 +22,13 @@ func Unregister(module string) {
 	modules.Delete(module)
 }
 
-func Load(module string) *Module {
+func Load(module string) *Form {
 	return modules.Load(module)
 }
 
-func Modules() []*Module {
-	var ms []*Module
-	modules.Range(func(_ string, item *Module) bool {
+func Modules() []*Form {
+	var ms []*Form
+	modules.Range(func(_ string, item *Form) bool {
 		ms = append(ms, item)
 		return true
 	})

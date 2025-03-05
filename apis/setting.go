@@ -59,7 +59,7 @@ func settingSet(ctx *gin.Context) {
 // @Param module path string true "模块，web database log ..."
 // @Accept json
 // @Produce json
-// @Success 200 {object} ReplyData[Module] 返回配置表单
+// @Success 200 {object} ReplyData[Form] 返回配置表单
 // @Router /setting/:module/form [get]
 func settingForm(ctx *gin.Context) {
 	m := ctx.Param("module")
@@ -77,7 +77,7 @@ func settingForm(ctx *gin.Context) {
 // @Tags setting
 // @Accept json
 // @Produce json
-// @Success 200 {object} ReplyData[[]Module] 返回配置表单
+// @Success 200 {object} ReplyData[[]Form] 返回配置表单
 // @Router /setting/modules [get]
 func settingModules(ctx *gin.Context) {
 	ms := setting.Modules()

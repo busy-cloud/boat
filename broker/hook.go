@@ -32,6 +32,8 @@ func (h *Hook) OnConnectAuthenticate(cl *mqtt.Client, pk packets.Packet) bool {
 	//}
 
 	switch cl.Net.Listener {
+	case "internal":
+		return true
 	//unix websocket 直接鉴权通过
 	case "unix", "web":
 		return true

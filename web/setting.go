@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	setting.Register(MODULE, &setting.Module{
+	setting.Register(MODULE, &setting.Form{
 		Name:   "Web",
 		Module: MODULE,
 		Title:  "Web配置",

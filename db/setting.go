@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	setting.Register(MODULE, &setting.Module{
+	setting.Register(MODULE, &setting.Form{
 		Name:   "数据库",
 		Module: MODULE,
 		Title:  "数据库配置",

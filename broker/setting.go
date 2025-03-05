@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	setting.Register(MODULE, &setting.Module{
+	setting.Register(MODULE, &setting.Form{
 		Name:   "MQTT总线",
 		Module: MODULE,
 		Title:  "MQTT总线配置",
