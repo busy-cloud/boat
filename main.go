@@ -103,5 +103,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Info("bye")
+	println("bye")
 }

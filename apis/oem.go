@@ -7,8 +7,8 @@ import (
 )
 
 type OEM struct {
-	Name string `json:"name"`
-	Logo string `json:"logo"`
+	Name string `json:"name,omitempty"`
+	Logo string `json:"logo,omitempty"`
 }
 
 // @Summary 获取oem信息
