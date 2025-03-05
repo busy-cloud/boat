@@ -3,6 +3,7 @@ package boot
 import (
 	"fmt"
 	"github.com/busy-cloud/boat/lib"
+	"go.uber.org/multierr"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -18,6 +19,7 @@ type Task struct {
 }
 
 var tasks lib.Map[Task]
+var queue []string
 
 func Load(name string) *Task {
 	return tasks.Load(name)
@@ -56,13 +58,22 @@ func Startup() (err error) {
 func Shutdown() (err error) {
 	start := time.Now().UnixMilli()
 
-	tasks.Range(func(name string, task *Task) bool {
-		err = Close(name)
-		if err != nil {
-			//return false
-		}
-		return true
-	})
+	//逆序关闭
+	for i := len(queue) - 1; i >= 0; i-- {
+		task := queue[i]
+		println("close task", task)
+		err = multierr.Append(err, Close(task))
+	}
+
+	//tasks.Range(func(name string, task *Task) bool {
+	//	err = Close(name)
+	//	if err != nil {
+	//		//return false
+	//		//log.Error(err)
+	//		println(err.Error())
+	//	}
+	//	return true
+	//})
 
 	end := time.Now().UnixMilli()
 	fmt.Printf("[boot] shutdown %dms\n", end-start)
@@ -72,11 +83,11 @@ func Shutdown() (err error) {
 func Open(name string, parent []string) error {
 	//重复检查
 	if len(parent) > 0 {
-		fmt.Printf("[boot] open %s, depended by %s \n", name, strings.Join(parent, "->"))
+		//fmt.Printf("[boot] open %s, depended by %s \n", name, strings.Join(parent, "->"))
 
 		last := parent[len(parent)-1]
 		if last == name {
-			return fmt.Errorf("任务循环依赖 %s", name)
+			return fmt.Errorf("任务循环依赖 %s", strings.Join(parent, "->"))
 		}
 	}
 
@@ -113,6 +124,7 @@ func Open(name string, parent []string) error {
 
 	//正式启动
 	err := task.Startup()
+	queue = append(queue, name)
 
 	//计算时间
 	end := time.Now().UnixMilli()

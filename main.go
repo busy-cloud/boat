@@ -8,10 +8,12 @@ import (
 	"github.com/busy-cloud/boat/plugin"
 	"github.com/busy-cloud/boat/service"
 	"github.com/busy-cloud/boat/web"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func Startup() error {
@@ -32,35 +34,74 @@ func Startup() error {
 		err := web.Serve()
 		if err != nil {
 			//安全退出
-			_ = boot.Shutdown()
+			//_ = boot.Shutdown()
 			log.Error(err)
 		}
 	}()
+
+	log.Info("main started")
 
 	return nil
 }
 
 func Shutdown() error {
+	log.Info("main shutdown")
+
 	return boot.Shutdown()
 }
 
 func main() {
+	help := pflag.BoolP("help", "h", false, "show help")
+	install := pflag.BoolP("install", "i", false, "install as service")
+	uninstall := pflag.BoolP("uninstall", "u", false, "uninstall service")
 
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	go func() {
-		<-sigs
-
-		_ = boot.Shutdown()
-	}()
+	pflag.Parse()
+	if *help {
+		pflag.PrintDefaults()
+		return
+	}
 
 	err := service.Register(Startup, Shutdown)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	if *install {
+		log.Info("install service")
+		err = service.Install()
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else if *uninstall {
+		log.Info("uninstall service")
+		err = service.Uninstall()
+		if err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		s := <-sigs
+		log.Info("signal received ", s)
+
+		//_ = boot.Shutdown()
+		err := service.Stop()
+		if err != nil {
+			log.Error(err)
+		}
+
+		time.AfterFunc(10*time.Second, func() {
+			os.Exit(0)
+		})
+	}()
+
 	err = service.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	log.Info("bye")
 }

@@ -43,6 +43,10 @@ func Start() error {
 	return svc.Start()
 }
 
+func Stop() error {
+	return svc.Stop()
+}
+
 func Restart() error {
 	return svc.Restart()
 }
@@ -52,7 +56,7 @@ func Install() error {
 }
 
 func Uninstall() error {
-	return svc.Install()
+	return svc.Uninstall()
 }
 
 func Error(v ...interface{}) {
@@ -94,16 +98,11 @@ type Program struct {
 }
 
 func (p *Program) Start(s service.Service) error {
-	go p.run()
-	return nil
+	return p.Startup()
 }
 
 func (p *Program) Stop(s service.Service) error {
-	err := p.Shutdown()
-	if err != nil {
-		_ = logger.Error(err)
-	}
-	return nil
+	return p.Shutdown()
 }
 
 func (p *Program) run() {
