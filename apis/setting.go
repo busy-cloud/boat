@@ -68,7 +68,7 @@ func settingForm(ctx *gin.Context) {
 		api.Fail(ctx, "模块不存在")
 		return
 	}
-	api.OK(ctx, md.Form)
+	api.OK(ctx, md)
 }
 
 // @Summary 查询所有配置
@@ -88,5 +88,5 @@ func init() {
 	api.Register("POST", "setting/:module", settingSet)
 	api.Register("GET", "setting/:module", settingGet)
 	api.Register("GET", "setting/:module/form", settingForm)
-	api.Register("GET", "setting/modules", settingModules)
+	api.Register("GET", "settings", settingModules)
 }

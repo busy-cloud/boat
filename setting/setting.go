@@ -8,8 +8,8 @@ import (
 type Form struct {
 	Name   string     `json:"name"`
 	Module string     `json:"module"`
-	Title  string     `json:"title,omitempty"`
-	Form   smart.Form `json:"-"`
+	Title  string     `json:"title"`
+	Form   smart.Form `json:"form,omitempty"`
 }
 
 var modules lib.Map[Form]
@@ -26,10 +26,12 @@ func Load(module string) *Form {
 	return modules.Load(module)
 }
 
-func Modules() []*Form {
-	var ms []*Form
+func Modules() []Form {
+	var ms []Form
 	modules.Range(func(_ string, item *Form) bool {
-		ms = append(ms, item)
+		m := *item
+		m.Form = nil
+		ms = append(ms, m)
 		return true
 	})
 	return ms

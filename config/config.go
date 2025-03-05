@@ -30,7 +30,8 @@ func Load() error {
 }
 
 func Store() error {
-	return viper.SafeWriteConfig()
+	return viper.WriteConfig()
+	//return viper.SafeWriteConfig()
 }
 
 func Register(module string, key string, value any) {
