@@ -6,10 +6,10 @@ import (
 )
 
 type Form struct {
-	//Name   string `json:"name"`
-	Module string `json:"module"`
-
 	smart.Form
+
+	Title  string `json:"title"`
+	Module string `json:"module"`
 }
 
 var modules lib.Map[Form]

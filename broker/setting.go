@@ -7,9 +7,9 @@ import (
 
 func init() {
 	setting.Register(MODULE, &setting.Form{
+		Title:  "MQTT总线配置",
 		Module: MODULE,
 		Form: smart.Form{
-			Title: "MQTT总线配置",
 			Fields: []smart.Field{
 				{Key: "enable", Label: "启用", Type: "switch", Required: true},
 				{Key: "anonymous", Label: "支持匿名访问", Type: "switch"},

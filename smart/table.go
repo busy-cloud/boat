@@ -46,7 +46,6 @@ type Button struct {
 }
 
 type Table struct {
-	Title     string     `json:"title,omitempty"`
 	Buttons   []Button   `json:"buttons,omitempty"`
 	Columns   []Column   `json:"columns,omitempty"`
 	Operators []Operator `json:"operators,omitempty"`

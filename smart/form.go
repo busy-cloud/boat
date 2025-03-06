@@ -64,7 +64,6 @@ type Field struct {
 }
 
 type Form struct {
-	Title  string  `json:"title,omitempty"`
 	Fields []Field `json:"fields"`
 }
 

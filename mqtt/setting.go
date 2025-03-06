@@ -7,9 +7,9 @@ import (
 
 func init() {
 	setting.Register(MODULE, &setting.Form{
+		Title:  "MQTT连接配置",
 		Module: MODULE,
 		Form: smart.Form{
-			Title: "MQTT连接配置",
 			Fields: []smart.Field{
 				{Key: "url", Label: "地址", Type: "text", Required: true, Default: ""},
 				{Key: "clientid", Label: "客户端ID", Type: "text"},

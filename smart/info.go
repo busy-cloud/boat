@@ -10,6 +10,5 @@ type Item struct {
 }
 
 type Info struct {
-	Title string `json:"title,omitempty"`
 	Items []Item `json:"items"`
 }

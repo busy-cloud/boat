@@ -8,8 +8,8 @@ import (
 func init() {
 	setting.Register(MODULE, &setting.Form{
 		Module: MODULE,
+		Title:  "日志配置",
 		Form: smart.Form{
-			Title: "日志配置",
 			Fields: []smart.Field{
 				{Key: "caller", Label: "显示函数调用", Type: "switch"},
 				{Key: "text", Label: "使用文本格式", Type: "switch"},

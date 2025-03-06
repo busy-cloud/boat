@@ -7,9 +7,9 @@ import (
 
 func init() {
 	setting.Register(MODULE, &setting.Form{
+		Title:  "Web配置",
 		Module: MODULE,
 		Form: smart.Form{
-			Title: "Web配置",
 			Fields: []smart.Field{
 				{Key: "port", Label: "端口", Type: "number", Required: true, Default: 8080, Min: 1, Max: 65535},
 				{Key: "debug", Label: "调试模式", Type: "switch"},

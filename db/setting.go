@@ -7,9 +7,9 @@ import (
 
 func init() {
 	setting.Register(MODULE, &setting.Form{
+		Title:  "数据库配置",
 		Module: MODULE,
 		Form: smart.Form{
-			Title: "数据库配置",
 			Fields: []smart.Field{
 				{
 					Key: "Type", Label: "数据库类型", Type: "select", Default: "sqlite3",

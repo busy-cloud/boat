@@ -2,38 +2,23 @@ package page
 
 import "github.com/busy-cloud/boat/smart"
 
-type Table struct {
-	smart.Table
-
-	SearchUrl  string `json:"search_url,omitempty"`
-	SearchFunc string `json:"search_func ,omitempty"`
-}
-
-type Form struct {
-	smart.Form
-
-	LoadUrl    string `json:"load_url,omitempty"`
-	LoadFunc   string `json:"load_func ,omitempty"`
-	SubmitUrl  string `json:"submit_url,omitempty"`
-	SubmitFunc string `json:"submit_func ,omitempty"`
-}
-
-type Info struct {
-	smart.Info
-
-	LoadUrl  string `json:"load_url,omitempty"`
-	LoadFunc string `json:"load_func ,omitempty"`
-}
-
-type Content struct {
+type Page struct {
+	Id       string `json:"id"`
+	Title    string `json:"title"`
 	Template string `json:"template"` //模板 table form info chart
 
-	*Table
-	*Form
-	*Info
-}
+	*smart.Table
+	*smart.Form
+	*smart.Info
 
-type Page struct {
-	Name    string    `json:"name"`
-	Content []Content `json:"content"` //只能是以下的类型
+	SearchUrl  string         `json:"search_url,omitempty"` //查询URL
+	SearchFunc string         `json:"search_func ,omitempty"`
+	LoadUrl    string         `json:"load_url,omitempty"` //加载URL
+	LoadFunc   string         `json:"load_func ,omitempty"`
+	SubmitUrl  string         `json:"submit_url,omitempty"` //提交URL
+	SubmitFunc string         `json:"submit_func ,omitempty"`
+	Params     map[string]any `json:"params,omitempty"` //页面参数
+	ParamsFunc string         `json:"params_func,omitempty"`
+
+	Children []*Page `json:"children,omitempty"`
 }
