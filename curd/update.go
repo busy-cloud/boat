@@ -2,6 +2,7 @@ package curd
 
 import (
 	"encoding/json"
+	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/db"
 	"github.com/gin-gonic/gin"
 )
@@ -29,7 +30,7 @@ func ApiUpdate[T any](fields ...string) gin.HandlerFunc {
 		//写入ID
 		id, err := GetId(ctx)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -39,7 +40,7 @@ func ApiUpdate[T any](fields ...string) gin.HandlerFunc {
 		if len(fs) > 0 {
 			err := ctx.ShouldBindJSON(&data)
 			if err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		} else {
@@ -47,13 +48,13 @@ func ApiUpdate[T any](fields ...string) gin.HandlerFunc {
 			var model map[string]any
 			err := ctx.ShouldBindJSON(&model)
 			if err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 
 			err = map2struct(model, &data)
 			if err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 
@@ -64,13 +65,13 @@ func ApiUpdate[T any](fields ...string) gin.HandlerFunc {
 		}
 
 		//value.Elem().FieldByName("id").Set(reflect.ValueOf(id))
-		_, err = db.Engine.ID(id).Cols(fs...).Update(&data)
+		_, err = db.Engine().ID(id).Cols(fs...).Update(&data)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
-		OK(ctx, &data)
+		api.OK(ctx, &data)
 	}
 }
 
@@ -78,7 +79,7 @@ func ApiUpdateHook[T any](before, after func(m *T) error, fields ...string) gin.
 	return func(ctx *gin.Context) {
 		id, err := GetId(ctx)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -88,7 +89,7 @@ func ApiUpdateHook[T any](before, after func(m *T) error, fields ...string) gin.
 		if len(fs) > 0 {
 			err := ctx.ShouldBindJSON(&data)
 			if err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 
@@ -97,13 +98,13 @@ func ApiUpdateHook[T any](before, after func(m *T) error, fields ...string) gin.
 			var model map[string]any
 			err := ctx.ShouldBindJSON(&model)
 			if err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 
 			err = map2struct(model, &data)
 			if err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 
@@ -115,25 +116,25 @@ func ApiUpdateHook[T any](before, after func(m *T) error, fields ...string) gin.
 
 		if before != nil {
 			if err := before(&data); err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
 		//value.Elem().FieldByName("id").Set(reflect.ValueOf(id))
-		_, err = db.Engine.ID(id).Cols(fs...).Update(&data)
+		_, err = db.Engine().ID(id).Cols(fs...).Update(&data)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		if after != nil {
 			if err := after(&data); err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
-		OK(ctx, &data)
+		api.OK(ctx, &data)
 	}
 }

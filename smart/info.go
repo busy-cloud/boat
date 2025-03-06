@@ -6,7 +6,10 @@ type Item struct {
 	Label   string         `json:"label"`
 	Span    int            `json:"span,omitempty"`
 	Options map[string]any `json:"options,omitempty"`
-	Default any            `json:"default,omitempty"`
+	Action  *Action        `json:"action,omitempty"`
 }
 
-type Info []Item
+type Info struct {
+	Title string `json:"title,omitempty"`
+	Items []Item `json:"items"`
+}

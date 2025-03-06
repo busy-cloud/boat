@@ -1,6 +1,7 @@
 package curd
 
 import (
+	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/db"
 	"github.com/gin-gonic/gin"
 	"strings"
@@ -20,11 +21,11 @@ func ApiSearchWith[T any](withs []*With, fields ...string) gin.HandlerFunc {
 		var body ParamSearch
 		err := ctx.ShouldBindJSON(&body)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
-		table := db.Engine.TableName(new(T))
+		table := db.Engine().TableName(new(T))
 		query := body.ToJoinQuery(table)
 
 		var s []string
@@ -49,7 +50,7 @@ func ApiSearchWith[T any](withs []*With, fields ...string) gin.HandlerFunc {
 		//补充字段
 		for i, j := range withs {
 			name := string(rune('a' + i))
-			s = append(s, name+"."+db.Engine.Quote(j.Field)+" as "+db.Engine.Quote(j.As))
+			s = append(s, name+"."+db.Engine().Quote(j.Field)+" as "+db.Engine().Quote(j.As))
 		}
 		query.Select(strings.Join(s, ","))
 
@@ -57,18 +58,18 @@ func ApiSearchWith[T any](withs []*With, fields ...string) gin.HandlerFunc {
 		for i, j := range withs {
 			name := string(rune('a' + i))
 			query.Join("LEFT OUTER", []string{j.Table, name},
-				name+"."+db.Engine.Quote(j.ForeignField)+"="+
-					table+"."+db.Engine.Quote(j.LocaleField))
+				name+"."+db.Engine().Quote(j.ForeignField)+"="+
+					table+"."+db.Engine().Quote(j.LocaleField))
 		}
 
 		cnt, err := query.FindAndCount(&datum)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		//OK(ctx, cs)
-		List(ctx, datum, cnt)
+		api.List(ctx, datum, cnt)
 	}
 }
 
@@ -78,11 +79,11 @@ func ApiSearchWithHook[T any](join []*With, after func(datum []*T) error, fields
 		var body ParamSearch
 		err := ctx.ShouldBindJSON(&body)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
-		table := db.Engine.TableName(new(T))
+		table := db.Engine().TableName(new(T))
 		query := body.ToJoinQuery(table)
 
 		var s []string
@@ -108,7 +109,7 @@ func ApiSearchWithHook[T any](join []*With, after func(datum []*T) error, fields
 		//补充字段
 		for i, j := range join {
 			name := string(rune('a' + i))
-			s = append(s, name+"."+db.Engine.Quote(j.Field)+" as "+db.Engine.Quote(j.As))
+			s = append(s, name+"."+db.Engine().Quote(j.Field)+" as "+db.Engine().Quote(j.As))
 		}
 		query.Select(strings.Join(s, ","))
 
@@ -116,25 +117,25 @@ func ApiSearchWithHook[T any](join []*With, after func(datum []*T) error, fields
 		for i, j := range join {
 			name := string(rune('a' + i))
 			query.Join("LEFT OUTER", []string{j.Table, name},
-				name+"."+db.Engine.Quote(j.ForeignField)+"="+
-					table+"."+db.Engine.Quote(j.LocaleField))
+				name+"."+db.Engine().Quote(j.ForeignField)+"="+
+					table+"."+db.Engine().Quote(j.LocaleField))
 		}
 
 		cnt, err := query.FindAndCount(&datum)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		//后续处理
 		if after != nil {
 			if err := after(datum); err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
 		//OK(ctx, cs)
-		List(ctx, datum, cnt)
+		api.List(ctx, datum, cnt)
 	}
 }

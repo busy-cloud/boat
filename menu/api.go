@@ -2,7 +2,6 @@ package menu
 
 import (
 	"github.com/busy-cloud/boat/api"
-	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,5 +28,5 @@ func menuGet(ctx *gin.Context) {
 		ms = append(ms, m)
 		return true
 	})
-	curd.OK(ctx, ms)
+	api.OK(ctx, ms)
 }

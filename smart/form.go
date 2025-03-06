@@ -63,7 +63,10 @@ type Field struct {
 	Upload string `json:"upload,omitempty"` //上传路径
 }
 
-type Form []Field
+type Form struct {
+	Title  string  `json:"title,omitempty"`
+	Fields []Field `json:"fields"`
+}
 
 type AutoOption struct {
 	Label string `json:"label"`

@@ -1,6 +1,7 @@
 package curd
 
 import (
+	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/db"
 	"github.com/gin-gonic/gin"
 )
@@ -9,18 +10,18 @@ func ApiDelete[T any]() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := GetId(ctx)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		var data T
-		_, err = db.Engine.ID(id).Delete(&data)
+		_, err = db.Engine().ID(id).Delete(&data)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
-		OK(ctx, nil)
+		api.OK(ctx, nil)
 	}
 }
 
@@ -28,41 +29,41 @@ func ApiDeleteHook[T any](before, after func(m *T) error) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := GetId(ctx)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		var data T
-		has, err := db.Engine.ID(id).Get(&data)
+		has, err := db.Engine().ID(id).Get(&data)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 		if !has {
-			Fail(ctx, "找不到记录")
+			api.Fail(ctx, "找不到记录")
 			return
 		}
 
 		if before != nil {
 			if err := before(&data); err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
-		_, err = db.Engine.ID(id).Delete(&data)
+		_, err = db.Engine().ID(id).Delete(&data)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		if after != nil {
 			if err := after(&data); err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
-		OK(ctx, nil)
+		api.OK(ctx, nil)
 	}
 }

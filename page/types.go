@@ -5,32 +5,35 @@ import "github.com/busy-cloud/boat/smart"
 type Table struct {
 	smart.Table
 
-	SearchUrl    string `json:"search_url,omitempty"`
-	SearchAction string `json:"search_action,omitempty"`
+	SearchUrl  string `json:"search_url,omitempty"`
+	SearchFunc string `json:"search_func ,omitempty"`
 }
 
 type Form struct {
 	smart.Form
 
-	DataUrl      string `json:"data_url,omitempty"`
-	DataAction   string `json:"data_action,omitempty"`
-	SubmitUrl    string `json:"submit_url,omitempty"`
-	SubmitAction string `json:"submit_action,omitempty"`
+	LoadUrl    string `json:"load_url,omitempty"`
+	LoadFunc   string `json:"load_func ,omitempty"`
+	SubmitUrl  string `json:"submit_url,omitempty"`
+	SubmitFunc string `json:"submit_func ,omitempty"`
 }
 
 type Info struct {
 	smart.Info
 
-	DataUrl    string `json:"data_url,omitempty"`
-	DataAction string `json:"data_action,omitempty"`
+	LoadUrl  string `json:"load_url,omitempty"`
+	LoadFunc string `json:"load_func ,omitempty"`
+}
+
+type Content struct {
+	Template string `json:"template"` //模板 table form info chart
+
+	*Table
+	*Form
+	*Info
 }
 
 type Page struct {
-	Name     string `json:"name"`
-	Title    string `json:"title"`
-	Template string `json:"template"`
-	Content  any    `json:"content"` //只能是以下的类型
-	//Table    *Table `json:"table,omitempty"`
-	//Form     *Form  `json:"form,omitempty"`
-	//Info     *Info  `json:"info,omitempty"`
+	Name    string    `json:"name"`
+	Content []Content `json:"content"` //只能是以下的类型
 }

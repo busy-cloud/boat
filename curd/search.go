@@ -1,6 +1,7 @@
 package curd
 
 import (
+	"github.com/busy-cloud/boat/api"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,7 +11,7 @@ func ApiSearch[T any](fields ...string) gin.HandlerFunc {
 		var body ParamSearch
 		err := ctx.ShouldBindJSON(&body)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -27,12 +28,12 @@ func ApiSearch[T any](fields ...string) gin.HandlerFunc {
 		var datum []*T
 		cnt, err := query.FindAndCount(&datum)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		//OK(ctx, cs)
-		List(ctx, datum, cnt)
+		api.List(ctx, datum, cnt)
 	}
 }
 
@@ -42,7 +43,7 @@ func ApiSearchHook[T any](after func(datum []*T) error, fields ...string) gin.Ha
 		var body ParamSearch
 		err := ctx.ShouldBindJSON(&body)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -59,19 +60,19 @@ func ApiSearchHook[T any](after func(datum []*T) error, fields ...string) gin.Ha
 		var datum []*T
 		cnt, err := query.FindAndCount(&datum)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		if after != nil {
 			if err := after(datum); err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
 		//OK(ctx, cs)
-		List(ctx, datum, cnt)
+		api.List(ctx, datum, cnt)
 	}
 }
 
@@ -81,7 +82,7 @@ func ApiSearchMapHook[T any](after func(datum []map[string]any) error, fields ..
 		var body ParamSearch
 		err := ctx.ShouldBindJSON(&body)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -99,7 +100,7 @@ func ApiSearchMapHook[T any](after func(datum []map[string]any) error, fields ..
 		var datum []map[string]any
 		cnt, err := query.Table(data).FindAndCount(&datum)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -107,12 +108,12 @@ func ApiSearchMapHook[T any](after func(datum []map[string]any) error, fields ..
 		if after != nil {
 			err := after(datum)
 			if err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
 		//OK(ctx, cs)
-		List(ctx, datum, cnt)
+		api.List(ctx, datum, cnt)
 	}
 }

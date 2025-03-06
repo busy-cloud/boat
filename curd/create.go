@@ -1,6 +1,7 @@
 package curd
 
 import (
+	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/db"
 	"github.com/gin-gonic/gin"
 )
@@ -10,17 +11,17 @@ func ApiCreate[T any]() gin.HandlerFunc {
 		var data T
 		err := ctx.ShouldBindJSON(&data)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
-		_, err = db.Engine.InsertOne(&data)
+		_, err = db.Engine().InsertOne(&data)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
-		OK(ctx, &data)
+		api.OK(ctx, &data)
 	}
 }
 
@@ -29,30 +30,30 @@ func ApiCreateHook[T any](before, after func(m *T) error) gin.HandlerFunc {
 		var data T
 		err := ctx.ShouldBindJSON(&data)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		if before != nil {
 			if err := before(&data); err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
-		_, err = db.Engine.InsertOne(&data)
+		_, err = db.Engine().InsertOne(&data)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		if after != nil {
 			if err := after(&data); err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
-		OK(ctx, &data)
+		api.OK(ctx, &data)
 	}
 }

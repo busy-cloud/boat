@@ -1,6 +1,7 @@
 package curd
 
 import (
+	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/db"
 	"github.com/gin-gonic/gin"
 	"strings"
@@ -19,7 +20,7 @@ func ApiSearchJoinWith[T any](joins []*Join, withs []*With, fields ...string) gi
 		var body ParamSearch
 		err := ctx.ShouldBindJSON(&body)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -30,7 +31,7 @@ func ApiSearchJoinWith[T any](joins []*Join, withs []*With, fields ...string) gi
 			delete(body.Filters, j.Arg)
 		}
 
-		table := db.Engine.TableName(new(T))
+		table := db.Engine().TableName(new(T))
 		query := body.ToJoinQuery(table)
 
 		var s []string
@@ -55,7 +56,7 @@ func ApiSearchJoinWith[T any](joins []*Join, withs []*With, fields ...string) gi
 		//补充字段
 		for i, j := range withs {
 			name := "w" + string(rune('a'+i))
-			s = append(s, name+"."+db.Engine.Quote(j.Field)+" as "+db.Engine.Quote(j.As))
+			s = append(s, name+"."+db.Engine().Quote(j.Field)+" as "+db.Engine().Quote(j.As))
 		}
 		query.Select(strings.Join(s, ","))
 
@@ -63,26 +64,26 @@ func ApiSearchJoinWith[T any](joins []*Join, withs []*With, fields ...string) gi
 		for i, j := range joins {
 			name := "j" + string(rune('a'+i))
 			query.Join("INNER", []string{j.Table, name},
-				name+"."+db.Engine.Quote(j.ForeignField)+"="+
-					table+"."+db.Engine.Quote(j.LocaleField)).
-				And(db.Engine.Quote(j.Field)+"=?", joinValues[j.Arg])
+				name+"."+db.Engine().Quote(j.ForeignField)+"="+
+					table+"."+db.Engine().Quote(j.LocaleField)).
+				And(db.Engine().Quote(j.Field)+"=?", joinValues[j.Arg])
 		}
 
 		//左外连接查询
 		for i, j := range withs {
 			name := "w" + string(rune('a'+i))
 			query.Join("LEFT OUTER", []string{j.Table, name},
-				name+"."+db.Engine.Quote(j.ForeignField)+"="+
-					table+"."+db.Engine.Quote(j.LocaleField))
+				name+"."+db.Engine().Quote(j.ForeignField)+"="+
+					table+"."+db.Engine().Quote(j.LocaleField))
 		}
 
 		cnt, err := query.FindAndCount(&datum)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		//OK(ctx, cs)
-		List(ctx, datum, cnt)
+		api.List(ctx, datum, cnt)
 	}
 }

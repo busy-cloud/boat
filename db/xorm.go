@@ -16,23 +16,27 @@ import (
 	//_ "github.com/glebarez/go-sqlite" //纯Go版本 使用ccgo翻译的，偶有文件锁问题
 )
 
-var Engine *xorm.Engine
+var engine *xorm.Engine
+
+func Engine() *xorm.Engine {
+	return engine
+}
 
 func Startup() error {
 	var err error
-	Engine, err = xorm.NewEngine(config.GetString(MODULE, "type"), config.GetString(MODULE, "url"))
+	engine, err = xorm.NewEngine(config.GetString(MODULE, "type"), config.GetString(MODULE, "url"))
 	if err != nil {
 		return err
 	}
 
 	if config.GetBool(MODULE, "debug") {
-		Engine.ShowSQL(true)
-		Engine.SetLogLevel(log.LOG_DEBUG)
+		engine.ShowSQL(true)
+		engine.SetLogLevel(log.LOG_DEBUG)
 	}
 	//Engine.SetLogger(logrus.StandardLogger())
 
 	if config.GetBool(MODULE, "sync") {
-		err = Engine.Sync2(models...)
+		err = engine.Sync(models...)
 		if err != nil {
 			return err
 		}
@@ -42,5 +46,5 @@ func Startup() error {
 }
 
 func Shutdown() error {
-	return Engine.Close()
+	return engine.Close()
 }

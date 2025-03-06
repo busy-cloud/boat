@@ -1,6 +1,7 @@
 package curd
 
 import (
+	"github.com/busy-cloud/boat/api"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,7 +11,7 @@ func ApiCount[T any]() gin.HandlerFunc {
 		var body ParamSearch
 		err := ctx.ShouldBindJSON(&body)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -19,10 +20,10 @@ func ApiCount[T any]() gin.HandlerFunc {
 		var d T
 		cnt, err := query.Count(d)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
-		OK(ctx, cnt)
+		api.OK(ctx, cnt)
 	}
 }

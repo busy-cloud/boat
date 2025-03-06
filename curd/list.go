@@ -1,13 +1,16 @@
 package curd
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/busy-cloud/boat/api"
+	"github.com/gin-gonic/gin"
+)
 
 func ApiListById[T any](field string, fields ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var body ParamList
 		err := ctx.ShouldBindQuery(&body)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -24,7 +27,7 @@ func ApiListById[T any](field string, fields ...string) gin.HandlerFunc {
 		//添加条件
 		id, err := GetId(ctx)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -33,12 +36,12 @@ func ApiListById[T any](field string, fields ...string) gin.HandlerFunc {
 		var datum []*T
 		cnt, err := query.FindAndCount(&datum)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		//OK(ctx, cs)
-		List(ctx, datum, cnt)
+		api.List(ctx, datum, cnt)
 	}
 }
 
@@ -47,7 +50,7 @@ func ApiList[T any](fields ...string) gin.HandlerFunc {
 		var body ParamList
 		err := ctx.ShouldBindQuery(&body)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -64,12 +67,12 @@ func ApiList[T any](fields ...string) gin.HandlerFunc {
 		var datum []*T
 		cnt, err := query.FindAndCount(&datum)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		//OK(ctx, cs)
-		List(ctx, datum, cnt)
+		api.List(ctx, datum, cnt)
 	}
 }
 
@@ -78,7 +81,7 @@ func ApiListHook[T any](after func(datum []*T) error, fields ...string) gin.Hand
 		var body ParamList
 		err := ctx.ShouldBindQuery(&body)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -95,19 +98,19 @@ func ApiListHook[T any](after func(datum []*T) error, fields ...string) gin.Hand
 		var datum []*T
 		cnt, err := query.FindAndCount(&datum)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		if after != nil {
 			if err := after(datum); err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
 		//OK(ctx, cs)
-		List(ctx, datum, cnt)
+		api.List(ctx, datum, cnt)
 	}
 }
 
@@ -116,7 +119,7 @@ func ApiListMapHook[T any](after func(datum []map[string]any) error, fields ...s
 		var body ParamList
 		err := ctx.ShouldBindQuery(&body)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
@@ -134,18 +137,18 @@ func ApiListMapHook[T any](after func(datum []map[string]any) error, fields ...s
 		var datum []map[string]any
 		cnt, err := query.Table(data).FindAndCount(&datum)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
 		if after != nil {
 			if err := after(datum); err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
 		//OK(ctx, cs)
-		List(ctx, datum, cnt)
+		api.List(ctx, datum, cnt)
 	}
 }

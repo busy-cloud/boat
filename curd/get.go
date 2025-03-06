@@ -1,6 +1,7 @@
 package curd
 
 import (
+	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/db"
 	"github.com/gin-gonic/gin"
 )
@@ -9,11 +10,11 @@ func ApiGet[T any](fields ...string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id, err := GetId(ctx)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
-		query := db.Engine.ID(id)
+		query := db.Engine().ID(id)
 		//查询字段
 		fs := ctx.QueryArray("field")
 		if len(fs) > 0 {
@@ -25,13 +26,13 @@ func ApiGet[T any](fields ...string) gin.HandlerFunc {
 		var data T
 		has, err := query.Get(&data)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		} else if !has {
-			Fail(ctx, "记录不存在")
+			api.Fail(ctx, "记录不存在")
 			return
 		}
-		OK(ctx, &data)
+		api.OK(ctx, &data)
 	}
 }
 
@@ -39,11 +40,11 @@ func ApiGetHook[T any](after func(m *T) error, fields ...string) gin.HandlerFunc
 	return func(ctx *gin.Context) {
 		id, err := GetId(ctx)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
-		query := db.Engine.ID(id)
+		query := db.Engine().ID(id)
 		//查询字段
 		fs := ctx.QueryArray("field")
 		if len(fs) > 0 {
@@ -55,21 +56,21 @@ func ApiGetHook[T any](after func(m *T) error, fields ...string) gin.HandlerFunc
 		var data T
 		has, err := query.Get(&data)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		} else if !has {
-			Fail(ctx, "记录不存在")
+			api.Fail(ctx, "记录不存在")
 			return
 		}
 
 		if after != nil {
 			if err := after(&data); err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
-		OK(ctx, &data)
+		api.OK(ctx, &data)
 	}
 }
 
@@ -77,11 +78,11 @@ func ApiGetMapHook[T any](after func(m map[string]any) error, fields ...string) 
 	return func(ctx *gin.Context) {
 		id, err := GetId(ctx)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		}
 
-		query := db.Engine.ID(id)
+		query := db.Engine().ID(id)
 		//查询字段
 		fs := ctx.QueryArray("field")
 		if len(fs) > 0 {
@@ -94,20 +95,20 @@ func ApiGetMapHook[T any](after func(m map[string]any) error, fields ...string) 
 		var m map[string]any
 		has, err := query.Table(data).Get(&m)
 		if err != nil {
-			Error(ctx, err)
+			api.Error(ctx, err)
 			return
 		} else if !has {
-			Fail(ctx, "记录不存在")
+			api.Fail(ctx, "记录不存在")
 			return
 		}
 
 		if after != nil {
 			if err := after(m); err != nil {
-				Error(ctx, err)
+				api.Error(ctx, err)
 				return
 			}
 		}
 
-		OK(ctx, &data)
+		api.OK(ctx, &data)
 	}
 }

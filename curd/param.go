@@ -2,6 +2,7 @@ package curd
 
 import (
 	"errors"
+	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/db"
 	"github.com/gin-gonic/gin"
 	"reflect"
@@ -21,14 +22,14 @@ func (body *ParamSearch) ToQuery() *xorm.Session {
 	if body.Limit < 1 {
 		body.Limit = 20
 	}
-	op := db.Engine.Limit(body.Limit, body.Skip)
+	op := db.Engine().Limit(body.Limit, body.Skip)
 
 	for k, v := range body.Filters {
 		if reflect.TypeOf(v).Kind() == reflect.Slice {
 			ll := len(v.([]interface{}))
 			if ll > 0 {
 				if ll == 1 {
-					k = db.Engine.Quote(k)
+					k = db.Engine().Quote(k)
 					op.And(k+"=?", v.([]interface{})[0])
 				} else {
 					op.In(k, v)
@@ -36,7 +37,7 @@ func (body *ParamSearch) ToQuery() *xorm.Session {
 			}
 		} else {
 			if v != nil {
-				k = db.Engine.Quote(k)
+				k = db.Engine().Quote(k)
 				op.And(k+"=?", v)
 			}
 		}
@@ -47,7 +48,7 @@ func (body *ParamSearch) ToQuery() *xorm.Session {
 		likes := make([]builder.Cond, 0)
 		for k, v := range body.Keywords {
 			if v != "" {
-				k = db.Engine.Quote(k)
+				k = db.Engine().Quote(k)
 				//op.And(k+" like ?", "%"+v+"%")
 				likes = append(likes, &builder.Like{k, v})
 			}
@@ -59,7 +60,7 @@ func (body *ParamSearch) ToQuery() *xorm.Session {
 
 	if len(body.Sort) > 0 {
 		for k, v := range body.Sort {
-			k = db.Engine.Quote(k)
+			k = db.Engine().Quote(k)
 			if v > 0 {
 				op.Asc(k)
 			} else {
@@ -77,14 +78,14 @@ func (body *ParamSearch) ToJoinQuery(table string) *xorm.Session {
 	if body.Limit < 1 {
 		body.Limit = 20
 	}
-	op := db.Engine.Limit(body.Limit, body.Skip)
+	op := db.Engine().Limit(body.Limit, body.Skip)
 
 	for k, v := range body.Filters {
 		if reflect.TypeOf(v).Kind() == reflect.Slice {
 			ll := len(v.([]interface{}))
 			if ll > 0 {
 				if ll == 1 {
-					k = db.Engine.Quote(k)
+					k = db.Engine().Quote(k)
 					op.And(table+"."+k+"=?", v.([]interface{})[0])
 				} else {
 					op.In(table+"."+k, v)
@@ -92,7 +93,7 @@ func (body *ParamSearch) ToJoinQuery(table string) *xorm.Session {
 			}
 		} else {
 			if v != nil {
-				k = db.Engine.Quote(k)
+				k = db.Engine().Quote(k)
 				op.And(table+"."+k+"=?", v)
 			}
 		}
@@ -104,7 +105,7 @@ func (body *ParamSearch) ToJoinQuery(table string) *xorm.Session {
 		for k, v := range body.Keywords {
 			if v != "" {
 				//op.And(k+" like ?", "%"+v+"%")
-				k = db.Engine.Quote(k)
+				k = db.Engine().Quote(k)
 				likes = append(likes, &builder.Like{table + "." + k, v})
 			}
 		}
@@ -115,7 +116,7 @@ func (body *ParamSearch) ToJoinQuery(table string) *xorm.Session {
 
 	if len(body.Sort) > 0 {
 		for k, v := range body.Sort {
-			k = db.Engine.Quote(k)
+			k = db.Engine().Quote(k)
 			if v > 0 {
 				op.Asc(table + "." + k)
 			} else {
@@ -140,7 +141,7 @@ func ParseParamId(ctx *gin.Context) {
 	var pid ParamId
 	err := ctx.ShouldBindUri(&pid)
 	if err != nil {
-		Error(ctx, err)
+		api.Error(ctx, err)
 		ctx.Abort()
 		return
 	}
@@ -152,7 +153,7 @@ func ParseParamStringId(ctx *gin.Context) {
 	var pid ParamStringId
 	err := ctx.ShouldBindUri(&pid)
 	if err != nil {
-		Error(ctx, err)
+		api.Error(ctx, err)
 		ctx.Abort()
 		return
 	}
@@ -193,7 +194,7 @@ func (body *ParamList) ToQuery() *xorm.Session {
 	if body.Limit < 1 {
 		body.Limit = 20
 	}
-	op := db.Engine.Limit(body.Limit, body.Skip)
+	op := db.Engine().Limit(body.Limit, body.Skip)
 	op.Desc("created")
 	return op
 }
