@@ -2,6 +2,11 @@ package page
 
 import "github.com/busy-cloud/boat/smart"
 
+type Chart struct {
+	Type    string         `json:"type"`
+	Options map[string]any `json:"options"`
+}
+
 type Page struct {
 	Id       string `json:"id"`
 	Title    string `json:"title"`
@@ -10,6 +15,7 @@ type Page struct {
 	*smart.Table
 	*smart.Form
 	*smart.Info
+	*Chart
 
 	SearchUrl  string         `json:"search_url,omitempty"` //查询URL
 	SearchFunc string         `json:"search_func ,omitempty"`
