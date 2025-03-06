@@ -14,10 +14,10 @@ func Proxy(ctx *gin.Context) {
 				if p.proxy == nil {
 					//执行反向代理
 					p.proxy.ServeHTTP(ctx.Writer, ctx.Request)
+					return
 				}
 			}
 		}
-		return
 	}
 
 	//插件 接口
@@ -27,11 +27,11 @@ func Proxy(ctx *gin.Context) {
 				if p.proxy == nil {
 					//执行反向代理
 					p.proxy.ServeHTTP(ctx.Writer, ctx.Request)
+					return
 				}
-
 			}
 		}
-		return
 	}
 
+	ctx.Next()
 }

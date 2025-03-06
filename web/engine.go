@@ -71,21 +71,29 @@ func Serve() error {
 	Engine.Use(func(c *gin.Context) {
 		if c.Request.Method == http.MethodGet {
 			f, err := OpenStaticFile(c.Request.URL.Path)
-			if err == nil {
-				defer f.Close()
-				stat, err := f.Stat()
-				if err != nil {
-					c.Next() //500错误
-					return
-				}
-				if !stat.IsDir() {
-					fn := c.Request.URL.Path
-					//fn := c.Request.URL.Path + ".html" //避免DetectContentType
-					http.ServeContent(c.Writer, c.Request, fn, tm, f)
-					return
-				}
+			if err != nil {
+				c.Next()
+				return
 			}
+
+			defer f.Close()
+			stat, err := f.Stat()
+			if err != nil {
+				//c.Next() //500错误
+				c.Error(err)
+				return
+			}
+
+			if !stat.IsDir() {
+				fn := c.Request.URL.Path
+				//fn := c.Request.URL.Path + ".html" //避免DetectContentType
+				http.ServeContent(c.Writer, c.Request, fn, tm, f)
+				return
+			}
+
 		}
+
+		c.Next()
 	})
 
 	//按不同模式启动
