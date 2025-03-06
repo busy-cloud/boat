@@ -11,8 +11,8 @@ type Menu struct {
 }
 
 type Item struct {
-	Name       string         `json:"name,omitempty"`
-	Type       string         `json:"type,omitempty"` //route 路由, web 嵌入web, window 独立弹出
+	Name string `json:"name,omitempty"`
+	//Type       string         `json:"type,omitempty"` //route 路由, web 嵌入web, window 独立弹出
 	Url        string         `json:"url,omitempty"`
 	Query      map[string]any `json:"query,omitempty"`
 	Privileges []string       `json:"privileges,omitempty"`
