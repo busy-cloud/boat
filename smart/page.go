@@ -1,24 +1,15 @@
-package page
-
-import "github.com/busy-cloud/boat/smart"
-
-type Chart struct {
-	Type    string           `json:"type"`
-	Options map[string]any   `json:"options,omitempty"`
-	Legend  bool             `json:"legend,omitempty"`
-	Tooltip bool             `json:"tooltip,omitempty"`
-	Time    bool             `json:"time,omitempty"`
-	Radar   map[string]int64 `json:"radar,omitempty"`
-}
+package smart
 
 type Page struct {
 	Id       string `json:"id"`
 	Title    string `json:"title"`
 	Template string `json:"template"` //模板 table form info chart
 
-	*smart.Table
-	*smart.Form
-	*smart.Info
+	*Toolbar
+
+	*Table
+	*Form
+	*Info
 	*Chart
 
 	SearchUrl  string         `json:"search_url,omitempty"` //查询URL

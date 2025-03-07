@@ -6,6 +6,7 @@ import (
 	_ "github.com/busy-cloud/boat/broker"
 	"github.com/busy-cloud/boat/log"
 	_ "github.com/busy-cloud/boat/menu"
+	"github.com/busy-cloud/boat/page"
 	_ "github.com/busy-cloud/boat/page"
 	"github.com/busy-cloud/boat/plugin"
 	"github.com/busy-cloud/boat/service"
@@ -30,6 +31,9 @@ func Startup() error {
 
 	//执行插件代理
 	web.Engine.Use(plugin.Proxy)
+
+	//模板页面
+	page.Dir("pages", "")
 
 	//异步执行，避免堵塞
 	go func() {

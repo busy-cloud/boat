@@ -1,13 +1,34 @@
 package page
 
-import "github.com/busy-cloud/boat/lib"
+import (
+	"embed"
+	"github.com/busy-cloud/boat/web"
+	"io/fs"
+	"net/http"
+)
 
-var pages lib.Map[Page]
+var pages web.Store
 
-func Register(name string, menu *Page) {
-	pages.Store(name, menu)
+func Web(fs http.FileSystem, base string) {
+	pages.Web(fs, base)
 }
 
-func Unregister(name string) {
-	pages.Delete(name)
+func FS(fs fs.FS, base string) {
+	pages.FS(fs, base)
+}
+
+func Dir(dir string, base string) {
+	pages.Dir(dir, base)
+}
+
+func Zip(zip string, base string) {
+	pages.Zip(zip, base)
+}
+
+func EmbedFS(fs embed.FS, base string) {
+	pages.EmbedFS(fs, base)
+}
+
+func Open(name string) (file http.File, err error) {
+	return pages.Open(name)
 }

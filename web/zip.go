@@ -6,26 +6,26 @@ import (
 	"net/http"
 )
 
-type zipFile struct {
+type ZipFile struct {
 	fs.File
 }
 
-func (f *zipFile) Seek(offset int64, whence int) (int64, error) {
+func (f *ZipFile) Seek(offset int64, whence int) (int64, error) {
 	return 0, nil
 }
 
-func (f *zipFile) Readdir(count int) ([]fs.FileInfo, error) {
+func (f *ZipFile) Readdir(count int) ([]fs.FileInfo, error) {
 	return nil, nil
 }
 
-type zipFS struct {
-	filename string
+type ZipFS struct {
+	Filename string
 	r        *zip.ReadCloser
 }
 
-func (z *zipFS) Open(name string) (file http.File, err error) {
+func (z *ZipFS) Open(name string) (file http.File, err error) {
 	if z.r == nil {
-		z.r, err = zip.OpenReader(z.filename)
+		z.r, err = zip.OpenReader(z.Filename)
 		if err != nil {
 			return
 		}
@@ -37,5 +37,5 @@ func (z *zipFS) Open(name string) (file http.File, err error) {
 		return nil, err
 	}
 
-	return &zipFile{File: f}, nil
+	return &ZipFile{File: f}, nil
 }

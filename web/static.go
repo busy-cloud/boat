@@ -10,36 +10,36 @@ import (
 )
 
 type item struct {
-	fs    http.FileSystem
-	path  string
-	base  string
-	index string
+	fs     http.FileSystem
+	path   string
+	prefix string
+	index  string
 }
 
 var items []*item
 
 // Static 静态目录
 // path url路径。
-// base 基本路径（主要用于zip文件）。
+// prefix 基本路径（主要用于zip文件）。
 // index 默认首页，index.html 代表SPA应用。
-func Static(fs http.FileSystem, path, base, index string) {
-	items = append(items, &item{fs: fs, path: path, base: base, index: index})
+func Static(fs http.FileSystem, path, prefix, index string) {
+	items = append(items, &item{fs: fs, path: path, prefix: prefix, index: index})
 }
 
-func StaticFS(fs fs.FS, path, base, index string) {
-	items = append(items, &item{fs: http.FS(fs), path: path, base: base, index: index})
+func StaticFS(fs fs.FS, path, prefix, index string) {
+	items = append(items, &item{fs: http.FS(fs), path: path, prefix: prefix, index: index})
 }
 
-func StaticDir(dir string, path, base, index string) {
-	items = append(items, &item{fs: http.Dir(dir), path: path, base: base, index: index})
+func StaticDir(dir string, path, prefix, index string) {
+	items = append(items, &item{fs: http.Dir(dir), path: path, prefix: prefix, index: index})
 }
 
-func StaticZip(zip string, path, base, index string) {
-	items = append(items, &item{fs: &zipFS{filename: zip}, path: path, base: base, index: index})
+func StaticZip(zip string, path, prefix, index string) {
+	items = append(items, &item{fs: &ZipFS{Filename: zip}, path: path, prefix: prefix, index: index})
 }
 
-func StaticEmbedFS(fs embed.FS, path, base, index string) {
-	items = append(items, &item{fs: http.FS(fs), path: path, base: base, index: index})
+func StaticEmbedFS(fs embed.FS, path, prefix, index string) {
+	items = append(items, &item{fs: http.FS(fs), path: path, prefix: prefix, index: index})
 }
 
 func OpenStaticFile(name string) (file http.File, err error) {
@@ -49,7 +49,7 @@ func OpenStaticFile(name string) (file http.File, err error) {
 		// && !strings.HasPrefix(name, "/$")
 		if f.path == "" || f.path != "" && strings.HasPrefix(name, f.path) {
 			//去除前缀
-			fn := path.Join(f.base, strings.TrimPrefix(name, f.path))
+			fn := path.Join(f.prefix, strings.TrimPrefix(name, f.path))
 
 			//查找文件
 			file, err = f.fs.Open(fn)
@@ -62,7 +62,7 @@ func OpenStaticFile(name string) (file http.File, err error) {
 
 			//尝试默认页
 			if f.index != "" {
-				file, err = f.fs.Open(path.Join(f.base, f.index))
+				file, err = f.fs.Open(path.Join(f.prefix, f.index))
 				if file != nil {
 					fi, _ := file.Stat()
 					if !fi.IsDir() {
