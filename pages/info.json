@@ -1,4 +1,5 @@
 {
+  "title":"详情测试",
   "template": "info",
   "toolbar": [
     {
@@ -31,6 +32,15 @@
       "action": {
         "type": "link",
         "link": "admin/page/form"
+      }
+    },
+    {
+      "type": "button",
+      "label": "测试dialog",
+      "action": {
+        "type": "dialog",
+        "page": "form",
+        "params_func": "return data"
       }
     }
   ],

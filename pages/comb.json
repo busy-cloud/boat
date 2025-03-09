@@ -1,13 +1,13 @@
 {
-  "title":"表格测试",
-  "template": "table",
+  "title":"详情测试",
+  "template": "info",
   "toolbar": [
     {
       "type": "button",
-      "label": "测试刷新",
+      "label": "测试alert",
       "action": {
         "type": "script",
-        "script": "this.refresh()"
+        "script": "alert(0)"
       }
     },
     {
@@ -33,9 +33,18 @@
         "type": "link",
         "link": "admin/page/form"
       }
+    },
+    {
+      "type": "button",
+      "label": "测试dialog",
+      "action": {
+        "type": "dialog",
+        "page": "form",
+        "params_func": "return data"
+      }
     }
   ],
-  "columns": [
+  "items": [
     {
       "key": "id",
       "label": "ID"
@@ -50,13 +59,13 @@
       "date": true
     }
   ],
-  "operators": [
-    {
-      "label": "删除",
-      "action": {
-        "type": "script",
-        "script": "alert(0)"
-      }
-    }
+  "children": [
+    {"template": "info", "title":  "abc", "span": 8},
+    {"template": "info", "title":  "abcd", "span": 8},
+    {"template": "info", "title":  "ab c", "span": 8},
+    {"template": "info", "title":  "abc d", "span": 12},
+    {"template": "info", "title":  "a b c", "span": 12},
+    {"template": "info", "title":  "ab cd", "span": 24},
+    {"template": "info", "title":  "a bcde", "span": 24}
   ]
 }

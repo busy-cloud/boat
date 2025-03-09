@@ -1,6 +1,6 @@
 {
-  "title":"表单测试",
-  "template": "form",
+  "title":"地图测试",
+  "template": "amap",
   "toolbar": [
     {
       "type": "button",
@@ -27,21 +27,5 @@
       }
     }
   ],
-  "fields": [
-    {
-      "key": "id",
-      "label": "ID",
-      "type": "text"
-    },
-    {
-      "key": "name",
-      "label": "姓名",
-      "type": "text"
-    },
-    {
-      "key": "created",
-      "label": "日期",
-      "type": "datetime"
-    }
-  ]
+  "city": "无锡"
 }
