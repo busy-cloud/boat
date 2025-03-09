@@ -7,8 +7,7 @@ import (
 	"github.com/busy-cloud/boat/log"
 	_ "github.com/busy-cloud/boat/menu"
 	"github.com/busy-cloud/boat/page"
-	_ "github.com/busy-cloud/boat/page"
-	"github.com/busy-cloud/boat/plugin"
+	_ "github.com/busy-cloud/boat/plugin"
 	"github.com/busy-cloud/boat/service"
 	_ "github.com/busy-cloud/boat/setting"
 	"github.com/busy-cloud/boat/web"
@@ -28,9 +27,6 @@ func Startup() error {
 		//_ = boot.Shutdown()
 		return err
 	}
-
-	//执行插件代理
-	web.Engine.Use(plugin.Proxy)
 
 	//模板页面
 	page.Dir("pages", "")

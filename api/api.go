@@ -121,7 +121,7 @@ func registerRoutes(base string) {
 		base = "api"
 	}
 
-	router := web.Engine.Group(base)
+	router := web.Engine().Group(base)
 
 	//错误恢复，并返回至前端
 	router.Use(catchError)

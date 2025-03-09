@@ -12,8 +12,8 @@ func ServeTLS() error {
 	key := config.GetString(MODULE, "tls_key")
 
 	log.Info("Web Server tls", cert, key)
-	//return Engine.RunTLS(":443", cert, key)
-	Server = &http.Server{Addr: ":https", Handler: Engine.Handler()}
+	//return engine.RunTLS(":443", cert, key)
+	Server = &http.Server{Addr: ":https", Handler: engine.Handler()}
 	return Server.ListenAndServeTLS(cert, key)
 }
 
@@ -28,11 +28,11 @@ func ServeAutoCert() error {
 		HostPolicy: autocert.HostWhitelist(hosts...),
 		Prompt:     autocert.AcceptTOS,
 	}
-	//return autotls.RunWithManager(Engine, manager)
+	//return autotls.RunWithManager(engine, manager)
 
 	Server = &http.Server{
 		Addr:      ":https",
-		Handler:   Engine.Handler(),
+		Handler:   engine.Handler(),
 		TLSConfig: manager.TLSConfig(),
 	}
 

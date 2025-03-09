@@ -17,8 +17,12 @@ import (
 	"time"
 )
 
-var Engine *gin.Engine
+var engine *gin.Engine
 var Server *http.Server
+
+func Engine() *gin.Engine {
+	return engine
+}
 
 func Startup() error {
 	if !config.GetBool(MODULE, "debug") {
@@ -26,12 +30,12 @@ func Startup() error {
 	}
 
 	//GIN初始化
-	//Engine := gin.Default()
-	Engine = gin.New()
-	Engine.Use(gin.Recovery())
+	//engine := gin.Default()
+	engine = gin.New()
+	engine.Use(gin.Recovery())
 
 	if config.GetBool(MODULE, "debug") {
-		Engine.Use(gin.Logger())
+		engine.Use(gin.Logger())
 	}
 
 	//跨域问题
@@ -39,21 +43,21 @@ func Startup() error {
 		c := cors.DefaultConfig()
 		c.AllowAllOrigins = true
 		c.AllowCredentials = true
-		Engine.Use(cors.New(c))
+		engine.Use(cors.New(c))
 	}
 
 	//启用session
-	Engine.Use(sessions.Sessions("boat", cookie.NewStore([]byte("boat"))))
+	engine.Use(sessions.Sessions("boat", cookie.NewStore([]byte("boat"))))
 
 	//开启压缩
 	if config.GetBool(MODULE, "gzip") {
-		Engine.Use(gzip.Gzip(gzip.DefaultCompression)) //gzip.WithExcludedPathsRegexs([]string{".*"})
+		engine.Use(gzip.Gzip(gzip.DefaultCompression)) //gzip.WithExcludedPathsRegexs([]string{".*"})
 	}
 
 	JwtKey = []byte(config.GetString(MODULE, "jwt_key"))
 	JwtExpire = time.Hour * time.Duration(config.GetInt(MODULE, "jwt_expire"))
 
-	//Engine.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	//engine.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return nil
 }
 
@@ -68,7 +72,7 @@ func Serve() error {
 
 	//静态文件
 	tm := time.Now()
-	Engine.Use(func(c *gin.Context) {
+	engine.Use(func(c *gin.Context) {
 		if c.Request.Method == http.MethodGet {
 			f, err := OpenStaticFile(c.Request.URL.Path)
 			if err != nil {
@@ -116,15 +120,15 @@ func ServeHTTP() error {
 	port := config.GetInt(MODULE, "port")
 	addr := ":" + strconv.Itoa(port)
 	log.Info("web ", port)
-	//return Engine.Run(addr)
-	Server = &http.Server{Addr: addr, Handler: Engine.Handler()}
+	//return engine.Run(addr)
+	Server = &http.Server{Addr: addr, Handler: engine.Handler()}
 	return Server.ListenAndServe()
 }
 
 func ServeUnix() error {
 	socket := config.GetString(MODULE, "unix_socket")
 	log.Info("web ", socket)
-	Server = &http.Server{Addr: socket, Handler: Engine.Handler()}
+	Server = &http.Server{Addr: socket, Handler: engine.Handler()}
 	ln, err := net.Listen("unix", socket)
 	if err != nil {
 		return err

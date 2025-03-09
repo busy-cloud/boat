@@ -91,7 +91,7 @@ func Startup() (err error) {
 	}
 
 	//监听Websocket
-	web.Engine.GET("/mqtt", GinBridge)
+	web.Engine().GET("/mqtt", GinBridge)
 
 	//向mqtt客户端注册内部连接方式
 	client.CustomConnectionFunc = func(uri *url.URL, options paho.ClientOptions) (net.Conn, error) {
