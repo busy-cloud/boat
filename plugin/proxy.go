@@ -13,6 +13,7 @@ func Proxy(ctx *gin.Context) {
 			if p := plugins.Load(app); p != nil {
 				if p.proxy == nil {
 					//执行反向代理
+					ctx.Abort()
 					p.proxy.ServeHTTP(ctx.Writer, ctx.Request)
 					return
 				}
@@ -26,6 +27,7 @@ func Proxy(ctx *gin.Context) {
 			if p := plugins.Load(app); p != nil {
 				if p.proxy == nil {
 					//执行反向代理
+					ctx.Abort()
 					p.proxy.ServeHTTP(ctx.Writer, ctx.Request)
 					return
 				}

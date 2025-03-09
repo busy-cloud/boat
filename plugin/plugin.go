@@ -3,10 +3,12 @@ package plugin
 import (
 	"context"
 	"github.com/busy-cloud/boat/lib"
+	"github.com/busy-cloud/boat/log"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 )
 
 var plugins lib.Map[Plugin]
@@ -17,13 +19,42 @@ type Plugin struct {
 	Description  string   `json:"description,omitempty"`
 	Type         string   `json:"type,omitempty"`
 	Executable   string   `json:"executable,omitempty"`
+	Arguments    []string `json:"arguments,omitempty"`
 	Dependencies []string `json:"dependencies,omitempty"`
 	Author       string   `json:"author,omitempty"`
 	Email        string   `json:"email,omitempty"`
 	Homepage     string   `json:"homepage,omitempty"`
 	Socket       string   `json:"socket,omitempty"`
 
-	proxy *httputil.ReverseProxy
+	dir     string
+	proxy   *httputil.ReverseProxy
+	process *os.Process
+}
+
+func (p *Plugin) Open() (err error) {
+
+	if p.Executable != "" {
+		attr := &os.ProcAttr{}
+		attr.Dir = p.dir
+		attr.Env = os.Environ()
+		//TODO 可以添加环境变量
+		attr.Files = append(attr.Files, os.Stdin, os.Stdout, os.Stderr)
+		p.process, err = os.StartProcess(p.Executable, p.Arguments, attr)
+		if err != nil {
+			return err
+		}
+		log.Info("plugin start ", p.Name, ", pid ", p.process.Pid)
+	}
+
+	return nil
+}
+
+func (p *Plugin) Close() error {
+	if p.process != nil {
+		return p.process.Kill()
+		//return p.process.Release()
+	}
+	return nil
 }
 
 func (p *Plugin) Proxy() {
