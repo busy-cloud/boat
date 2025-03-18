@@ -1,0 +1,10 @@
+{
+  "name": "控制台",
+  "icon": "dash",
+  "items": [
+    {
+      "name": "仪表盘",
+      "url": "admin/page/dash"
+    }
+  ]
+}

@@ -3,6 +3,7 @@ package plugin
 import (
 	"encoding/json"
 	"github.com/busy-cloud/boat/boot"
+	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/web"
 	"go.uber.org/multierr"
 	"os"
@@ -24,7 +25,11 @@ func Startup() error {
 	}
 
 	plugins.Range(func(name string, plugin *Plugin) bool {
-		err = multierr.Append(err, plugin.Open())
+		//err = multierr.Append(err, plugin.Open())
+		err := plugin.Open()
+		if err != nil {
+			log.Error(err)
+		}
 		return true
 	})
 

@@ -5,6 +5,7 @@ import (
 	"github.com/busy-cloud/boat/boot"
 	_ "github.com/busy-cloud/boat/broker"
 	"github.com/busy-cloud/boat/log"
+	"github.com/busy-cloud/boat/menu"
 	_ "github.com/busy-cloud/boat/menu"
 	"github.com/busy-cloud/boat/page"
 	_ "github.com/busy-cloud/boat/plugin"
@@ -30,6 +31,8 @@ func Startup() error {
 
 	//模板页面
 	page.Dir("pages", "")
+
+	menu.Load("menus")
 
 	//异步执行，避免堵塞
 	go func() {

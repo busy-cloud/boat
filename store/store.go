@@ -1,4 +1,4 @@
-package web
+package store
 
 import (
 	"embed"
@@ -9,7 +9,7 @@ import (
 )
 
 type storeItem struct {
-	fs   http.FileSystem
+	fs   FS
 	base string
 }
 
@@ -17,16 +17,8 @@ type Store struct {
 	items []*storeItem
 }
 
-func (s *Store) Web(fs http.FileSystem, base string) {
-	s.items = append(s.items, &storeItem{fs: fs, base: base})
-}
-
-func (s *Store) FS(fs fs.FS, base string) {
-	s.items = append(s.items, &storeItem{fs: http.FS(fs), base: base})
-}
-
 func (s *Store) Dir(dir string, base string) {
-	s.items = append(s.items, &storeItem{fs: http.Dir(dir), base: base})
+	s.items = append(s.items, &storeItem{fs: Dir(dir), base: base})
 }
 
 func (s *Store) Zip(zip string, base string) {
@@ -34,10 +26,18 @@ func (s *Store) Zip(zip string, base string) {
 }
 
 func (s *Store) EmbedFS(fs embed.FS, base string) {
-	s.items = append(s.items, &storeItem{fs: http.FS(fs), base: base})
+	s.items = append(s.items, &storeItem{fs: fs, base: base})
 }
 
-func (s *Store) Open(name string) (file http.File, err error) {
+func (s *Store) Open(name string) (http.File, error) {
+	file, err := s.OpenFile(name)
+	if err != nil {
+		return nil, err
+	}
+	return HttpFile(file), err
+}
+
+func (s *Store) OpenFile(name string) (file fs.File, err error) {
 	//低效
 	for _, f := range s.items {
 		fn := path.Join(f.base, name)

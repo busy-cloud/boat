@@ -7,7 +7,7 @@ import (
 
 func init() {
 	//api.Register("GET", "/menu/:domain", menuGet)
-	api.Register("GET", "/menus", menuGet)
+	api.Register("GET", "menus", menuGet)
 }
 
 // @Summary 获取菜单

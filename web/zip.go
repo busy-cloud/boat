@@ -31,7 +31,7 @@ func (z *ZipFS) Open(name string) (file http.File, err error) {
 		}
 	}
 
-	//打开压缩包内的文件
+	// 打开压缩包内的文件
 	f, err := z.r.Open(name)
 	if err != nil {
 		return nil, err

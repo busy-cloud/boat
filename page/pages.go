@@ -2,20 +2,11 @@ package page
 
 import (
 	"embed"
-	"github.com/busy-cloud/boat/web"
-	"io/fs"
+	"github.com/busy-cloud/boat/store"
 	"net/http"
 )
 
-var pages web.Store
-
-func Web(fs http.FileSystem, base string) {
-	pages.Web(fs, base)
-}
-
-func FS(fs fs.FS, base string) {
-	pages.FS(fs, base)
-}
+var pages store.Store
 
 func Dir(dir string, base string) {
 	pages.Dir(dir, base)
@@ -29,6 +20,7 @@ func EmbedFS(fs embed.FS, base string) {
 	pages.EmbedFS(fs, base)
 }
 
-func Open(name string) (file http.File, err error) {
-	return pages.Open(name)
+func Open(name string) (http.File, error) {
+	file, err := pages.Open(name)
+	return store.HttpFile(file), err
 }

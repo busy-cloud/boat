@@ -1,0 +1,14 @@
+{
+  "name": "测试页面",
+  "icon": "line-chart",
+  "items": [
+    {
+      "name": "地图",
+      "url": "admin/page/amap"
+    },
+    {
+      "name": "组合",
+      "url": "admin/page/comb"
+    }
+  ]
+}

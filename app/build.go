@@ -1,6 +1,9 @@
-package build
+package app
 
-import "fmt"
+import (
+	"fmt"
+	"runtime"
+)
 
 var (
 	Version string
@@ -12,6 +15,7 @@ func Print() {
 	fmt.Printf("Version: %s \n", Version)
 	fmt.Printf("Build Time: %s \n", Build)
 	fmt.Printf("Git Hash: %s \n", GitHash)
+	fmt.Printf("Runtime: %s \n", runtime.Version())
 }
 
 func Println() {
