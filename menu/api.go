@@ -23,10 +23,17 @@ func menuGet(ctx *gin.Context) {
 	//domain := ctx.Param("domain")
 
 	//TODO 获取用户权限，过滤菜单
-	var ms []*Menu
+
+	ms, err := Load()
+	if err != nil {
+		api.Error(ctx, err)
+		return
+	}
+
 	menus.Range(func(name string, m *Menu) bool {
 		ms = append(ms, m)
 		return true
 	})
+
 	api.OK(ctx, ms)
 }

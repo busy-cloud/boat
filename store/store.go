@@ -8,25 +8,37 @@ import (
 	"path"
 )
 
-type storeItem struct {
+type Item struct {
 	fs   FS
 	base string
 }
 
+func (s *Item) Open(name string) (fs.File, error) {
+	return s.fs.Open(path.Join(s.base, name))
+}
+
+func (s *Item) ReadDir(name string) ([]fs.DirEntry, error) {
+	return s.fs.ReadDir(path.Join(s.base, name))
+}
+
+func (s *Item) ReadFile(name string) ([]byte, error) {
+	return s.fs.ReadFile(path.Join(s.base, name))
+}
+
 type Store struct {
-	items []*storeItem
+	Items []*Item
 }
 
 func (s *Store) Dir(dir string, base string) {
-	s.items = append(s.items, &storeItem{fs: Dir(dir), base: base})
+	s.Items = append(s.Items, &Item{fs: Dir(dir), base: base})
 }
 
 func (s *Store) Zip(zip string, base string) {
-	s.items = append(s.items, &storeItem{fs: &ZipFS{Filename: zip}, base: base})
+	s.Items = append(s.Items, &Item{fs: &ZipFS{Filename: zip}, base: base})
 }
 
 func (s *Store) EmbedFS(fs embed.FS, base string) {
-	s.items = append(s.items, &storeItem{fs: fs, base: base})
+	s.Items = append(s.Items, &Item{fs: fs, base: base})
 }
 
 func (s *Store) Open(name string) (http.File, error) {
@@ -39,7 +51,7 @@ func (s *Store) Open(name string) (http.File, error) {
 
 func (s *Store) OpenFile(name string) (file fs.File, err error) {
 	//低效
-	for _, f := range s.items {
+	for _, f := range s.Items {
 		fn := path.Join(f.base, name)
 
 		//查找文件

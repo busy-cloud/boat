@@ -1,14 +1,9 @@
 package menu
 
 import (
-	"encoding/json"
 	"github.com/busy-cloud/boat/app"
 	"github.com/busy-cloud/boat/lib"
-	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/mqtt"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 type Menu struct {
@@ -39,36 +34,4 @@ func Register(name string, menu *Menu) {
 
 func Unregister(name string) {
 	menus.Delete(name)
-}
-
-func Load(dir string) {
-	_ = os.MkdirAll(dir, os.ModePerm)
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		log.Error(err)
-		return
-	}
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		ext := filepath.Ext(entry.Name())
-		if ext == ".json" {
-			fn := filepath.Join(dir, entry.Name())
-			buf, err := os.ReadFile(fn)
-			if err != nil {
-				log.Error(err)
-				continue
-			}
-			var menu Menu
-			err = json.Unmarshal(buf, &menu)
-			if err != nil {
-				log.Error(err)
-				continue
-			}
-
-			name := strings.TrimSuffix(entry.Name(), ext)
-			Register(name, &menu)
-		}
-	}
 }

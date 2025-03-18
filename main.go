@@ -32,7 +32,8 @@ func Startup() error {
 	//模板页面
 	page.Dir("pages", "")
 
-	menu.Load("menus")
+	//菜单目录
+	menu.Dir("menus", "")
 
 	//异步执行，避免堵塞
 	go func() {
