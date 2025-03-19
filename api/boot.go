@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/busy-cloud/boat/app"
 	"github.com/busy-cloud/boat/boot"
 )
 
@@ -14,7 +15,11 @@ func init() {
 
 func Startup() error {
 
-	registerRoutes("api")
+	if app.Name == "" || app.Name == "boat" {
+		registerRoutes("api")
+	} else {
+		registerRoutes("api/" + app.Name) //子目录
+	}
 
 	return nil
 }

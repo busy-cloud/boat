@@ -26,7 +26,7 @@ type Item struct {
 var menus lib.Map[Menu]
 
 func Register(name string, menu *Menu) {
-	if app.Name == "" {
+	if app.Name == "" || app.Name == "boat" {
 		menus.Store(name, menu)
 	} else {
 		mqtt.Publish("boat/register/menu/"+name, menu)
