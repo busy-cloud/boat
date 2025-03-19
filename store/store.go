@@ -56,9 +56,12 @@ func (s *Store) OpenFile(name string) (file fs.File, err error) {
 
 		//查找文件
 		file, err = f.fs.Open(fn)
-		if file != nil {
-			fi, _ := file.Stat()
-			if !fi.IsDir() {
+		if err == nil {
+			fi, e := file.Stat()
+			if e != nil {
+				return nil, e
+			}
+			if fi != nil && !fi.IsDir() {
 				return
 			}
 		}

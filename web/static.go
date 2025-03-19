@@ -53,9 +53,9 @@ func OpenStaticFile(name string) (file http.File, err error) {
 
 			//查找文件
 			file, err = f.fs.Open(fn)
-			if file != nil {
+			if err == nil {
 				fi, _ := file.Stat()
-				if !fi.IsDir() {
+				if fi != nil && !fi.IsDir() {
 					return
 				}
 			}
@@ -63,9 +63,9 @@ func OpenStaticFile(name string) (file http.File, err error) {
 			//尝试默认页
 			if f.index != "" {
 				file, err = f.fs.Open(path.Join(f.prefix, f.index))
-				if file != nil {
+				if err == nil {
 					fi, _ := file.Stat()
-					if !fi.IsDir() {
+					if fi != nil && !fi.IsDir() {
 						return
 					}
 				}
