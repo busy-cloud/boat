@@ -1,6 +1,7 @@
 {
   "name": "测试页面",
   "icon": "line-chart",
+  "index": 100,
   "items": [
     {
       "name": "地图",

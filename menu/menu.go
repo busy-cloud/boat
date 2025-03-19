@@ -12,6 +12,7 @@ type Menu struct {
 	//Domain     []string `json:"domain"` //域 admin project 或 dealer等
 	Privileges []string `json:"privileges,omitempty"`
 	Items      []*Item  `json:"items"`
+	Index      int      `json:"index"`
 }
 
 type Item struct {

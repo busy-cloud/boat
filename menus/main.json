@@ -1,6 +1,7 @@
 {
   "name": "控制台",
   "icon": "dash",
+  "index": 0,
   "items": [
     {
       "name": "仪表盘",
