@@ -1,11 +1,11 @@
 {
   "name": "控制台",
-  "icon": "dash",
+  "icon": "dashboard",
   "index": 0,
   "items": [
     {
       "name": "仪表盘",
-      "url": "admin/page/dash"
+      "url": "page/dash"
     }
   ]
 }

@@ -7,7 +7,7 @@
       "label": "测试table",
       "action": {
         "type": "link",
-        "link": "admin/page/table"
+        "link": "page/table"
       }
     },
     {
@@ -15,7 +15,7 @@
       "label": "测试chart",
       "action": {
         "type": "link",
-        "link": "admin/page/chart"
+        "link": "page/chart"
       }
     },
     {
@@ -23,7 +23,7 @@
       "label": "测试form",
       "action": {
         "type": "link",
-        "link": "admin/page/form"
+        "link": "page/form"
       }
     }
   ],
