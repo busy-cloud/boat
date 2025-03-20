@@ -2,12 +2,11 @@ package page
 
 import (
 	"github.com/busy-cloud/boat/api"
-	"github.com/busy-cloud/boat/app"
 	"github.com/gin-gonic/gin"
 )
 
 func init() {
-	api.Register("GET", app.Name+"/page/*page", pageGet)
+	api.Register("GET", "page/*page", pageGet)
 }
 
 // @Summary 获取页面
