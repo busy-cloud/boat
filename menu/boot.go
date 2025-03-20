@@ -16,7 +16,7 @@ func init() {
 func Startup() error {
 
 	mqtt.SubscribeStruct[Menu]("boat/register/menu/+", func(topic string, menu *Menu) {
-		name := strings.TrimPrefix(topic, "register/menu/")
+		name := strings.TrimPrefix(topic, "boat/register/menu/")
 		menus.Store(name, menu)
 	})
 
