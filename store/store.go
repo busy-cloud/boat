@@ -65,7 +65,7 @@ func (s *Store) OpenFile(name string) (file fs.File, err error) {
 				return
 			}
 		}
-		return nil, os.ErrNotExist
+		//return nil, os.ErrNotExist
 	}
 	return nil, os.ErrNotExist
 }

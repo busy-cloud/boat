@@ -71,7 +71,7 @@ func OpenStaticFile(name string) (file http.File, err error) {
 				}
 			}
 
-			return nil, errors.New("not found")
+			//return nil, errors.New("not found")
 		}
 	}
 	return nil, errors.New("not found")
