@@ -21,15 +21,7 @@ func init() {
 // @Success 200 {object} curd.ReplyData[[]Menu] 返回插件信息
 // @Router /menus [get]
 func menuGet(ctx *gin.Context) {
-	//domain := ctx.Param("domain")
-
-	//TODO 获取用户权限，过滤菜单
-
-	ms, err := Load()
-	if err != nil {
-		api.Error(ctx, err)
-		return
-	}
+	var ms []*Menu
 
 	menus.Range(func(name string, m *Menu) bool {
 		ms = append(ms, m)

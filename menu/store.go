@@ -7,28 +7,29 @@ import (
 	"github.com/busy-cloud/boat/store"
 	"gopkg.in/yaml.v3"
 	"path/filepath"
+	"strings"
 )
 
-var menus2 store.Store
+var menuStore store.Store
 
 func Dir(dir string, base string) {
-	menus2.Dir(dir, base)
+	menuStore.Dir(dir, base)
 }
 
 func Zip(zip string, base string) {
-	menus2.Zip(zip, base)
+	menuStore.Zip(zip, base)
 }
 
 func EmbedFS(fs embed.FS, base string) {
-	menus2.EmbedFS(fs, base)
+	menuStore.EmbedFS(fs, base)
 }
 
-func Load() ([]*Menu, error) {
-	var ms []*Menu
-	for _, item := range menus2.Items {
+func Load() error {
+	//var ms []*Menu
+	for _, item := range menuStore.Items {
 		entries, err := item.ReadDir("")
 		if err != nil {
-			return nil, err
+			return err
 		}
 		for _, entry := range entries {
 			if entry.IsDir() {
@@ -38,7 +39,7 @@ func Load() ([]*Menu, error) {
 			if ext == ".json" {
 				buf, err := item.ReadFile(entry.Name())
 				if err != nil {
-					return nil, err
+					return err
 				}
 				var menu Menu
 				err = json.Unmarshal(buf, &menu)
@@ -46,11 +47,12 @@ func Load() ([]*Menu, error) {
 					log.Error(err)
 					continue
 				}
-				ms = append(ms, &menu)
+
+				Register(strings.TrimSuffix(entry.Name(), ext), &menu)
 			} else if ext == ".yaml" {
 				buf, err := item.ReadFile(entry.Name())
 				if err != nil {
-					return nil, err
+					return err
 				}
 				var menu Menu
 				err = yaml.Unmarshal(buf, &menu)
@@ -58,9 +60,10 @@ func Load() ([]*Menu, error) {
 					log.Error(err)
 					continue
 				}
-				ms = append(ms, &menu)
+
+				Register(strings.TrimSuffix(entry.Name(), ext), &menu)
 			}
 		}
 	}
-	return ms, nil
+	return nil
 }

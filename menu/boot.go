@@ -20,5 +20,5 @@ func Startup() error {
 		menus.Store(name, menu)
 	})
 
-	return nil
+	return Load()
 }

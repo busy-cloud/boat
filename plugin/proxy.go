@@ -35,5 +35,19 @@ func Proxy(ctx *gin.Context) {
 		}
 	}
 
+	//插件 模板页面接口
+	if str, has := strings.CutPrefix(ctx.Request.RequestURI, "/api/page/"); has {
+		if app, _, has := strings.Cut(str, "/"); has {
+			if p := plugins.Load(app); p != nil {
+				if p.proxy == nil {
+					//执行反向代理
+					ctx.Abort()
+					p.proxy.ServeHTTP(ctx.Writer, ctx.Request)
+					return
+				}
+			}
+		}
+	}
+
 	ctx.Next()
 }

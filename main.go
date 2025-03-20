@@ -20,6 +20,13 @@ import (
 	"time"
 )
 
+func init() {
+	//模板页面
+	page.Dir("pages", "")
+	//菜单目录
+	menu.Dir("menus", "")
+}
+
 func Startup() error {
 	viper.SetConfigName("boat")
 
@@ -28,12 +35,6 @@ func Startup() error {
 		//_ = boot.Shutdown()
 		return err
 	}
-
-	//模板页面
-	page.Dir("pages", "")
-
-	//菜单目录
-	menu.Dir("menus", "")
 
 	//异步执行，避免堵塞
 	go func() {
