@@ -15,7 +15,7 @@
       "type": "gauge",
       "data_api": "system/memory",
       "gauge": {
-        "key": "usedPercent"
+        "key": "percent"
       }
     },
     {
@@ -28,28 +28,74 @@
           "label": "路径"
         },
         {
-          "key": "fstype",
-          "label": "类型"
-        },
-        {
           "key": "free",
-          "label": "可用"
+          "label": "可用",
+          "type": "bytes"
         },
         {
           "key": "used",
-          "label": "已用"
+          "label": "已用",
+          "type": "bytes"
         },
         {
           "key": "total",
-          "label": "全部"
+          "label": "全部",
+          "type": "bytes"
         },
         {
-          "key": "usedPercent",
-          "label": "百分比"
+          "key": "percent",
+          "label": "百分比",
+          "type": "progress"
         }
       ],
-      "data_api": "system/disk",
-      "mount2": "this.request.get('system/disk').subscribe(res=>{this.render(res.data)})"
+      "data_api": "system/disk"
+    },
+    {
+      "template": "table",
+      "title": "网络使用",
+      "span": 24,
+      "columns": [
+        {
+          "key": "index",
+          "label": "索引"
+        },
+        {
+          "key": "name",
+          "label": "名称"
+        },
+        {
+          "key": "mtu",
+          "label": "MTU"
+        },
+        {
+          "key": "hardware_address",
+          "label": "硬件地址"
+        },
+        {
+          "key": "address",
+          "label": "IP地址",
+          "type": "tags"
+        },
+        {
+          "key": "bytes_sent",
+          "label": "发送数据",
+          "type": "bytes"
+        },
+        {
+          "key": "bytes_recv",
+          "label": "接收数据",
+          "type": "bytes"
+        },
+        {
+          "key": "packets_sent",
+          "label": "发送数据包"
+        },
+        {
+          "key": "packets_recv",
+          "label": "接收数据包"
+        }
+      ],
+      "data_api": "system/net"
     }
   ]
 }
