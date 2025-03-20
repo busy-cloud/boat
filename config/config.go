@@ -25,13 +25,21 @@ func Name(name string) {
 	viper.SetConfigName(name)
 }
 
-func Load() error {
-	return viper.ReadInConfig()
+func Load(auto bool) error {
+	err := viper.ReadInConfig()
+	if err != nil {
+		if auto {
+			//自动创建
+			return viper.SafeWriteConfig()
+		} else {
+			return err
+		}
+	}
+	return nil
 }
 
 func Store() error {
 	return viper.WriteConfig()
-	//return viper.SafeWriteConfig()
 }
 
 func Register(module string, key string, value any) {

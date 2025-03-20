@@ -13,10 +13,9 @@ func init() {
 
 func Startup() error {
 	//加载配置文件
-	err := Load()
+	err := Load(true)
 	if err != nil {
-		//log.Error(err)
-		_ = Store()
+		return err
 	}
 
 	return nil
