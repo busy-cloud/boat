@@ -1,0 +1,55 @@
+{
+  "title": "控制台",
+  "children": [
+    {
+      "template": "chart",
+      "title": "CPU",
+      "span": 12,
+      "type": "gauge",
+      "data_api": "system/cpu"
+    },
+    {
+      "template": "chart",
+      "title": "内存",
+      "span": 12,
+      "type": "gauge",
+      "data_api": "system/memory",
+      "gauge": {
+        "key": "usedPercent"
+      }
+    },
+    {
+      "template": "table",
+      "title": "硬盘使用",
+      "span": 24,
+      "columns": [
+        {
+          "key": "path",
+          "label": "路径"
+        },
+        {
+          "key": "fstype",
+          "label": "类型"
+        },
+        {
+          "key": "free",
+          "label": "可用"
+        },
+        {
+          "key": "used",
+          "label": "已用"
+        },
+        {
+          "key": "total",
+          "label": "全部"
+        },
+        {
+          "key": "usedPercent",
+          "label": "百分比"
+        }
+      ],
+      "data_api": "system/disk",
+      "mount2": "this.request.get('system/disk').subscribe(res=>{this.render(res.data)})"
+    }
+  ]
+}
