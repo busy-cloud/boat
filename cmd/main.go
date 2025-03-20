@@ -1,16 +1,10 @@
 package main
 
 import (
-	_ "github.com/busy-cloud/boat/apis"
+	_ "github.com/busy-cloud/boat"
 	"github.com/busy-cloud/boat/boot"
-	_ "github.com/busy-cloud/boat/broker"
 	"github.com/busy-cloud/boat/log"
-	"github.com/busy-cloud/boat/menu"
-	_ "github.com/busy-cloud/boat/menu"
-	"github.com/busy-cloud/boat/page"
-	_ "github.com/busy-cloud/boat/plugin"
 	"github.com/busy-cloud/boat/service"
-	_ "github.com/busy-cloud/boat/setting"
 	"github.com/busy-cloud/boat/web"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -19,13 +13,6 @@ import (
 	"syscall"
 	"time"
 )
-
-func init() {
-	//模板页面
-	page.Dir("pages", "")
-	//菜单目录
-	menu.Dir("menus", "")
-}
 
 func Startup() error {
 	viper.SetConfigName("boat")
