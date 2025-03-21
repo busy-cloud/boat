@@ -44,7 +44,10 @@ func StaticEmbedFS(fs embed.FS, path, prefix, index string) {
 
 func OpenStaticFile(name string) (file http.File, err error) {
 	//低效
-	for _, f := range items {
+	//for _, f := range items {
+	//逆序，优先用后来者
+	for i := len(items) - 1; i >= 0; i-- {
+		f := items[i]
 		//fn := path.Join(fbase, name)
 		// && !strings.HasPrefix(name, "/$")
 		if f.path == "" || f.path != "" && strings.HasPrefix(name, f.path) {
