@@ -7,7 +7,7 @@
         "template": "chart",
         "title": "CPU",
         "type": "gauge",
-        "data_api": "system/cpu"
+        "load_api": "system/cpu"
       }
     },
     {
@@ -16,7 +16,7 @@
         "template": "chart",
         "title": "内存",
         "type": "gauge",
-        "data_api": "system/memory",
+        "load_api": "system/memory",
         "gauge": {
           "key": "percent"
         }
@@ -53,7 +53,7 @@
             "type": "progress"
           }
         ],
-        "data_api": "system/disk"
+        "load_api": "system/disk"
       }
     },
     {
@@ -102,7 +102,7 @@
             "label": "接收数据包"
           }
         ],
-        "data_api": "system/net"
+        "load_api": "system/net"
       }
     }
   ]
