@@ -2,19 +2,19 @@
   "title": "控制台",
   "children": [
     {
+      "span": 12,
       "content": {
         "template": "chart",
         "title": "CPU",
-        "span": 12,
         "type": "gauge",
         "data_api": "system/cpu"
       }
     },
     {
+      "span": 12,
       "content": {
         "template": "chart",
         "title": "内存",
-        "span": 12,
         "type": "gauge",
         "data_api": "system/memory",
         "gauge": {
@@ -57,10 +57,10 @@
       }
     },
     {
+      "span": 24,
       "content": {
         "template": "table",
         "title": "网络使用",
-        "span": 24,
         "columns": [
           {
             "key": "index",
