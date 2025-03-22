@@ -42,8 +42,12 @@ func Store() error {
 	return viper.WriteConfig()
 }
 
-func Register(module string, key string, value any) {
+func SetDefault(module string, key string, value any) {
 	viper.SetDefault(module+"."+key, value)
+}
+
+func Set(module string, key string, value any) {
+	viper.Set(module+"."+key, value)
 }
 
 func GetBool(module string, key string) bool {
@@ -64,8 +68,4 @@ func GetFloat(module string, key string) float64 {
 
 func GetStringSlice(module string, key string) []string {
 	return viper.GetStringSlice(module + "." + key)
-}
-
-func Set(module string, key string, value any) {
-	viper.Set(module+"."+key, value)
 }

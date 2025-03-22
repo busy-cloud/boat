@@ -9,15 +9,15 @@ import (
 const MODULE = "broker"
 
 func init() {
-	config.Register(MODULE, "enable", true)
-	config.Register(MODULE, "anonymous", false)
-	config.Register(MODULE, "port", 1883)
+	config.SetDefault(MODULE, "enable", true)
+	config.SetDefault(MODULE, "anonymous", false)
+	config.SetDefault(MODULE, "port", 1883)
 
 	if runtime.GOOS == "windows" {
-		config.Register(MODULE, "unixsock", os.TempDir()+"/boat.sock")
+		config.SetDefault(MODULE, "unixsock", os.TempDir()+"/boat.sock")
 	} else {
-		config.Register(MODULE, "unixsock", "/var/run/boat.sock")
+		config.SetDefault(MODULE, "unixsock", "/var/run/boat.sock")
 	}
 
-	config.Register(MODULE, "loglevel", "ERROR")
+	config.SetDefault(MODULE, "loglevel", "ERROR")
 }

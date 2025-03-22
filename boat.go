@@ -5,10 +5,8 @@ import (
 	_ "github.com/busy-cloud/boat/apis"
 	_ "github.com/busy-cloud/boat/broker"
 	"github.com/busy-cloud/boat/menu"
-	_ "github.com/busy-cloud/boat/menu"
 	"github.com/busy-cloud/boat/page"
 	_ "github.com/busy-cloud/boat/plugin"
-	_ "github.com/busy-cloud/boat/setting"
 )
 
 //go:embed pages

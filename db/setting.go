@@ -1,12 +1,12 @@
 package db
 
 import (
-	"github.com/busy-cloud/boat/setting"
+	"github.com/busy-cloud/boat/config"
 	"github.com/busy-cloud/boat/smart"
 )
 
 func init() {
-	setting.Register(MODULE, &setting.Form{
+	config.Register(MODULE, &config.Form{
 		Title:  "数据库配置",
 		Module: MODULE,
 		Form: smart.Form{

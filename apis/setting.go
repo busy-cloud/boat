@@ -3,7 +3,6 @@ package apis
 import (
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/config"
-	"github.com/busy-cloud/boat/setting"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
@@ -63,7 +62,7 @@ func settingSet(ctx *gin.Context) {
 // @Router /setting/:module/form [get]
 func settingForm(ctx *gin.Context) {
 	m := ctx.Param("module")
-	md := setting.Load(m)
+	md := config.GetModule(m)
 	if md == nil {
 		api.Fail(ctx, "模块不存在")
 		return
@@ -80,7 +79,7 @@ func settingForm(ctx *gin.Context) {
 // @Success 200 {object} ReplyData[[]Form] 返回配置表单
 // @Router /setting/modules [get]
 func settingModules(ctx *gin.Context) {
-	ms := setting.Modules()
+	ms := config.GetModules()
 	api.OK(ctx, ms)
 }
 

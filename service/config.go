@@ -7,8 +7,8 @@ import (
 const MODULE = "service"
 
 func init() {
-	config.Register(MODULE, "name", "boat")
-	config.Register(MODULE, "display", "Boat")
-	config.Register(MODULE, "description", "Process Manager for General IoT Backend")
-	config.Register(MODULE, "arguments", []string{})
+	config.SetDefault(MODULE, "name", "boat")
+	config.SetDefault(MODULE, "display", "Boat")
+	config.SetDefault(MODULE, "description", "Process Manager for General IoT Backend")
+	config.SetDefault(MODULE, "arguments", []string{})
 }

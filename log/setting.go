@@ -1,12 +1,12 @@
 package log
 
 import (
-	"github.com/busy-cloud/boat/setting"
+	"github.com/busy-cloud/boat/config"
 	"github.com/busy-cloud/boat/smart"
 )
 
 func init() {
-	setting.Register(MODULE, &setting.Form{
+	config.Register(MODULE, &config.Form{
 		Module: MODULE,
 		Title:  "日志配置",
 		Form: smart.Form{

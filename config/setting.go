@@ -1,4 +1,4 @@
-package setting
+package config
 
 import (
 	"github.com/busy-cloud/boat/lib"
@@ -22,11 +22,11 @@ func Unregister(module string) {
 	modules.Delete(module)
 }
 
-func Load(module string) *Form {
+func GetModule(module string) *Form {
 	return modules.Load(module)
 }
 
-func Modules() []Form {
+func GetModules() []Form {
 	var ms []Form
 	modules.Range(func(_ string, item *Form) bool {
 		m := *item
