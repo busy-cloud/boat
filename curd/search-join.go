@@ -27,8 +27,8 @@ func ApiSearchJoinWith[T any](joins []*Join, withs []*With, fields ...string) gi
 		//先取出join字段
 		joinValues := map[string]any{}
 		for _, j := range joins {
-			joinValues[j.Arg] = body.Filters[j.Arg]
-			delete(body.Filters, j.Arg)
+			joinValues[j.Arg] = body.Filter[j.Arg]
+			delete(body.Filter, j.Arg)
 		}
 
 		table := db.Engine().TableName(new(T))

@@ -11,11 +11,11 @@ import (
 )
 
 type ParamSearch struct {
-	Skip     int                    `form:"skip" json:"skip"`
-	Limit    int                    `form:"limit" json:"limit"`
-	Sort     map[string]int         `form:"sort" json:"sort"`
-	Filters  map[string]interface{} `form:"filter" json:"filter"`
-	Keywords map[string]string      `form:"keyword" json:"keyword"`
+	Skip    int                    `form:"skip" json:"skip"`
+	Limit   int                    `form:"limit" json:"limit"`
+	Sort    map[string]int         `form:"sort" json:"sort"`
+	Filter  map[string]interface{} `form:"filter" json:"filter"`
+	Keyword map[string]string      `form:"keyword" json:"keyword"`
 }
 
 func (body *ParamSearch) ToQuery() *xorm.Session {
@@ -24,7 +24,7 @@ func (body *ParamSearch) ToQuery() *xorm.Session {
 	}
 	op := db.Engine().Limit(body.Limit, body.Skip)
 
-	for k, v := range body.Filters {
+	for k, v := range body.Filter {
 		if reflect.TypeOf(v).Kind() == reflect.Slice {
 			ll := len(v.([]interface{}))
 			if ll > 0 {
@@ -44,9 +44,9 @@ func (body *ParamSearch) ToQuery() *xorm.Session {
 	}
 
 	//builder.Or(builder.Like{})
-	if len(body.Keywords) > 0 {
+	if len(body.Keyword) > 0 {
 		likes := make([]builder.Cond, 0)
-		for k, v := range body.Keywords {
+		for k, v := range body.Keyword {
 			if v != "" {
 				k = db.Engine().Quote(k)
 				//op.And(k+" like ?", "%"+v+"%")
@@ -80,7 +80,7 @@ func (body *ParamSearch) ToJoinQuery(table string) *xorm.Session {
 	}
 	op := db.Engine().Limit(body.Limit, body.Skip)
 
-	for k, v := range body.Filters {
+	for k, v := range body.Filter {
 		if reflect.TypeOf(v).Kind() == reflect.Slice {
 			ll := len(v.([]interface{}))
 			if ll > 0 {
@@ -100,9 +100,9 @@ func (body *ParamSearch) ToJoinQuery(table string) *xorm.Session {
 	}
 
 	//builder.Or(builder.Like{})
-	if len(body.Keywords) > 0 {
+	if len(body.Keyword) > 0 {
 		likes := make([]builder.Cond, 0)
-		for k, v := range body.Keywords {
+		for k, v := range body.Keyword {
 			if v != "" {
 				//op.And(k+" like ?", "%"+v+"%")
 				k = db.Engine().Quote(k)
