@@ -12,7 +12,7 @@ func init() {
 		Form: smart.Form{
 			Fields: []smart.Field{
 				{
-					Key: "Type", Label: "数据库类型", Type: "select", Default: "sqlite3",
+					Key: "Type", Label: "数据库类型", Type: "select", Default: "mysql",
 					Options: []smart.SelectOption{
 						{Label: "SQLite（内置）", Value: "sqlite3"},
 						{Label: "MySQL", Value: "mysql"},
@@ -23,6 +23,7 @@ func init() {
 				},
 				{Key: "url", Label: "连接字符串", Type: "text"},
 				{Key: "debug", Label: "调试模式", Type: "switch"},
+				{Key: "sync", Label: "自动创建表结构", Type: "switch"},
 			},
 		},
 	})
