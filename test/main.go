@@ -9,7 +9,6 @@ import (
 	_ "github.com/busy-cloud/boat/menu"
 	"github.com/busy-cloud/boat/page"
 	_ "github.com/busy-cloud/boat/plugin"
-	_ "github.com/busy-cloud/boat/setting"
 	"github.com/busy-cloud/boat/web"
 	"github.com/spf13/viper"
 	"os"

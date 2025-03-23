@@ -27,10 +27,6 @@ func init() {
 				{Key: "Key", Label: "证书key", Type: "file"},
 				{Key: "email", Label: "E-Mail", Type: "text"},
 				{Key: "hosts", Label: "域名", Type: "tags", Default: []string{}},
-				{Key: "url", Label: "地址", Type: "text", Required: true, Default: ""},
-				{Key: "client_id", Label: "客户端ID", Type: "text"},
-				{Key: "username", Label: "用户名", Type: "text"},
-				{Key: "password", Label: "密码", Type: "text"},
 			},
 		},
 	})
