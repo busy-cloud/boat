@@ -92,8 +92,21 @@ func Publish(topic string, payload any) paho.Token {
 	default:
 		payload, _ = json.Marshal(payload)
 	}
-	//bytes, _ := json.Marshal(payload)
 	return client.Publish(topic, 0, false, payload)
+}
+
+func PublishEx(topics []string, payload any) {
+	switch payload.(type) {
+	case string:
+	case []byte:
+	case bytes.Buffer:
+	default:
+		payload, _ = json.Marshal(payload)
+	}
+
+	for _, topic := range topics {
+		client.Publish(topic, 0, false, payload)
+	}
 }
 
 func Subscribe(filter string, cb func(topic string, payload []byte)) paho.Token {
