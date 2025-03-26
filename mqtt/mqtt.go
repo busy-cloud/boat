@@ -109,84 +109,50 @@ func PublishEx(topics []string, payload any) {
 	}
 }
 
-func Subscribe(filter string, cb func(topic string, payload []byte)) paho.Token {
-	return client.Subscribe(filter, 0, func(client paho.Client, message paho.Message) {
-		err := pool.Insert(func() {
-			//c(message.Topic(), &value)
-			cb(message.Topic(), message.Payload())
-		})
-		if err != nil {
-			cb(message.Topic(), message.Payload())
-			log.Error(err)
-			return
-		}
-	})
-}
+type callback func(topic string, payload []byte)
 
-func SubscribeStruct[T any](filter string, cb func(topic string, data *T)) paho.Token {
-	return client.Subscribe(filter, 0, func(client paho.Client, message paho.Message) {
-		err := pool.Insert(func() {
-			var value T
-			if len(message.Payload()) > 0 {
-				err := json.Unmarshal(message.Payload(), &value)
-				if err != nil {
-					log.Error(err)
-					return
-				}
-			}
-			cb(message.Topic(), &value)
-		})
-		if err != nil {
-			log.Error(err)
-			return
-		}
-	})
-}
+var subs = map[string][]callback{}
 
-var subs = map[string]any{}
-
-func SubscribeExt[T any](filter string, cb func(topic string, value *T)) {
-
-	var cbs []func(topic string, value *T)
+func Subscribe(filter string, cb func(topic string, payload []byte)) {
 
 	//重复订阅，直接入列
 	if callbacks, ok := subs[filter]; ok {
-		cbs = callbacks.([]func(topic string, value *T))
-		subs[filter] = append(cbs, cb)
+		subs[filter] = append(callbacks, cb)
 		return
 	}
-
-	subs[filter] = append(cbs, cb)
+	subs[filter] = []callback{cb}
 
 	//初次订阅
 	client.Subscribe(filter, 0, func(client paho.Client, message paho.Message) {
 		cbs := subs[filter]
-		cs := cbs.([]func(topic string, value *T))
+		//回调
+		for _, c := range cbs {
+			if pool.Pool == nil {
+				go c(message.Topic(), message.Payload())
+				continue
+			}
+			//放入线程池处理
+			err := pool.Insert(func() {
+				c(message.Topic(), message.Payload())
+			})
+			if err != nil {
+				log.Error(err)
+				go c(message.Topic(), message.Payload())
+			}
+		}
+	})
+}
 
-		//解析JSON
+func SubscribeStruct[T any](filter string, cb func(topic string, data *T)) {
+	Subscribe(filter, func(topic string, payload []byte) {
 		var value T
-		if len(message.Payload()) > 0 {
-			err := json.Unmarshal(message.Payload(), &value)
+		if len(payload) > 0 {
+			err := json.Unmarshal(payload, &value)
 			if err != nil {
 				log.Error(err)
 				return
 			}
 		}
-
-		//回调
-		for _, c := range cs {
-			if pool.Pool == nil {
-				go c(message.Topic(), &value)
-				continue
-			}
-			//放入线程池处理
-			err := pool.Insert(func() {
-				c(message.Topic(), &value)
-			})
-			if err != nil {
-				log.Error(err)
-				go c(message.Topic(), &value)
-			}
-		}
+		cb(topic, &value)
 	})
 }
