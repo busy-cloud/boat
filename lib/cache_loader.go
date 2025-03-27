@@ -38,7 +38,13 @@ func (c *CacheLoader[T]) Load(key string) (*T, error) {
 		}
 	}
 
+	//忘记初始化了。。。
+	if c.items == nil {
+		c.items = make(map[string]*cacheLoaderItem[T])
+	}
+
 	item := &cacheLoaderItem[T]{}
+	c.items[key] = item
 
 	//正式加载
 	item.value, item.err = c.Loader(key)
