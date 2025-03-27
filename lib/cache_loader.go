@@ -16,7 +16,7 @@ type CacheLoaderFunc[T any] func(key string) (*T, error)
 
 type CacheLoader[T any] struct {
 	items map[string]*cacheLoaderItem[T]
-	lock  sync.RWMutex
+	lock  sync.Mutex
 
 	Timeout int64
 	Loader  CacheLoaderFunc[T]
@@ -29,19 +29,14 @@ func (c *CacheLoader[T]) Invalid(key string) {
 }
 
 func (c *CacheLoader[T]) Load(key string) (*T, error) {
-	c.lock.RLock()
+	c.lock.Lock()
+	defer c.lock.Unlock()
 
 	if item, ok := c.items[key]; ok {
 		if time.Now().Unix() < item.expireAt {
-			c.lock.RUnlock()
 			return item.value, item.err
 		}
 	}
-
-	//转成写锁
-	c.lock.RUnlock()
-	c.lock.Lock()
-	defer c.lock.Unlock()
 
 	item := &cacheLoaderItem[T]{}
 
