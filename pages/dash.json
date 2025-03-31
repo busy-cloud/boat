@@ -7,7 +7,8 @@
         "template": "chart",
         "title": "CPU",
         "type": "gauge",
-        "load_api": "system/cpu"
+        "load_api": "system/cpu",
+        "auto_refresh": 5
       }
     },
     {
@@ -17,6 +18,7 @@
         "title": "内存",
         "type": "gauge",
         "load_api": "system/memory",
+        "auto_refresh": 5,
         "gauge": {
           "key": "percent"
         }
