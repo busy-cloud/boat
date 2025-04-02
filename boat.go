@@ -6,7 +6,7 @@ import (
 	_ "github.com/busy-cloud/boat/broker"
 	"github.com/busy-cloud/boat/menu"
 	"github.com/busy-cloud/boat/page"
-	_ "github.com/busy-cloud/boat/plugin"
+	//_ "github.com/busy-cloud/boat/plugin"
 )
 
 //go:embed pages
