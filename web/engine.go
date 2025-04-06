@@ -73,6 +73,12 @@ func Serve() error {
 	//静态文件
 	tm := time.Now()
 	engine.Use(func(c *gin.Context) {
+
+		//如果已经写过内容，就不用再写了
+		if c.Writer.Written() {
+			return
+		}
+
 		if c.Request.Method == http.MethodGet {
 			f, err := OpenStaticFile(c.Request.URL.Path)
 			if err != nil {
