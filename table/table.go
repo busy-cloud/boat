@@ -63,8 +63,7 @@ type Table struct {
 	DisableDelete bool     `json:"disable_delete,omitempty"`
 }
 
-func (t *Table) Create() error {
-
+func (t *Table) Schema() *schemas.Table {
 	//构建xorm schema
 	var table schemas.Table
 	table.Name = t.Name
@@ -83,8 +82,14 @@ func (t *Table) Create() error {
 		table.AddColumn(col)
 	}
 
+	return &table
+}
+
+func (t *Table) Create() error {
+	schema := t.Schema()
+
 	//创建表
-	sql, _, err := db.Engine().Dialect().CreateTableSQL(context.Background(), db.Engine().DB(), &table, t.Name)
+	sql, _, err := db.Engine().Dialect().CreateTableSQL(context.Background(), db.Engine().DB(), schema, t.Name)
 	if err != nil {
 		return err
 	}
@@ -94,7 +99,7 @@ func (t *Table) Create() error {
 	}
 
 	//创建索引
-	for _, index := range table.Indexes {
+	for _, index := range schema.Indexes {
 		sql := db.Engine().Dialect().CreateIndexSQL(t.Name, index)
 		_, err := db.Engine().Exec(sql)
 		if err != nil {
