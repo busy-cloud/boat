@@ -27,3 +27,4 @@ go.work.sum
 /*.sock
 /*.db
 test.go
+/boat.yaml

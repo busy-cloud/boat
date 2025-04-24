@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/busy-cloud/boat/db"
+	"github.com/spf13/cast"
 	"time"
 	"xorm.io/builder"
 	"xorm.io/xorm/schemas"
@@ -163,6 +164,31 @@ func (t *Table) Update(cond map[string]any, values map[string]any) (rows int64, 
 	return res.RowsAffected()
 }
 
+func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error) {
+	for _, field := range t.Fields {
+		if field.Updated {
+			values[field.Name] = time.Now()
+		}
+	}
+
+	var updates []builder.Cond
+	for k, v := range values {
+		updates = append(updates, builder.Eq{k: v})
+	}
+	bdr := builder.Update(updates...)
+
+	bdr.From(t.Name)
+
+	bdr.Where(builder.Eq{"id": id})
+
+	res, err := db.Engine().Exec(bdr)
+	if err != nil {
+		return 0, err
+	}
+
+	return res.RowsAffected()
+}
+
 func (t *Table) Delete(cond map[string]any) (rows int64, err error) {
 	var conds []builder.Cond
 	for k, v := range cond {
@@ -178,7 +204,16 @@ func (t *Table) Delete(cond map[string]any) (rows int64, err error) {
 	return res.RowsAffected()
 }
 
-func (t *Table) Select(cond map[string]any, fields []string, skip, limit int) (rows []map[string]any, err error) {
+func (t *Table) DeleteById(id any) (rows int64, err error) {
+	bdr := builder.Delete(builder.Eq{"id": id}).From(t.Name)
+	res, err := db.Engine().Exec(bdr)
+	if err != nil {
+		return 0, err
+	}
+	return res.RowsAffected()
+}
+
+func (t *Table) Find(cond map[string]any, fields []string, skip, limit int) (rows []map[string]any, err error) {
 	bdr := builder.Select(fields...)
 
 	bdr.From(t.Name)
@@ -192,4 +227,44 @@ func (t *Table) Select(cond map[string]any, fields []string, skip, limit int) (r
 	bdr.Limit(skip, limit)
 
 	return db.Engine().QueryInterface(bdr)
+}
+
+func (t *Table) Get(id any, fields []string) (Document, error) {
+	bdr := builder.Select(fields...)
+
+	bdr.From(t.Name)
+
+	bdr.Where(builder.Eq{"id": id})
+
+	res, err := db.Engine().QueryInterface(bdr)
+	if err != nil {
+		return nil, err
+	}
+	if len(res) == 0 {
+		return nil, nil //TODO 记录不存在
+	}
+	return res[0], nil
+}
+
+func (t *Table) Count(cond map[string]any) (cnt int64, err error) {
+	bdr := builder.Select("count(*)").From(t.Name)
+
+	for k, v := range cond {
+		bdr.Where(builder.Eq{k: v})
+	}
+
+	res, err := db.Engine().QueryInterface(bdr)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(res) == 0 {
+		return 0, errors.New("no values to count")
+	}
+
+	for _, v := range res[0] {
+		return cast.ToInt64(v), nil
+	}
+
+	return 0, errors.New("no values to count")
 }

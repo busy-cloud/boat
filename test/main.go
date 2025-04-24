@@ -8,6 +8,7 @@ import (
 	"github.com/busy-cloud/boat/menu"
 	_ "github.com/busy-cloud/boat/menu"
 	"github.com/busy-cloud/boat/page"
+	_ "github.com/busy-cloud/boat/table"
 	"github.com/busy-cloud/boat/web"
 	"github.com/spf13/viper"
 	"os"

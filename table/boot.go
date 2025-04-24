@@ -19,7 +19,7 @@ func Startup() error {
 	paths := config.GetStringSlice(MODULE, "paths")
 	if len(paths) == 0 {
 		for _, path := range paths {
-			err = Load(path)
+			err = Scan(path)
 			if err != nil {
 				return err
 			}
@@ -28,9 +28,16 @@ func Startup() error {
 
 	//同步
 	if config.GetBool(MODULE, "sync") {
-		err = Sync(tables)
-		if err != nil {
-			return err
+		var tbs []*Table
+		tables.Range(func(name string, tab *Table) bool {
+			tbs = append(tbs, tab)
+			return true
+		})
+		if len(tbs) > 0 {
+			err = Sync(tbs)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
