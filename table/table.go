@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/busy-cloud/boat/db"
 	"github.com/spf13/cast"
+	"strings"
 	"time"
 	"xorm.io/builder"
 	"xorm.io/xorm/schemas"
@@ -62,6 +63,35 @@ type Table struct {
 	DisableInsert bool     `json:"disable_insert,omitempty"`
 	DisableUpdate bool     `json:"disable_update,omitempty"`
 	DisableDelete bool     `json:"disable_delete,omitempty"`
+}
+
+func (t *Table) parseId(id string, bdr *builder.Builder) (err error) {
+	ids := strings.Split(id, ",")
+	var i = 0
+	for _, field := range t.Fields {
+		if field.PrimaryKey {
+			if i < len(ids) {
+				var val any
+				switch field.Type {
+				case "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64":
+					val, err = cast.ToInt64E(ids[i])
+				case "float32", "float64", "float", "double":
+					val, err = cast.ToFloat64E(ids[i])
+				default:
+					val = ids[i]
+				}
+
+				bdr.Where(builder.Eq{field.Name: val})
+				i++
+			} else {
+				return errors.New("id length error")
+			}
+		}
+	}
+	if i == 0 {
+		return errors.New("table has not primary key")
+	}
+	return
 }
 
 func (t *Table) Schema() *schemas.Table {
@@ -164,7 +194,7 @@ func (t *Table) Update(cond map[string]any, values map[string]any) (rows int64, 
 	return res.RowsAffected()
 }
 
-func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error) {
+func (t *Table) UpdateById(id string, values map[string]any) (rows int64, err error) {
 	for _, field := range t.Fields {
 		if field.Updated {
 			values[field.Name] = time.Now()
@@ -179,7 +209,11 @@ func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error
 
 	bdr.From(t.Name)
 
-	bdr.Where(builder.Eq{"id": id})
+	err = t.parseId(id, bdr)
+	if err != nil {
+		return 0, err
+	}
+	//bdr.Where(builder.Eq{"id": id})
 
 	res, err := db.Engine().Exec(bdr)
 	if err != nil {
@@ -204,8 +238,15 @@ func (t *Table) Delete(cond map[string]any) (rows int64, err error) {
 	return res.RowsAffected()
 }
 
-func (t *Table) DeleteById(id any) (rows int64, err error) {
-	bdr := builder.Delete(builder.Eq{"id": id}).From(t.Name)
+func (t *Table) DeleteById(id string) (rows int64, err error) {
+	bdr := builder.Delete()
+
+	err = t.parseId(id, bdr)
+	if err != nil {
+		return 0, err
+	}
+	bdr.From(t.Name)
+
 	res, err := db.Engine().Exec(bdr)
 	if err != nil {
 		return 0, err
@@ -229,12 +270,16 @@ func (t *Table) Find(cond map[string]any, fields []string, skip, limit int) (row
 	return db.Engine().QueryInterface(bdr)
 }
 
-func (t *Table) Get(id any, fields []string) (Document, error) {
+func (t *Table) Get(id string, fields []string) (Document, error) {
 	bdr := builder.Select(fields...)
 
 	bdr.From(t.Name)
 
-	bdr.Where(builder.Eq{"id": id})
+	err := t.parseId(id, bdr)
+	if err != nil {
+		return nil, err
+	}
+	//bdr.Where(builder.Eq{"id": id})
 
 	res, err := db.Engine().QueryInterface(bdr)
 	if err != nil {
