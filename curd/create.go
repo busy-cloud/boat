@@ -19,7 +19,7 @@ func ApiCreate[T any]() gin.HandlerFunc {
 
 		//默认值
 		field := reflect.ValueOf(&data).Elem().FieldByName("Id")
-		if field.IsZero() && field.Kind() == reflect.String {
+		if field.IsValid() && field.IsZero() && field.Kind() == reflect.String {
 			key := xid.New().String()
 			field.SetString(key)
 		}
@@ -45,7 +45,7 @@ func ApiCreateHook[T any](before, after func(m *T) error) gin.HandlerFunc {
 
 		//默认值
 		field := reflect.ValueOf(&data).Elem().FieldByName("Id")
-		if field.IsZero() && field.Kind() == reflect.String {
+		if field.IsValid() && field.IsZero() && field.Kind() == reflect.String {
 			key := xid.New().String()
 			field.SetString(key)
 		}
