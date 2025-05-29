@@ -2,7 +2,6 @@ package apps
 
 import (
 	"encoding/json"
-	"github.com/busy-cloud/boat/app"
 	"github.com/busy-cloud/boat/boot"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/web"
@@ -25,10 +24,10 @@ func Startup() error {
 		return err
 	}
 
-	plugins.Range(func(name string, p *app.Plugin) bool {
+	_apps.Range(func(name string, p *App) bool {
 		if len(p.Dependencies) > 0 {
 			for _, d := range p.Dependencies {
-				pp := plugins.Load(d)
+				pp := _apps.Load(d)
 				if pp == nil {
 					err := pp.Open()
 					if err != nil {
@@ -54,7 +53,7 @@ func Startup() error {
 }
 
 func Shutdown() (err error) {
-	plugins.Range(func(name string, plugin *app.Plugin) bool {
+	_apps.Range(func(name string, plugin *App) bool {
 		err = multierr.Append(err, plugin.Close())
 		return true
 	})
@@ -80,7 +79,7 @@ func load() error {
 				continue
 			}
 
-			var p app.Plugin
+			var p App
 			e = json.Unmarshal(buf, &p)
 			if e != nil {
 				err = multierr.Append(err, e)
@@ -90,7 +89,7 @@ func load() error {
 			//记录目录
 			//p.dir = path.Join(dir, d.Name())
 
-			plugins.Store(d.Name(), &p)
+			_apps.Store(d.Name(), &p)
 		}
 	}
 

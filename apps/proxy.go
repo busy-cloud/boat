@@ -12,10 +12,11 @@ func Proxy(ctx *gin.Context) {
 			return
 		}
 		if app, _, has := strings.Cut(str, "/"); has {
-			if p := plugins.Load(app); p != nil {
-				p.ServeApi(ctx)
-				ctx.Abort()
-				return
+			if p := _apps.Load(app); p != nil {
+				if p.ServeApi(ctx) {
+					ctx.Abort()
+					return
+				}
 			}
 		}
 	}

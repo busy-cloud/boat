@@ -20,17 +20,17 @@ func init() {
 	//启动时间作为默认图标的修改时间
 	bootTime := time.Now()
 
-	api.Register("GET", "plugin/list", func(ctx *gin.Context) {
-		var as []*app.Plugin
-		plugins.Range(func(name string, item *app.Plugin) bool {
-			as = append(as, item)
+	api.Register("GET", "app/list", func(ctx *gin.Context) {
+		var as []*app.App
+		_apps.Range(func(name string, item *App) bool {
+			as = append(as, &item.App)
 			return true
 		})
 		api.OK(ctx, as)
 	})
 
-	api.Register("GET", "plugin/:app", func(ctx *gin.Context) {
-		app := plugins.Load(ctx.Param("app"))
+	api.Register("GET", "app/:app", func(ctx *gin.Context) {
+		app := _apps.Load(ctx.Param("app"))
 		if app != nil {
 			api.Fail(ctx, "找不到插件")
 			return
@@ -38,8 +38,8 @@ func init() {
 		api.OK(ctx, app)
 	})
 
-	api.Register("GET", "plugin/:app/icon", func(ctx *gin.Context) {
-		app := plugins.Load(ctx.Param("app"))
+	api.Register("GET", "app/:app/icon", func(ctx *gin.Context) {
+		app := _apps.Load(ctx.Param("app"))
 		if app != nil {
 			api.Fail(ctx, "找不到插件")
 			return
@@ -73,7 +73,7 @@ func init() {
 		_, _ = ctx.Writer.Write(buf)
 	})
 
-	api.RegisterAdmin("POST", "plugin/import", func(ctx *gin.Context) {
+	api.RegisterAdmin("POST", "app/import", func(ctx *gin.Context) {
 		file, err := ctx.FormFile("file")
 		if err != nil {
 			api.Error(ctx, err)
@@ -86,7 +86,7 @@ func init() {
 		}
 		defer f.Close()
 
-		f2, err := os.CreateTemp("plugin", "install-*")
+		f2, err := os.CreateTemp("app", "install-*")
 		if err != nil {
 			api.Error(ctx, err)
 			return
@@ -108,11 +108,11 @@ func init() {
 		api.OK(ctx, nil)
 	})
 
-	api.RegisterAdmin("GET", "plugin/:app/install", func(ctx *gin.Context) {
+	api.RegisterAdmin("GET", "app/:app/install", func(ctx *gin.Context) {
 
 	})
 
-	api.RegisterAdmin("GET", "plugin/:app/delete", func(ctx *gin.Context) {
+	api.RegisterAdmin("GET", "app/:app/delete", func(ctx *gin.Context) {
 
 	})
 
