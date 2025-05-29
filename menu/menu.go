@@ -1,9 +1,9 @@
 package menu
 
 import (
-	"github.com/busy-cloud/boat/app"
 	"github.com/busy-cloud/boat/lib"
 	"github.com/busy-cloud/boat/mqtt"
+	"github.com/busy-cloud/boat/version"
 )
 
 type Menu struct {
@@ -26,7 +26,7 @@ type Item struct {
 var menus lib.Map[Menu]
 
 func Register(name string, menu *Menu) {
-	if app.Name == "" || app.Name == "boat" {
+	if version.Name == "" || version.Name == "boat" {
 		menus.Store(name, menu)
 	} else {
 		mqtt.Publish("boat/register/menu/"+name, menu)
