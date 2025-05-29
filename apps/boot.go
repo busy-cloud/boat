@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	boot.Register("app", &boot.Task{
+	boot.Register("apps", &boot.Task{
 		Startup:  Startup,
 		Shutdown: Shutdown,
 		Depends:  []string{"web"},

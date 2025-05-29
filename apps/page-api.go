@@ -2,11 +2,8 @@ package apps
 
 import (
 	"github.com/busy-cloud/boat/api"
-	"github.com/busy-cloud/boat/store"
 	"github.com/gin-gonic/gin"
 )
-
-var pages store.Store
 
 func init() {
 	api.Register("GET", "page/*page", pageGet)

@@ -85,6 +85,9 @@ func (a *App) Close() error {
 		return a.process.Kill()
 		//return a.process.Release()
 	}
+
+	//TODO 需要从pages store中移除
+
 	return nil
 }
 
