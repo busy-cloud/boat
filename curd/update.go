@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/db"
+	"github.com/busy-cloud/boat/log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -129,10 +130,12 @@ func ApiUpdateHook[T any](before, after func(m *T) error, fields ...string) gin.
 		}
 
 		if after != nil {
-			if err := after(&data); err != nil {
-				api.Error(ctx, err)
-				return
-			}
+			//改为异常执行，减少前端错误
+			go func() {
+				if err := after(&data); err != nil {
+					log.Error(err)
+				}
+			}()
 		}
 
 		api.OK(ctx, &data)

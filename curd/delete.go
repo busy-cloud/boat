@@ -3,6 +3,7 @@ package curd
 import (
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/db"
+	"github.com/busy-cloud/boat/log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -58,10 +59,12 @@ func ApiDeleteHook[T any](before, after func(m *T) error) gin.HandlerFunc {
 		}
 
 		if after != nil {
-			if err := after(&data); err != nil {
-				api.Error(ctx, err)
-				return
-			}
+			//改为异常执行，减少前端错误
+			go func() {
+				if err := after(&data); err != nil {
+					log.Error(err)
+				}
+			}()
 		}
 
 		api.OK(ctx, nil)

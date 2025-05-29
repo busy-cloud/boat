@@ -6,9 +6,6 @@ import (
 	"github.com/busy-cloud/boat/boot"
 	_ "github.com/busy-cloud/boat/broker"
 	"github.com/busy-cloud/boat/log"
-	"github.com/busy-cloud/boat/menu"
-	_ "github.com/busy-cloud/boat/menu"
-	"github.com/busy-cloud/boat/page"
 	_ "github.com/busy-cloud/boat/table"
 	"github.com/busy-cloud/boat/web"
 	"github.com/spf13/viper"
@@ -16,13 +13,6 @@ import (
 	"os/signal"
 	"syscall"
 )
-
-func init() {
-	//模板页面
-	page.Dir("pages", "")
-	//菜单目录
-	menu.Dir("menus", "")
-}
 
 func main() {
 	viper.SetConfigName("boat")

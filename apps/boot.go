@@ -24,6 +24,9 @@ func Startup() error {
 		return err
 	}
 
+	//注册
+	pages.Dir("pages", "")
+
 	_apps.Range(func(name string, p *App) bool {
 		if len(p.Dependencies) > 0 {
 			for _, d := range p.Dependencies {
