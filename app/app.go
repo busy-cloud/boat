@@ -25,4 +25,7 @@ type App struct {
 	//代理
 	ApiUrl     string `json:"api_url,omitempty"`
 	UnixSocket string `json:"unix_socket,omitempty"`
+
+	//内部插件
+	Internal bool `json:"internal,-"`
 }

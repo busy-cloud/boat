@@ -7,3 +7,8 @@ var pages store.Store
 func Pages() *store.Store {
 	return &pages
 }
+
+func init() {
+	//注册页面目录
+	pages.Dir("pages", "")
+}
