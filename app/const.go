@@ -4,6 +4,8 @@ import (
 	_ "embed"
 )
 
-const ManifestName = "manifest.json"
 const ListName = "__LIST__"
 const SignName = "__SIGN__"
+const ManifestName = "manifest.json"
+const MenusName = "menus.json"
+const ShortcutsName = "shortcuts.json"

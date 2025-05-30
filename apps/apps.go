@@ -1,16 +1,14 @@
 package apps
 
 import (
-	"github.com/busy-cloud/boat/app"
 	"github.com/busy-cloud/boat/lib"
 )
 
 var _apps lib.Map[App]
 
-func Register(a *app.App) {
-	aa := &App{App: *a}
-	aa.Internal = true
-	_apps.Store(a.Id, aa)
+func Register(a *App) {
+	a.Internal = true
+	_apps.Store(a.Id, a)
 }
 
 func Unregister(id string) {

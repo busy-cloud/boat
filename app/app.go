@@ -1,18 +1,27 @@
 package app
 
-type App struct {
+type Base struct {
 	Id          string `json:"id"`
-	Name        string `json:"name"`                  //插件名
-	Version     string `json:"version,omitempty"`     //版本号 SEMVER v0.0.0
 	Icon        string `json:"icon,omitempty"`        //图标
+	Name        string `json:"name"`                  //插件名
 	Description string `json:"description,omitempty"` //说明
-	Type        string `json:"type,omitempty"`        //类型
-	Author      string `json:"author,omitempty"`
-	Email       string `json:"email,omitempty"`
-	Homepage    string `json:"homepage,omitempty"`
+	Version     string `json:"version,omitempty"`     //版本号 SEMVER v0.0.0
+	Internal    bool   `json:"internal,omitempty"`    //内部插件
+}
 
-	Menus []*Menu `json:"menus,omitempty"` //菜单项
-	Pages string  `json:"pages,omitempty"` //模板页面目录，支持通配符
+type App struct {
+	Base //继承基础信息
+
+	//扩展信息
+	Type     string `json:"type,omitempty"` //类型
+	Author   string `json:"author,omitempty"`
+	Email    string `json:"email,omitempty"`
+	Homepage string `json:"homepage,omitempty"`
+
+	//资源
+	Shortcuts []*Shortcut `json:"shortcuts,omitempty"` //桌面快捷方式
+	Menus     []*Menu     `json:"menus,omitempty"`     //菜单项
+	Pages     string      `json:"pages,omitempty"`     //模板页面目录，支持通配符
 
 	//前端文件
 	Static string `json:"static,omitempty"` //静态目录
@@ -25,7 +34,4 @@ type App struct {
 	//代理
 	ApiUrl     string `json:"api_url,omitempty"`
 	UnixSocket string `json:"unix_socket,omitempty"`
-
-	//内部插件
-	Internal bool `json:"internal,-"`
 }

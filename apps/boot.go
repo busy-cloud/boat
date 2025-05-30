@@ -86,6 +86,9 @@ func load() error {
 				continue
 			}
 
+			//强制修改为外部插件
+			p.Internal = false
+
 			//记录目录
 			//p.dir = path.Join(dir, d.Name())
 

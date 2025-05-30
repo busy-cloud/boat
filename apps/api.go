@@ -6,6 +6,7 @@ import (
 	"github.com/busy-cloud/boat/app"
 	"github.com/gin-gonic/gin"
 	"io"
+	"net/http"
 	"os"
 	"time"
 )
@@ -21,9 +22,9 @@ func init() {
 	bootTime := time.Now()
 
 	api.Register("GET", "app/list", func(ctx *gin.Context) {
-		var as []*app.App
+		var as []*app.Base
 		_apps.Range(func(name string, item *App) bool {
-			as = append(as, &item.App)
+			as = append(as, &item.Base)
 			return true
 		})
 		api.OK(ctx, as)
@@ -36,6 +37,11 @@ func init() {
 			return
 		}
 		api.OK(ctx, app)
+	})
+
+	api.Register("GET", "app/:app/assets/*asset", func(ctx *gin.Context) {
+		app := _apps.Load(ctx.Param("app"))
+		ctx.FileFromFS(ctx.Param("asset"), http.FS(app.Assets))
 	})
 
 	api.Register("GET", "app/:app/icon", func(ctx *gin.Context) {

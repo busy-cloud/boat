@@ -19,3 +19,12 @@ type MenuItem struct {
 	External   bool     `json:"external,omitempty"`
 	Privileges []string `json:"privileges,omitempty"`
 }
+
+type Shortcut struct {
+	Name       string   `json:"name"`
+	Title      string   `json:"title,omitempty"`
+	Icon       string   `json:"icon,omitempty"`
+	Url        string   `json:"url,omitempty"`
+	External   bool     `json:"external,omitempty"`
+	Privileges []string `json:"privileges,omitempty"`
+}

@@ -6,6 +6,7 @@ import (
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/web"
 	"github.com/gin-gonic/gin"
+	"io/fs"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -17,8 +18,8 @@ import (
 type App struct {
 	app.App
 
-	//前端文件
-	static http.FileSystem
+	//附件
+	Assets fs.FS
 
 	//可执行文件
 	process *os.Process
@@ -68,6 +69,10 @@ func (a *App) Open() (err error) {
 		}
 		log.Info("plugin start ", a.Name, ", pid ", a.process.Pid)
 	}
+
+	//附件
+	assets := filepath.Join(dir, "assets")
+	a.Assets = os.DirFS(assets)
 
 	//前端页面
 	if a.Static != "" {
