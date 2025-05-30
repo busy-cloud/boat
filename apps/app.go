@@ -25,14 +25,34 @@ type App struct {
 
 	//代理
 	proxy *httputil.ReverseProxy
+
+	opened bool
+}
+
+func (a *App) Opened() bool {
+	return a.opened
 }
 
 func (a *App) Open() (err error) {
+
+	//内部插件不用打开
+	if a.Internal {
+		a.opened = true
+		return nil
+	}
+
+	//打开标志
+	if a.opened {
+		return nil
+	}
+	a.opened = true
+
+	//基础路径
 	dir := filepath.Join("app", a.Id)
 
 	//注册页面
 	if len(a.Pages) > 0 {
-		pages.Dir(a.Pages, dir)
+		pages.Dir(dir, "")
 	}
 
 	//启动子进程

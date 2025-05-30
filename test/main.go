@@ -8,6 +8,7 @@ import (
 	"github.com/busy-cloud/boat/log"
 	_ "github.com/busy-cloud/boat/table"
 	"github.com/busy-cloud/boat/web"
+	_ "github.com/busy-cloud/dash"
 	"github.com/spf13/viper"
 	"os"
 	"os/signal"
