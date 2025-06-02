@@ -49,11 +49,28 @@ func Startup() error {
 	})
 
 	//应用资源
-	web.Engine().GET("app/:app/assets/*asset", func(ctx *gin.Context) {
-		a := _apps.Load(ctx.Param("app"))
-		if a != nil {
-			ctx.FileFromFS(ctx.Param("asset"), http.FS(a.Assets))
+	//web.Engine().StaticFS("/app/assets/", &assets)
+	//web.Engine().StaticFS("/app/pages/", &pages)
+	//web.Engine().Use(AssetsApi)
+	//web.Engine().GET("app/:app/pages/*asset", AssetsApi)
+
+	web.Engine().GET("app/assets/:app/*asset", func(ctx *gin.Context) {
+		k := ctx.Param("app")
+
+		//优先从store中获取（内部插件）
+		if assets.Exists(k) {
+			ctx.FileFromFS(k+"/"+ctx.Param("asset"), &assets)
+			return
 		}
+
+		//从应用列表中获取
+		a := _apps.Load(k)
+		if a != nil {
+			ctx.FileFromFS(ctx.Param("asset"), http.Dir("apps/"+a.Id+"/assets"))
+		}
+
+		//默认目录
+		ctx.FileFromFS(ctx.Param("asset"), http.Dir("assets"))
 	})
 
 	//注册到web引擎上

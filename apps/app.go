@@ -6,7 +6,6 @@ import (
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/web"
 	"github.com/gin-gonic/gin"
-	"io/fs"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -17,9 +16,6 @@ import (
 
 type App struct {
 	app.App
-
-	//附件
-	Assets fs.FS `json:"-"`
 
 	//可执行文件
 	process *os.Process
@@ -51,11 +47,6 @@ func (a *App) Open() (err error) {
 	//基础路径
 	dir := filepath.Join("app", a.Id)
 
-	//注册页面
-	if len(a.Pages) > 0 {
-		pages.Dir(dir, "")
-	}
-
 	//启动子进程
 	if a.Executable != "" {
 		attr := &os.ProcAttr{}
@@ -71,8 +62,8 @@ func (a *App) Open() (err error) {
 	}
 
 	//附件
-	assets := filepath.Join(dir, "assets")
-	a.Assets = os.DirFS(assets)
+	//assets := filepath.Join(dir, "assets")
+	//a.Assets = os.DirFS(assets)
 
 	//前端页面
 	if a.Static != "" {

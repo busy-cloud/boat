@@ -7,7 +7,7 @@ import (
 
 func Proxy(ctx *gin.Context) {
 
-	if str, has := strings.CutPrefix(ctx.Request.RequestURI, "/plugin/"); has {
+	if str, has := strings.CutPrefix(ctx.Request.RequestURI, "/app/"); has {
 		if len(str) == 0 {
 			return
 		}

@@ -38,6 +38,10 @@ func init() {
 		api.OK(ctx, app)
 	})
 
+	api.Register("GET", "app/:app/assets/*asset", func(ctx *gin.Context) {
+
+	})
+
 	//api.Register("GET", "app/:app/assets/*asset", func(ctx *gin.Context) {
 	//	app := _apps.Load(ctx.Param("app"))
 	//	ctx.FileFromFS(ctx.Param("asset"), http.FS(app.Assets))
