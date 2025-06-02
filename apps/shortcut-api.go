@@ -4,36 +4,34 @@ import (
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/app"
 	"github.com/gin-gonic/gin"
-	"slices"
 )
 
 func init() {
-	//api.Register("GET", "/menu/:domain", menuGet)
-	api.Register("GET", "menus", menuGet)
+	api.Register("GET", "shortcuts", shortcutGet)
 }
 
-// @Summary 获取菜单
+// @Summary 获取快捷方式
 // @Schemes
-// @Description 获取菜单
+// @Description 获取快捷方式
 // @Tags plugin
 // @Accept json
 // @Produce json
-// @Success 200 {object} curd.ReplyData[[]Menu] 返回插件信息
-// @Router /menus [get]
-func menuGet(ctx *gin.Context) {
-	var ms []*app.Menu
+// @Success 200 {object} curd.ReplyData[[]Shortcut] 返回插件信息
+// @Router /shortcuts [get]
+func shortcutGet(ctx *gin.Context) {
+	var ms []*app.Shortcut
 
 	_apps.Range(func(name string, a *App) bool {
 		if len(a.Menus) > 0 {
-			ms = append(ms, a.Menus...)
+			ms = append(ms, a.Shortcuts...)
 		}
 		return true
 	})
 
 	//排序
-	slices.SortFunc(ms, func(a, b *app.Menu) int {
-		return a.Index - b.Index
-	})
+	//slices.SortFunc(ms, func(a, b *app.Shortcut) int {
+	//	return a.Index - b.Index
+	//})
 
 	api.OK(ctx, ms)
 }
