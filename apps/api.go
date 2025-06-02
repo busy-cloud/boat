@@ -6,7 +6,6 @@ import (
 	"github.com/busy-cloud/boat/app"
 	"github.com/gin-gonic/gin"
 	"io"
-	"net/http"
 	"os"
 	"time"
 )
@@ -39,10 +38,10 @@ func init() {
 		api.OK(ctx, app)
 	})
 
-	api.Register("GET", "app/:app/assets/*asset", func(ctx *gin.Context) {
-		app := _apps.Load(ctx.Param("app"))
-		ctx.FileFromFS(ctx.Param("asset"), http.FS(app.Assets))
-	})
+	//api.Register("GET", "app/:app/assets/*asset", func(ctx *gin.Context) {
+	//	app := _apps.Load(ctx.Param("app"))
+	//	ctx.FileFromFS(ctx.Param("asset"), http.FS(app.Assets))
+	//})
 
 	api.Register("GET", "app/:app/icon", func(ctx *gin.Context) {
 		app := _apps.Load(ctx.Param("app"))

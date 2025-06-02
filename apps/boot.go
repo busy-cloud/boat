@@ -5,7 +5,9 @@ import (
 	"github.com/busy-cloud/boat/boot"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/web"
+	"github.com/gin-gonic/gin"
 	"go.uber.org/multierr"
+	"net/http"
 	"os"
 	"path"
 )
@@ -44,6 +46,14 @@ func Startup() error {
 			log.Error(err)
 		}
 		return true
+	})
+
+	//应用资源
+	web.Engine().GET("app/:app/assets/*asset", func(ctx *gin.Context) {
+		a := _apps.Load(ctx.Param("app"))
+		if a != nil {
+			ctx.FileFromFS(ctx.Param("asset"), http.FS(a.Assets))
+		}
 	})
 
 	//注册到web引擎上
