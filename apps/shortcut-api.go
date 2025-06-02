@@ -16,10 +16,10 @@ func init() {
 // @Tags plugin
 // @Accept json
 // @Produce json
-// @Success 200 {object} curd.ReplyData[[]Shortcut] 返回插件信息
+// @Success 200 {object} curd.ReplyData[[]Entry] 返回插件信息
 // @Router /shortcuts [get]
 func shortcutGet(ctx *gin.Context) {
-	var ms []*app.Shortcut
+	var ms []*app.Entry
 
 	_apps.Range(func(name string, a *App) bool {
 		if len(a.Menus) > 0 {
@@ -29,7 +29,7 @@ func shortcutGet(ctx *gin.Context) {
 	})
 
 	//排序
-	//slices.SortFunc(ms, func(a, b *app.Shortcut) int {
+	//slices.SortFunc(ms, func(a, b *app.Entry) int {
 	//	return a.Index - b.Index
 	//})
 

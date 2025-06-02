@@ -19,7 +19,7 @@ type App struct {
 	app.App
 
 	//附件
-	Assets fs.FS
+	Assets fs.FS `json:"-"`
 
 	//可执行文件
 	process *os.Process

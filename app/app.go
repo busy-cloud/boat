@@ -9,6 +9,25 @@ type Base struct {
 	Internal    bool   `json:"internal,omitempty"`    //内部插件
 }
 
+type Menu struct {
+	Name       string   `json:"name"`
+	Title      string   `json:"title,omitempty"`
+	NzIcon     string   `json:"nz-icon,omitempty"` //ant.design图标库
+	Items      []*Entry `json:"items,omitempty"`
+	Index      int      `json:"index,omitempty"`
+	Privileges []string `json:"privileges,omitempty"`
+	//Domain     []string `json:"domain"` //域 admin project 或 dealer等
+}
+
+type Entry struct {
+	Name       string   `json:"name"`
+	Title      string   `json:"title,omitempty"`
+	Icon       string   `json:"icon,omitempty"`
+	Url        string   `json:"url,omitempty"`
+	External   bool     `json:"external,omitempty"`
+	Privileges []string `json:"privileges,omitempty"`
+}
+
 type App struct {
 	Base //继承基础信息
 
@@ -19,9 +38,9 @@ type App struct {
 	Homepage string `json:"homepage,omitempty"`
 
 	//资源
-	Shortcuts []*Shortcut `json:"shortcuts,omitempty"` //桌面快捷方式
-	Menus     []*Menu     `json:"menus,omitempty"`     //菜单项
-	Pages     string      `json:"pages,omitempty"`     //模板页面目录，支持通配符
+	Shortcuts []*Entry `json:"shortcuts,omitempty"` //桌面快捷方式
+	Menus     []*Menu  `json:"menus,omitempty"`     //菜单项
+	Pages     string   `json:"pages,omitempty"`     //模板页面目录，支持通配符
 
 	//前端文件
 	Static string `json:"static,omitempty"` //静态目录
