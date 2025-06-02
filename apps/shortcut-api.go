@@ -22,8 +22,12 @@ func shortcutGet(ctx *gin.Context) {
 	var ms []*app.Entry
 
 	_apps.Range(func(name string, a *App) bool {
-		if len(a.Menus) > 0 {
-			ms = append(ms, a.Shortcuts...)
+		if len(a.Shortcuts) > 0 {
+			for _, m := range a.Shortcuts {
+				mm := *m
+				mm.Icon = "/app/" + a.Id + "/assets/" + m.Icon //转换路径
+				ms = append(ms, &mm)
+			}
 		}
 		return true
 	})
