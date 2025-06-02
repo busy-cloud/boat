@@ -12,7 +12,7 @@ type Base struct {
 type Menu struct {
 	Name       string   `json:"name"`
 	Title      string   `json:"title,omitempty"`
-	NzIcon     string   `json:"nz-icon,omitempty"` //ant.design图标库
+	NzIcon     string   `json:"nz_icon,omitempty"` //ant.design图标库
 	Items      []*Entry `json:"items,omitempty"`
 	Index      int      `json:"index,omitempty"`
 	Privileges []string `json:"privileges,omitempty"`
