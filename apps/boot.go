@@ -60,11 +60,22 @@ func Startup() error {
 		//从应用列表中获取
 		a := _apps.Load(k)
 		if a != nil {
-			ctx.FileFromFS(ctx.Param("asset"), http.Dir("apps/"+a.Id+"/assets"))
+			if a.AssetsFS != nil {
+				ctx.FileFromFS(ctx.Param("asset"), http.FS(a.AssetsFS)) //TODO 每次都创建了
+			} else {
+				ctx.String(http.StatusNotFound, "asset not found")
+			}
+			return
 		}
 
+		ctx.String(http.StatusNotFound, "app not found")
 		//默认目录
-		ctx.FileFromFS(ctx.Param("asset"), http.Dir("assets"))
+		//ctx.FileFromFS(ctx.Param("asset"), http.Dir("assets"))
+	})
+
+	web.Engine().GET("pages/*page", func(ctx *gin.Context) {
+		k := ctx.Param("page")
+		ctx.FileFromFS(k+".json", &pages)
 	})
 
 	//注册到web引擎上

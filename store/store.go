@@ -32,20 +32,6 @@ type Store struct {
 	lock  sync.RWMutex
 }
 
-//func (s *Store) Exists(key string) bool {
-//	return s.Items.Load(key) != nil
-//}
-//
-//func (s *Store) Delete(key string) {
-//	s.Items.Delete(key)
-//}
-
-func (s *Store) Add(fs FS) {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-	s.Items = append(s.Items, fs)
-}
-
 func (s *Store) Remove(fs FS) {
 	for i, item := range s.Items {
 		if item == fs {
@@ -53,6 +39,12 @@ func (s *Store) Remove(fs FS) {
 			return
 		}
 	}
+}
+
+func (s *Store) Add(fs FS) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	s.Items = append(s.Items, fs)
 }
 
 func (s *Store) AddDir(root string) {

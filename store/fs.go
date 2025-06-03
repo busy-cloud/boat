@@ -28,7 +28,7 @@ func (t *prefixedFs) ReadFile(name string) ([]byte, error) {
 	return t.fs.ReadFile(path.Join(t.prefix, name))
 }
 
-func PrefixFS(fs FS, prefix string) fs.FS {
+func PrefixFS(fs FS, prefix string) FS {
 	return &prefixedFs{
 		fs:     fs,
 		prefix: prefix,

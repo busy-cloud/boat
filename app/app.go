@@ -32,9 +32,8 @@ type App struct {
 	Base //继承基础信息
 
 	//资源目录
-	Assets    string `json:"assets,omitempty"`    //资源
-	Pages     string `json:"pages,omitempty"`     //页面
-	Protocols string `json:"protocols,omitempty"` //协议
+	Assets string `json:"assets,omitempty"` //资源
+	Pages  string `json:"pages,omitempty"`  //页面
 
 	//扩展信息
 	Type     string `json:"type,omitempty"` //类型
