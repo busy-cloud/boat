@@ -69,10 +69,10 @@ func Startup() error {
 	})
 
 	//基础页面
-	web.Engine().GET("pages/:page", func(ctx *gin.Context) {
-		p := ctx.Param("page")
-		ctx.File("pages/" + p + ".json")
-	})
+	//web.Engine().GET("pages/:page", func(ctx *gin.Context) {
+	//	p := ctx.Param("page")
+	//	ctx.File("pages/" + p + ".json")
+	//})
 
 	//应用页面
 	web.Engine().GET("pages/:app/*page", func(ctx *gin.Context) {
