@@ -68,32 +68,6 @@ func Startup() error {
 		//ctx.FileFromFS(ctx.Param("asset"), http.Dir("assets"))
 	})
 
-	//基础页面
-	//web.Engine().GET("pages/:page", func(ctx *gin.Context) {
-	//	p := ctx.Param("page")
-	//	ctx.File("pages/" + p + ".json")
-	//})
-
-	//应用页面
-	web.Engine().GET("pages/:app/*page", func(ctx *gin.Context) {
-		k := ctx.Param("app")
-
-		//TODO先查询pages目录
-
-		//从应用列表中获取
-		a := _apps.Load(k)
-		if a != nil {
-			if a.PagesFS != nil {
-				ctx.FileFromFS(ctx.Param("page"), http.FS(a.PagesFS)) //TODO 每次都创建了
-			} else {
-				ctx.String(http.StatusNotFound, "page not found")
-			}
-			return
-		}
-
-		ctx.String(http.StatusNotFound, "app not found")
-	})
-
 	//注册到web引擎上
 	web.Engine().Use(Proxy)
 
