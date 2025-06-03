@@ -2,12 +2,12 @@ package store
 
 import (
 	"embed"
-	"github.com/busy-cloud/boat/lib"
 	"io/fs"
 	"net/http"
 	"os"
 	"path"
-	"strings"
+	"slices"
+	"sync"
 )
 
 type Item struct {
@@ -28,64 +28,75 @@ func (s *Item) ReadFile(name string) ([]byte, error) {
 }
 
 type Store struct {
-	items lib.Map[Item]
+	Items []FS
+	lock  sync.RWMutex
 }
 
-func (s *Store) Exists(key string) bool {
-	return s.items.Load(key) != nil
+//func (s *Store) Exists(key string) bool {
+//	return s.Items.Load(key) != nil
+//}
+//
+//func (s *Store) Delete(key string) {
+//	s.Items.Delete(key)
+//}
+
+func (s *Store) Add(fs FS) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	s.Items = append(s.Items, fs)
 }
 
-func (s *Store) Dir(key string, root string, base string) {
-	s.items.Store(key, &Item{fs: Dir(root), base: base})
+func (s *Store) Remove(fs FS) {
+	for i, item := range s.Items {
+		if item == fs {
+			slices.Delete(s.Items, i, 1)
+			return
+		}
+	}
 }
 
-func (s *Store) Zip(key string, zip string, base string) {
-	s.items.Store(key, &Item{fs: &ZipFS{Filename: zip}, base: base})
+func (s *Store) AddDir(root string) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	s.Items = append(s.Items, Dir(root))
 }
 
-func (s *Store) EmbedFS(key string, fs embed.FS, base string) {
-	s.items.Store(key, &Item{fs: fs, base: base})
+func (s *Store) AddZip(zip string) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	s.Items = append(s.Items, &ZipFS{Filename: zip})
+}
+
+func (s *Store) AddEmbedFS(fs *embed.FS) {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	s.Items = append(s.Items, fs)
 }
 
 func (s *Store) Open(name string) (http.File, error) {
-	if name[0:1] == "/" {
-		name = name[1:]
-	}
-
-	index := strings.Index(name, "/")
-	if index == -1 {
-		return nil, os.ErrNotExist
-	}
-
-	//分割，取key
-	key := name[:index]
-	name = name[index+1:]
-	file, err := s.OpenFile(key, name)
+	file, err := s.OpenFile(name)
 	if err != nil {
 		return nil, err
 	}
 	return HttpFile(file), err
 }
 
-func (s *Store) OpenFile(key, name string) (file fs.File, err error) {
-	item := s.items.Load(key)
-	if item == nil {
-		return nil, os.ErrNotExist
-	}
+func (s *Store) OpenFile(name string) (file fs.File, err error) {
+	s.lock.RLock()
+	defer s.lock.RUnlock()
 
-	fn := path.Join(item.base, name)
-
-	//查找文件
-	file, err = item.fs.Open(fn)
-	if err == nil {
-		fi, e := file.Stat()
-		if e != nil {
-			return nil, e
-		}
-		if fi != nil && !fi.IsDir() {
-			return
+	for _, item := range s.Items {
+		//查找文件
+		file, err = item.Open(name)
+		if err == nil {
+			fi, e := file.Stat()
+			if e != nil {
+				return nil, e
+			}
+			if fi != nil && !fi.IsDir() {
+				return
+			}
 		}
 	}
-
 	return nil, os.ErrNotExist
 }

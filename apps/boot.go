@@ -54,14 +54,8 @@ func Startup() error {
 	//web.Engine().Use(AssetsApi)
 	//web.Engine().GET("app/:app/pages/*asset", AssetsApi)
 
-	web.Engine().GET("app/assets/:app/*asset", func(ctx *gin.Context) {
+	web.Engine().GET("assets/:app/*asset", func(ctx *gin.Context) {
 		k := ctx.Param("app")
-
-		//优先从store中获取（内部插件）
-		if assets.Exists(k) {
-			ctx.FileFromFS(k+"/"+ctx.Param("asset"), &assets)
-			return
-		}
 
 		//从应用列表中获取
 		a := _apps.Load(k)

@@ -3,7 +3,7 @@ module github.com/busy-cloud/boat
 go 1.23.0
 
 require (
-	github.com/busy-cloud/dash v0.0.5
+	github.com/busy-cloud/dash v0.0.6
 	github.com/eclipse/paho.mqtt.golang v1.5.0
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-contrib/gzip v1.2.3

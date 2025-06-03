@@ -6,6 +6,7 @@ import (
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/web"
 	"github.com/gin-gonic/gin"
+	"io/fs"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -16,6 +17,11 @@ import (
 
 type App struct {
 	app.App
+
+	//资源
+	AssetsFS    fs.FS
+	PagesFS     fs.FS
+	ProtocolsFS fs.FS
 
 	//可执行文件
 	process *os.Process
@@ -64,6 +70,15 @@ func (a *App) Open() (err error) {
 	//附件
 	//assets := filepath.Join(dir, "assets")
 	//a.Assets = os.DirFS(assets)
+	if a.Assets != "" {
+		a.AssetsFS = os.DirFS(a.Assets)
+	}
+	if a.Pages != "" {
+		a.PagesFS = os.DirFS(a.Pages)
+	}
+	if a.Protocols != "" {
+		a.ProtocolsFS = os.DirFS(a.Protocols)
+	}
 
 	//前端页面
 	if a.Static != "" {
