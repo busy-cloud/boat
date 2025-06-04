@@ -58,12 +58,12 @@ func Startup() error {
 			if a.AssetsFS != nil {
 				ctx.FileFromFS(ctx.Param("asset"), http.FS(a.AssetsFS)) //TODO 每次都创建了
 			} else {
-				ctx.String(http.StatusNotFound, "asset not found")
+				//ctx.String(http.StatusNotFound, "asset not found")
 			}
 			return
 		}
 
-		ctx.String(http.StatusNotFound, "app not found")
+		//ctx.String(http.StatusNotFound, "app not found")
 		//默认目录
 		//ctx.FileFromFS(ctx.Param("asset"), http.Dir("assets"))
 	})
