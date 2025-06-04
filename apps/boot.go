@@ -49,23 +49,22 @@ func Startup() error {
 	})
 
 	//应用资源
-	web.Engine().GET("assets/:app/*asset", func(ctx *gin.Context) {
+	web.Engine().GET("app/assets/:app/*asset", func(ctx *gin.Context) {
 		k := ctx.Param("app")
 
 		//从应用列表中获取
 		a := _apps.Load(k)
-		if a != nil {
-			if a.AssetsFS != nil {
-				ctx.FileFromFS(ctx.Param("asset"), http.FS(a.AssetsFS)) //TODO 每次都创建了
-			} else {
-				//ctx.String(http.StatusNotFound, "asset not found")
-			}
+		if a == nil {
+			ctx.String(http.StatusNotFound, "app not found")
 			return
 		}
 
-		//ctx.String(http.StatusNotFound, "app not found")
-		//默认目录
-		//ctx.FileFromFS(ctx.Param("asset"), http.Dir("assets"))
+		if a.AssetsFS == nil {
+			ctx.String(http.StatusNotFound, "asset not found")
+			return
+		}
+
+		ctx.FileFromFS(ctx.Param("asset"), http.FS(a.AssetsFS)) //TODO 每次都创建了
 	})
 
 	//注册到web引擎上
