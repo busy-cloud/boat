@@ -3,9 +3,9 @@ package mqtt
 import (
 	"bytes"
 	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/json"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/pool"
-	"github.com/bytedance/sonic"
 	paho "github.com/eclipse/paho.mqtt.golang"
 	"net/url"
 	"os"
@@ -90,7 +90,7 @@ func Publish(topic string, payload any) paho.Token {
 	case []byte:
 	case bytes.Buffer:
 	default:
-		payload, _ = sonic.Marshal(payload)
+		payload, _ = json.Marshal(payload)
 	}
 	return client.Publish(topic, 0, false, payload)
 }
@@ -101,7 +101,7 @@ func PublishEx(topics []string, payload any) {
 	case []byte:
 	case bytes.Buffer:
 	default:
-		payload, _ = sonic.Marshal(payload)
+		payload, _ = json.Marshal(payload)
 	}
 
 	for _, topic := range topics {
@@ -147,7 +147,7 @@ func SubscribeStruct[T any](filter string, cb func(topic string, data *T)) {
 	Subscribe(filter, func(topic string, payload []byte) {
 		var value T
 		if len(payload) > 0 {
-			err := sonic.Unmarshal(payload, &value)
+			err := json.Unmarshal(payload, &value)
 			if err != nil {
 				log.Error(err)
 				return

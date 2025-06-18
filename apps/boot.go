@@ -1,10 +1,10 @@
 package apps
 
 import (
+	"encoding/json"
 	"github.com/busy-cloud/boat/boot"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/web"
-	"github.com/bytedance/sonic"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/multierr"
 	"net/http"
@@ -101,7 +101,7 @@ func load() error {
 			}
 
 			var p App
-			e = sonic.Unmarshal(buf, &p)
+			e = json.Unmarshal(buf, &p)
 			if e != nil {
 				err = multierr.Append(err, e)
 				continue

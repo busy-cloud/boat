@@ -1,7 +1,7 @@
 package broker
 
 import (
-	"github.com/bytedance/sonic"
+	"encoding/json"
 )
 
 func Publish(topic string, payload any) (err error) {
@@ -13,7 +13,7 @@ func Publish(topic string, payload any) (err error) {
 		buf = v
 	case nil:
 	default:
-		buf, err = sonic.Marshal(v)
+		buf, err = json.Marshal(v)
 		if err != nil {
 			return err
 		}

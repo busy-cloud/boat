@@ -1,8 +1,8 @@
 package table
 
 import (
+	"encoding/json"
 	"github.com/busy-cloud/boat/curd"
-	"github.com/bytedance/sonic"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -30,7 +30,7 @@ func ApiExport(ctx *gin.Context) {
 		return
 	}
 
-	buf, err := sonic.Marshal(results)
+	buf, err := json.Marshal(results)
 	if err != nil {
 		Error(ctx, err)
 		return
