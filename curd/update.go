@@ -1,28 +1,28 @@
 package curd
 
 import (
-	"encoding/json"
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/log"
+	"github.com/bytedance/sonic"
 	"github.com/gin-gonic/gin"
 )
 
 func map2struct(m map[string]any, s any) error {
-	buf, err := json.Marshal(m)
+	buf, err := sonic.Marshal(m)
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(buf, s)
+	return sonic.Unmarshal(buf, s)
 }
 
 func struct2map(s any) (m map[string]any, err error) {
 	var buf []byte
-	buf, err = json.Marshal(s)
+	buf, err = sonic.Marshal(s)
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(buf, &m)
+	err = sonic.Unmarshal(buf, &m)
 	return
 }
 

@@ -4,6 +4,7 @@ go 1.23.0
 
 require (
 	github.com/busy-cloud/dash v0.5.0
+	github.com/bytedance/sonic v1.13.2
 	github.com/eclipse/paho.mqtt.golang v1.5.0
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-contrib/gzip v1.2.3
@@ -33,7 +34,6 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/bytedance/sonic v1.13.2 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/ebitengine/purego v0.8.4 // indirect

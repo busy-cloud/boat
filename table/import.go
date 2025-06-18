@@ -1,7 +1,7 @@
 package table
 
 import (
-	"encoding/json"
+	"github.com/bytedance/sonic"
 	"github.com/gin-gonic/gin"
 	"io"
 	"mime/multipart"
@@ -49,7 +49,7 @@ func ApiImport(ctx *gin.Context) {
 			return
 		}
 
-		err = json.Unmarshal(buf, &docs)
+		err = sonic.Unmarshal(buf, &docs)
 		if err != nil {
 			Error(ctx, err)
 			return

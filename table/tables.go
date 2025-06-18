@@ -1,9 +1,9 @@
 package table
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/busy-cloud/boat/lib"
+	"github.com/bytedance/sonic"
 	"os"
 	"path/filepath"
 )
@@ -32,7 +32,7 @@ func Load(path string) error {
 	}
 
 	var table Table
-	err = json.Unmarshal(buf, &table)
+	err = sonic.Unmarshal(buf, &table)
 	if err != nil {
 		return err
 	}

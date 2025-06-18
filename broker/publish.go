@@ -1,6 +1,8 @@
 package broker
 
-import "encoding/json"
+import (
+	"github.com/bytedance/sonic"
+)
 
 func Publish(topic string, payload any) (err error) {
 	var buf []byte
@@ -11,7 +13,7 @@ func Publish(topic string, payload any) (err error) {
 		buf = v
 	case nil:
 	default:
-		buf, err = json.Marshal(v)
+		buf, err = sonic.Marshal(v)
 		if err != nil {
 			return err
 		}
