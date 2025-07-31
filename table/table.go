@@ -337,7 +337,7 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 	for k, v := range values {
 		vs = append(vs, builder.Eq{k: v})
 	}
-	bdr := builder.Insert(vs...).Into(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Insert(vs...).Into(t.Name)
 	res, err := db.Engine().Exec(bdr)
 	if err != nil {
 		return id, err
@@ -369,7 +369,7 @@ func (t *Table) Update(filter map[string]any, values map[string]any) (rows int64
 		updates = append(updates, builder.Eq{k: v})
 	}
 
-	bdr := builder.Update(updates...).From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Update(updates...).From(t.Name)
 
 	cs, err := t.condWhere(filter)
 	if err != nil {
@@ -405,7 +405,7 @@ func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error
 	for k, v := range values {
 		updates = append(updates, builder.Eq{k: v})
 	}
-	bdr := builder.Update(updates...).From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Update(updates...).From(t.Name)
 
 	//bdr.Where(builder.Eq{"id": id})
 	cond, err := t.condId(id)
@@ -432,7 +432,7 @@ func (t *Table) Delete(filter map[string]any) (rows int64, err error) {
 		return 0, err
 	}
 
-	bdr := builder.Delete(cs...).From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Delete(cs...).From(t.Name)
 
 	res, err := db.Engine().Exec(bdr)
 	if err != nil {
@@ -443,7 +443,7 @@ func (t *Table) Delete(filter map[string]any) (rows int64, err error) {
 }
 
 func (t *Table) DeleteById(id any) (rows int64, err error) {
-	bdr := builder.Delete().From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Delete().From(t.Name)
 
 	if t.BeforeDelete != nil {
 		err = t.BeforeDelete(id)
@@ -474,9 +474,7 @@ func (t *Table) DeleteById(id any) (rows int64, err error) {
 }
 
 func (t *Table) Find(filter map[string]any, fields []string, skip, limit int) (rows []map[string]any, err error) {
-	bdr := builder.Select(fields...)
-
-	bdr.From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Select(fields...).From(t.Name)
 
 	cs, err := t.condWhere(filter)
 	if err != nil {
@@ -488,15 +486,13 @@ func (t *Table) Find(filter map[string]any, fields []string, skip, limit int) (r
 
 	//bdr.OrderBy()
 
-	bdr.Limit(skip, limit)
+	bdr.Limit(limit, skip)
 
 	return db.Engine().QueryInterface(bdr)
 }
 
 func (t *Table) Get(id any, fields []string) (Document, error) {
-	bdr := builder.Select(fields...)
-
-	bdr.From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Select(fields...).From(t.Name)
 
 	//bdr.Where(builder.Eq{"id": id})
 	cond, err := t.condId(id)
@@ -516,7 +512,7 @@ func (t *Table) Get(id any, fields []string) (Document, error) {
 }
 
 func (t *Table) Count(filter map[string]any) (cnt int64, err error) {
-	bdr := builder.Select("count(*)").From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Select("count(*)").From(t.Name)
 
 	cs, err := t.condWhere(filter)
 	if err != nil {

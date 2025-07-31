@@ -19,6 +19,7 @@ func Sync(tables []*Table) error {
 
 		var originTable *schemas.Table
 		for _, ot := range originTables {
+
 			if ot.Name == table.Name {
 				originTable = ot
 				break
@@ -34,11 +35,16 @@ func Sync(tables []*Table) error {
 			continue
 		}
 
+		_, columns, err := db.Engine().Dialect().GetColumns(db.Engine().DB(), context.Background(), originTable.Name)
+		if err != nil {
+			return err
+		}
+
 		//更新列
 		schema := table.Schema()
 		for _, col := range schema.Columns() {
 			found := false
-			for _, oc := range originTable.Columns() {
+			for _, oc := range columns {
 				if col.Name == oc.Name {
 					found = true
 					break
@@ -58,10 +64,15 @@ func Sync(tables []*Table) error {
 			//TODO 处理修改字段类型
 		}
 
+		indexes, err := db.Engine().Dialect().GetIndexes(db.Engine().DB(), context.Background(), originTable.Name)
+		if err != nil {
+			return err
+		}
+
 		//更新索引
 		for _, index := range schema.Indexes {
 			found := false
-			for _, oi := range originTable.Indexes {
+			for _, oi := range indexes {
 				if index.Equal(oi) {
 					found = true
 					break
