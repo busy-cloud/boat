@@ -237,8 +237,11 @@ func (t *Table) condWhere(filter map[string]any) (conds []builder.Cond, err erro
 
 func (t *Table) Schema() *schemas.Table {
 	//构建xorm schema
-	var table schemas.Table
-	table.Name = t.Name
+	//var table schemas.Table
+	//table.Name = t.Name
+	//table.Comment = t.Comment
+
+	table := schemas.NewTable(t.Name, nil)
 	table.Comment = t.Comment
 
 	//转化列
@@ -256,7 +259,7 @@ func (t *Table) Schema() *schemas.Table {
 		table.AddColumn(col)
 	}
 
-	return &table
+	return table
 }
 
 func (t *Table) Create() error {
