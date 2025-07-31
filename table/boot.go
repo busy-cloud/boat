@@ -3,6 +3,7 @@ package table
 import (
 	"github.com/busy-cloud/boat/boot"
 	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/log"
 )
 
 func init() {
@@ -26,7 +27,16 @@ func Startup() error {
 		}
 	}
 
-	//同步
+	//初始化，编译钩子
+	tables.Range(func(name string, table *Table) bool {
+		err := table.Compile()
+		if err != nil {
+			log.Error(err)
+		}
+		return true
+	})
+
+	//同步表结构
 	if config.GetBool(MODULE, "sync") {
 		var tbs []*Table
 		tables.Range(func(name string, tab *Table) bool {

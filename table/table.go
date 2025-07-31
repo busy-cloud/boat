@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/busy-cloud/boat/db"
+	"github.com/busy-cloud/boat/javascript"
 	"github.com/spf13/cast"
 	"strings"
 	"time"
@@ -63,6 +64,9 @@ type Table struct {
 	DisableInsert bool     `json:"disable_insert,omitempty"`
 	DisableUpdate bool     `json:"disable_update,omitempty"`
 	DisableDelete bool     `json:"disable_delete,omitempty"`
+
+	//原生钩子
+	Hook
 }
 
 func (t *Table) parseId(id string, bdr *builder.Builder) (err error) {
