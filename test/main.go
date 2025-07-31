@@ -10,6 +10,7 @@ import (
 	_ "github.com/busy-cloud/boat/table"
 	"github.com/busy-cloud/boat/web"
 	_ "github.com/busy-cloud/dash"
+	_ "github.com/busy-cloud/user"
 	"github.com/spf13/viper"
 	"os"
 	"os/signal"

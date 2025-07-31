@@ -4,6 +4,7 @@ go 1.23.0
 
 require (
 	github.com/busy-cloud/dash v0.5.0
+	github.com/busy-cloud/user v0.6.0
 	github.com/bytedance/sonic v1.13.2
 	github.com/dop251/goja v0.0.0-20250630131328-58d95d85e994
 	github.com/dop251/goja_nodejs v0.0.0-20250409162600-f7acab6894b0
