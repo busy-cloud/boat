@@ -29,7 +29,7 @@ func Startup() error {
 
 	//初始化，编译钩子
 	tables.Range(func(name string, table *Table) bool {
-		err := table.Compile()
+		err := table.Init()
 		if err != nil {
 			log.Error(err)
 		}

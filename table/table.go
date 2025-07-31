@@ -3,10 +3,10 @@ package table
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/busy-cloud/boat/db"
-	"github.com/busy-cloud/boat/javascript"
+	"github.com/rs/xid"
 	"github.com/spf13/cast"
-	"strings"
 	"time"
 	"xorm.io/builder"
 	"xorm.io/xorm/schemas"
@@ -58,6 +58,20 @@ type Field struct {
 	Updated    bool   `json:"updated,omitempty"`
 }
 
+func (f *Field) Cast(v any) (ret any, err error) {
+	switch f.Type {
+	case "int", "int8", "int16", "int32", "int64":
+		ret, err = cast.ToInt64E(v)
+	case "uint", "uint8", "uint16", "uint32", "uint64":
+		ret, err = cast.ToUint64E(v)
+	case "float32", "float64", "float", "double":
+		ret, err = cast.ToFloat64E(v)
+	default: //string
+		ret = v
+	}
+	return
+}
+
 type Table struct {
 	Name          string   `json:"name,omitempty"`
 	Fields        []*Field `json:"fields,omitempty"`
@@ -67,10 +81,34 @@ type Table struct {
 
 	//原生钩子
 	Hook
+
+	indexedFields map[string]*Field
 }
 
-func (t *Table) parseId(id string, bdr *builder.Builder) (err error) {
-	ids := strings.Split(id, ",")
+func (t *Table) Init() error {
+	t.indexedFields = make(map[string]*Field)
+	for _, field := range t.Fields {
+		t.indexedFields[field.Name] = field
+	}
+
+	return t.Hook.Compile()
+}
+
+func (t *Table) Field(name string) *Field {
+	return t.indexedFields[name]
+}
+
+func (t *Table) PrimaryKeys() []*Field {
+	var fields []*Field
+	for _, field := range t.Fields {
+		if field.PrimaryKey {
+			fields = append(fields, field)
+		}
+	}
+	return fields
+}
+
+func (t *Table) parseMultiId(ids []string, bdr *builder.Builder) (err error) {
 	var i = 0
 	for _, field := range t.Fields {
 		if field.PrimaryKey {
@@ -96,6 +134,114 @@ func (t *Table) parseId(id string, bdr *builder.Builder) (err error) {
 		return errors.New("table has not primary key")
 	}
 	return
+}
+
+func (t *Table) condId(id any) (cond builder.Cond, err error) {
+
+	keys := t.PrimaryKeys()
+	if len(keys) == 0 {
+		return nil, errors.New("table has no primary key")
+	}
+	if len(keys) > 1 {
+		return nil, errors.New("table has more than one primary key")
+	}
+
+	var val any
+
+	key := keys[0]
+	switch key.Type {
+	case "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64":
+		val, err = cast.ToInt64E(id)
+	case "float32", "float64", "float", "double":
+		val, err = cast.ToFloat64E(id)
+	default:
+		val = id
+	}
+	if err != nil {
+		return
+	}
+
+	return builder.Eq{key.Name: val}, nil
+}
+
+func (t *Table) condWhere(filter map[string]any) (conds []builder.Cond, err error) {
+	for k, v := range filter {
+		field := t.Field(k)
+		if field == nil {
+			return nil, fmt.Errorf("field %s not found", k)
+		}
+
+		switch val := v.(type) {
+		case string:
+			switch val[0] {
+			case '>':
+				if val[1] == '=' {
+					v, err = field.Cast(val[2:])
+					if err != nil {
+						return
+					}
+					conds = append(conds, builder.Gte{k: v})
+				} else {
+					v, err = field.Cast(val[1:])
+					if err != nil {
+						return
+					}
+					conds = append(conds, builder.Gt{k: v})
+				}
+			case '<':
+				if val[1] == '=' {
+					v, err = field.Cast(val[2:])
+					if err != nil {
+						return
+					}
+					conds = append(conds, builder.Lte{k: v})
+				} else {
+					v, err = field.Cast(val[1:])
+					if err != nil {
+						return
+					}
+					conds = append(conds, builder.Lt{k: v})
+				}
+			case '=':
+				if val[1] == '=' {
+					v, err = field.Cast(val[2:])
+					if err != nil {
+						return
+					}
+					conds = append(conds, builder.Eq{k: v})
+				} else {
+					v, err = field.Cast(val[1:])
+					if err != nil {
+						return
+					}
+					conds = append(conds, builder.Eq{k: v})
+				}
+			case '!', '~':
+				if val[1] == '=' {
+					v, err = field.Cast(val[2:])
+					if err != nil {
+						return
+					}
+					conds = append(conds, builder.Neq{k: v})
+				} else {
+					v, err = field.Cast(val[1:])
+					if err != nil {
+						return
+					}
+					conds = append(conds, builder.Neq{k: v})
+				}
+			case '%':
+				v, err = field.Cast(val[2:])
+				if err != nil {
+					return
+				}
+				conds = append(conds, builder.Like{k, val})
+			}
+		default:
+
+		}
+	}
+
 }
 
 func (t *Table) Schema() *schemas.Table {
@@ -159,15 +305,43 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 	}
 
 	for _, field := range t.Fields {
+
+		//主键，生成默认ID
+		if field.PrimaryKey && field.Name == "id" && field.Type == "string" {
+			if val, ok := values[field.Name]; ok {
+				if v, ok := val.(string); ok && v == "" {
+					id = xid.New().String()
+					values[field.Name] = id
+				}
+			} else {
+				id = xid.New().String()
+				values[field.Name] = id
+			}
+		}
+
 		if field.Created {
 			values[field.Name] = time.Now()
 		}
 	}
 
+	if t.BeforeInsert != nil {
+		err = t.BeforeInsert(values)
+		if err != nil {
+			return
+		}
+	}
+
 	_, err = db.Engine().Table(t.Name).Insert(values)
 	if err != nil {
-		return id, err
+		return
 	}
+
+	//TODO 自增类型，获取ID，用SqlResult.InsertedId
+
+	if t.AfterInsert != nil {
+		err = t.AfterInsert(id, values)
+	}
+
 	return
 }
 
@@ -182,9 +356,7 @@ func (t *Table) Update(cond map[string]any, values map[string]any) (rows int64, 
 	for k, v := range values {
 		updates = append(updates, builder.Eq{k: v})
 	}
-	bdr := builder.Update(updates...)
-
-	bdr.From(t.Name)
+	bdr := builder.Update(updates...).From(t.Name)
 
 	for k, v := range cond {
 		bdr.Where(builder.Eq{k: v})
@@ -198,10 +370,17 @@ func (t *Table) Update(cond map[string]any, values map[string]any) (rows int64, 
 	return res.RowsAffected()
 }
 
-func (t *Table) UpdateById(id string, values map[string]any) (rows int64, err error) {
+func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error) {
 	for _, field := range t.Fields {
 		if field.Updated {
 			values[field.Name] = time.Now()
+		}
+	}
+
+	if t.BeforeUpdate != nil {
+		err = t.BeforeUpdate(id, values)
+		if err != nil {
+			return
 		}
 	}
 
@@ -209,19 +388,22 @@ func (t *Table) UpdateById(id string, values map[string]any) (rows int64, err er
 	for k, v := range values {
 		updates = append(updates, builder.Eq{k: v})
 	}
-	bdr := builder.Update(updates...)
+	bdr := builder.Update(updates...).From(t.Name)
 
-	bdr.From(t.Name)
-
-	err = t.parseId(id, bdr)
+	//bdr.Where(builder.Eq{"id": id})
+	cond, err := t.condId(id)
 	if err != nil {
 		return 0, err
 	}
-	//bdr.Where(builder.Eq{"id": id})
+	bdr.Where(cond)
 
-	res, err := db.Engine().Exec(bdr)
+	res, err := db.Engine().ID(id).Exec(bdr)
 	if err != nil {
 		return 0, err
+	}
+
+	if t.AfterUpdate != nil {
+		err = t.AfterUpdate(id, values, values)
 	}
 
 	return res.RowsAffected()
@@ -234,6 +416,7 @@ func (t *Table) Delete(cond map[string]any) (rows int64, err error) {
 	}
 
 	bdr := builder.Delete(conds...).From(t.Name)
+
 	res, err := db.Engine().Exec(bdr)
 	if err != nil {
 		return 0, err
@@ -243,18 +426,33 @@ func (t *Table) Delete(cond map[string]any) (rows int64, err error) {
 }
 
 func (t *Table) DeleteById(id string) (rows int64, err error) {
-	bdr := builder.Delete()
+	bdr := builder.Delete().From(t.Name)
 
-	err = t.parseId(id, bdr)
+	if t.BeforeDelete != nil {
+		err = t.BeforeDelete(id)
+		if err != nil {
+			return
+		}
+	}
+
+	cond, err := t.condId(id)
 	if err != nil {
 		return 0, err
 	}
-	bdr.From(t.Name)
+	bdr.Where(cond)
 
 	res, err := db.Engine().Exec(bdr)
 	if err != nil {
 		return 0, err
 	}
+
+	if t.AfterDelete != nil {
+		err = t.AfterDelete(id, nil)
+		if err != nil {
+			return 0, err
+		}
+	}
+
 	return res.RowsAffected()
 }
 
@@ -279,11 +477,12 @@ func (t *Table) Get(id string, fields []string) (Document, error) {
 
 	bdr.From(t.Name)
 
-	err := t.parseId(id, bdr)
+	//bdr.Where(builder.Eq{"id": id})
+	cond, err := t.condId(id)
 	if err != nil {
 		return nil, err
 	}
-	//bdr.Where(builder.Eq{"id": id})
+	bdr.Where(cond)
 
 	res, err := db.Engine().QueryInterface(bdr)
 	if err != nil {
