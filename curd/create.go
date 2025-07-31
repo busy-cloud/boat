@@ -25,6 +25,15 @@ func ApiCreate[T any]() gin.HandlerFunc {
 			field.SetString(key)
 		}
 
+		//多租户处理
+		tid := ctx.GetString("tenant_id")
+		if tid != "" {
+			field := reflect.ValueOf(&data).Elem().FieldByName("TenantId")
+			if field.IsValid() && field.IsZero() && field.Kind() == reflect.String {
+				field.SetString(tid)
+			}
+		}
+
 		_, err = db.Engine().InsertOne(&data)
 		if err != nil {
 			api.Error(ctx, err)
@@ -49,6 +58,15 @@ func ApiCreateHook[T any](before, after func(m *T) error) gin.HandlerFunc {
 		if field.IsValid() && field.IsZero() && field.Kind() == reflect.String {
 			key := xid.New().String()
 			field.SetString(key)
+		}
+
+		//多租户处理
+		tid := ctx.GetString("tenant_id")
+		if tid != "" {
+			field := reflect.ValueOf(&data).Elem().FieldByName("TenantId")
+			if field.IsValid() && field.IsZero() && field.Kind() == reflect.String {
+				field.SetString(tid)
+			}
 		}
 
 		if before != nil {

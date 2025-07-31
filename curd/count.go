@@ -3,6 +3,7 @@ package curd
 import (
 	"github.com/busy-cloud/boat/api"
 	"github.com/gin-gonic/gin"
+	"reflect"
 )
 
 func ApiCount[T any]() gin.HandlerFunc {
@@ -15,9 +16,21 @@ func ApiCount[T any]() gin.HandlerFunc {
 			return
 		}
 
+		var d T
+		//多租户处理
+		tid := ctx.GetString("tenant_id")
+		if tid != "" {
+			//只有未传值tenant_id时，才会赋值用户所在的tenant_id
+			if _, ok := body.Filter["tenant_id"]; !ok {
+				field := reflect.ValueOf(&d).Elem().FieldByName("TenantId")
+				if field.IsValid() && field.IsZero() && field.Kind() == reflect.String {
+					body.Filter["tenant_id"] = tid
+				}
+			}
+		}
+
 		query := body.ToQuery()
 
-		var d T
 		cnt, err := query.Count(d)
 		if err != nil {
 			api.Error(ctx, err)

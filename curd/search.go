@@ -3,6 +3,7 @@ package curd
 import (
 	"github.com/busy-cloud/boat/api"
 	"github.com/gin-gonic/gin"
+	"reflect"
 )
 
 func ApiSearch[T any](fields ...string) gin.HandlerFunc {
@@ -13,6 +14,19 @@ func ApiSearch[T any](fields ...string) gin.HandlerFunc {
 		if err != nil {
 			api.Error(ctx, err)
 			return
+		}
+
+		//多租户处理
+		tid := ctx.GetString("tenant_id")
+		if tid != "" {
+			//只有未传值tenant_id时，才会赋值用户所在的tenant_id
+			if _, ok := body.Filter["tenant_id"]; !ok {
+				var data T
+				field := reflect.ValueOf(&data).Elem().FieldByName("TenantId")
+				if field.IsValid() && field.Kind() == reflect.String {
+					body.Filter["tenant_id"] = tid
+				}
+			}
 		}
 
 		query := body.ToQuery()
@@ -45,6 +59,19 @@ func ApiSearchHook[T any](after func(datum []*T) error, fields ...string) gin.Ha
 		if err != nil {
 			api.Error(ctx, err)
 			return
+		}
+
+		//多租户处理
+		tid := ctx.GetString("tenant_id")
+		if tid != "" {
+			//只有未传值tenant_id时，才会赋值用户所在的tenant_id
+			if _, ok := body.Filter["tenant_id"]; !ok {
+				var data T
+				field := reflect.ValueOf(&data).Elem().FieldByName("TenantId")
+				if field.IsValid() && field.Kind() == reflect.String {
+					body.Filter["tenant_id"] = tid
+				}
+			}
 		}
 
 		query := body.ToQuery()
@@ -84,6 +111,19 @@ func ApiSearchMapHook[T any](after func(datum []map[string]any) error, fields ..
 		if err != nil {
 			api.Error(ctx, err)
 			return
+		}
+
+		//多租户处理
+		tid := ctx.GetString("tenant_id")
+		if tid != "" {
+			//只有未传值tenant_id时，才会赋值用户所在的tenant_id
+			if _, ok := body.Filter["tenant_id"]; !ok {
+				var data T
+				field := reflect.ValueOf(&data).Elem().FieldByName("TenantId")
+				if field.IsValid() && field.Kind() == reflect.String {
+					body.Filter["tenant_id"] = tid
+				}
+			}
 		}
 
 		query := body.ToQuery()
