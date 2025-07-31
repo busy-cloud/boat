@@ -72,6 +72,77 @@ func (f *Field) Cast(v any) (ret any, err error) {
 	return
 }
 
+func (f *Field) Condition(val string) (cond builder.Cond, err error) {
+	var v any
+	switch val[0] {
+	case '>':
+		if val[1] == '=' {
+			v, err = f.Cast(val[2:])
+			if err != nil {
+				return
+			}
+			cond = builder.Gte{f.Name: v}
+		} else {
+			v, err = f.Cast(val[1:])
+			if err != nil {
+				return
+			}
+			cond = builder.Gt{f.Name: v}
+		}
+	case '<':
+		if val[1] == '=' {
+			v, err = f.Cast(val[2:])
+			if err != nil {
+				return
+			}
+			cond = builder.Lte{f.Name: v}
+		} else {
+			v, err = f.Cast(val[1:])
+			if err != nil {
+				return
+			}
+			cond = builder.Lt{f.Name: v}
+		}
+	case '=': //此处冗余了
+		if val[1] == '=' {
+			v, err = f.Cast(val[2:])
+			if err != nil {
+				return
+			}
+			cond = builder.Eq{f.Name: v}
+		} else {
+			v, err = f.Cast(val[1:])
+			if err != nil {
+				return
+			}
+			cond = builder.Eq{f.Name: v}
+		}
+	case '!', '~':
+		if val[1] == '=' {
+			v, err = f.Cast(val[2:])
+			if err != nil {
+				return
+			}
+			cond = builder.Neq{f.Name: v}
+		} else {
+			v, err = f.Cast(val[1:])
+			if err != nil {
+				return
+			}
+			cond = builder.Neq{f.Name: v}
+		}
+	case '%':
+		v, err = f.Cast(val[2:])
+		if err != nil {
+			return
+		}
+		cond = builder.Like{f.Name, val}
+	default:
+		cond = builder.Eq{f.Name: v}
+	}
+	return
+}
+
 type Table struct {
 	Name          string   `json:"name,omitempty"`
 	Fields        []*Field `json:"fields,omitempty"`
@@ -108,60 +179,29 @@ func (t *Table) PrimaryKeys() []*Field {
 	return fields
 }
 
-func (t *Table) parseMultiId(ids []string, bdr *builder.Builder) (err error) {
-	var i = 0
-	for _, field := range t.Fields {
-		if field.PrimaryKey {
-			if i < len(ids) {
-				var val any
-				switch field.Type {
-				case "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64":
-					val, err = cast.ToInt64E(ids[i])
-				case "float32", "float64", "float", "double":
-					val, err = cast.ToFloat64E(ids[i])
-				default:
-					val = ids[i]
-				}
+func (t *Table) condId(id any) (builder.Cond, error) {
+	//取id列
+	field := t.Field("id")
 
-				bdr.Where(builder.Eq{field.Name: val})
-				i++
-			} else {
-				return errors.New("id length error")
-			}
+	//取主键
+	if field == nil {
+		keys := t.PrimaryKeys()
+		if len(keys) == 0 {
+			return nil, errors.New("table has no primary key")
 		}
-	}
-	if i == 0 {
-		return errors.New("table has not primary key")
-	}
-	return
-}
-
-func (t *Table) condId(id any) (cond builder.Cond, err error) {
-
-	keys := t.PrimaryKeys()
-	if len(keys) == 0 {
-		return nil, errors.New("table has no primary key")
-	}
-	if len(keys) > 1 {
-		return nil, errors.New("table has more than one primary key")
+		if len(keys) > 1 {
+			return nil, errors.New("table has more than one primary key")
+		}
+		field = keys[0]
 	}
 
-	var val any
-
-	key := keys[0]
-	switch key.Type {
-	case "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64":
-		val, err = cast.ToInt64E(id)
-	case "float32", "float64", "float", "double":
-		val, err = cast.ToFloat64E(id)
-	default:
-		val = id
-	}
+	//转换（有需要的情况下，字符串转数值）
+	val, err := field.Cast(id)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	return builder.Eq{key.Name: val}, nil
+	return builder.Eq{field.Name: val}, nil
 }
 
 func (t *Table) condWhere(filter map[string]any) (conds []builder.Cond, err error) {
@@ -172,76 +212,25 @@ func (t *Table) condWhere(filter map[string]any) (conds []builder.Cond, err erro
 		}
 
 		switch val := v.(type) {
-		case string:
-			switch val[0] {
-			case '>':
-				if val[1] == '=' {
-					v, err = field.Cast(val[2:])
-					if err != nil {
-						return
-					}
-					conds = append(conds, builder.Gte{k: v})
-				} else {
-					v, err = field.Cast(val[1:])
-					if err != nil {
-						return
-					}
-					conds = append(conds, builder.Gt{k: v})
-				}
-			case '<':
-				if val[1] == '=' {
-					v, err = field.Cast(val[2:])
-					if err != nil {
-						return
-					}
-					conds = append(conds, builder.Lte{k: v})
-				} else {
-					v, err = field.Cast(val[1:])
-					if err != nil {
-						return
-					}
-					conds = append(conds, builder.Lt{k: v})
-				}
-			case '=':
-				if val[1] == '=' {
-					v, err = field.Cast(val[2:])
-					if err != nil {
-						return
-					}
-					conds = append(conds, builder.Eq{k: v})
-				} else {
-					v, err = field.Cast(val[1:])
-					if err != nil {
-						return
-					}
-					conds = append(conds, builder.Eq{k: v})
-				}
-			case '!', '~':
-				if val[1] == '=' {
-					v, err = field.Cast(val[2:])
-					if err != nil {
-						return
-					}
-					conds = append(conds, builder.Neq{k: v})
-				} else {
-					v, err = field.Cast(val[1:])
-					if err != nil {
-						return
-					}
-					conds = append(conds, builder.Neq{k: v})
-				}
-			case '%':
-				v, err = field.Cast(val[2:])
+		case []string:
+			for _, s := range val {
+				cond, err := field.Condition(s)
 				if err != nil {
-					return
+					return nil, err
 				}
-				conds = append(conds, builder.Like{k, val})
+				conds = append(conds, cond)
 			}
+		case string:
+			cond, err := field.Condition(val)
+			if err != nil {
+				return nil, err
+			}
+			conds = append(conds, cond)
 		default:
-
+			conds = append(conds, builder.Eq{field.Name: val})
 		}
 	}
-
+	return
 }
 
 func (t *Table) Schema() *schemas.Table {
@@ -304,7 +293,13 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 		return
 	}
 
+	var increment bool
+
 	for _, field := range t.Fields {
+		//查询自增主键
+		if field.PrimaryKey && field.Increment {
+			increment = true
+		}
 
 		//主键，生成默认ID
 		if field.PrimaryKey && field.Name == "id" && field.Type == "string" {
@@ -331,12 +326,22 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 		}
 	}
 
-	_, err = db.Engine().Table(t.Name).Insert(values)
+	var vs []interface{}
+	for k, v := range values {
+		vs = append(vs, builder.Eq{k: v})
+	}
+	bdr := builder.Insert(vs...).Into(t.Name)
+	res, err := db.Engine().Exec(bdr)
 	if err != nil {
-		return
+		return id, err
 	}
 
-	//TODO 自增类型，获取ID，用SqlResult.InsertedId
+	//获取自增ID
+	if increment {
+		id, err = res.LastInsertId()
+	}
+
+	//_, err = db.Engine().Table(t.Name).Insert(values) 原始方式
 
 	if t.AfterInsert != nil {
 		err = t.AfterInsert(id, values)
@@ -345,7 +350,7 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 	return
 }
 
-func (t *Table) Update(cond map[string]any, values map[string]any) (rows int64, err error) {
+func (t *Table) Update(filter map[string]any, values map[string]any) (rows int64, err error) {
 	for _, field := range t.Fields {
 		if field.Updated {
 			values[field.Name] = time.Now()
@@ -356,10 +361,15 @@ func (t *Table) Update(cond map[string]any, values map[string]any) (rows int64, 
 	for k, v := range values {
 		updates = append(updates, builder.Eq{k: v})
 	}
+
 	bdr := builder.Update(updates...).From(t.Name)
 
-	for k, v := range cond {
-		bdr.Where(builder.Eq{k: v})
+	cs, err := t.condWhere(filter)
+	if err != nil {
+		return 0, err
+	}
+	for _, c := range cs {
+		bdr.Where(c)
 	}
 
 	res, err := db.Engine().Exec(bdr)
@@ -409,13 +419,13 @@ func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error
 	return res.RowsAffected()
 }
 
-func (t *Table) Delete(cond map[string]any) (rows int64, err error) {
-	var conds []builder.Cond
-	for k, v := range cond {
-		conds = append(conds, builder.Eq{k: v})
+func (t *Table) Delete(filter map[string]any) (rows int64, err error) {
+	cs, err := t.condWhere(filter)
+	if err != nil {
+		return 0, err
 	}
 
-	bdr := builder.Delete(conds...).From(t.Name)
+	bdr := builder.Delete(cs...).From(t.Name)
 
 	res, err := db.Engine().Exec(bdr)
 	if err != nil {
@@ -425,7 +435,7 @@ func (t *Table) Delete(cond map[string]any) (rows int64, err error) {
 	return res.RowsAffected()
 }
 
-func (t *Table) DeleteById(id string) (rows int64, err error) {
+func (t *Table) DeleteById(id any) (rows int64, err error) {
 	bdr := builder.Delete().From(t.Name)
 
 	if t.BeforeDelete != nil {
@@ -456,13 +466,17 @@ func (t *Table) DeleteById(id string) (rows int64, err error) {
 	return res.RowsAffected()
 }
 
-func (t *Table) Find(cond map[string]any, fields []string, skip, limit int) (rows []map[string]any, err error) {
+func (t *Table) Find(filter map[string]any, fields []string, skip, limit int) (rows []map[string]any, err error) {
 	bdr := builder.Select(fields...)
 
 	bdr.From(t.Name)
 
-	for k, v := range cond {
-		bdr.Where(builder.Eq{k: v})
+	cs, err := t.condWhere(filter)
+	if err != nil {
+		return nil, err
+	}
+	for _, c := range cs {
+		bdr.Where(c)
 	}
 
 	//bdr.OrderBy()
@@ -472,7 +486,7 @@ func (t *Table) Find(cond map[string]any, fields []string, skip, limit int) (row
 	return db.Engine().QueryInterface(bdr)
 }
 
-func (t *Table) Get(id string, fields []string) (Document, error) {
+func (t *Table) Get(id any, fields []string) (Document, error) {
 	bdr := builder.Select(fields...)
 
 	bdr.From(t.Name)
@@ -494,11 +508,15 @@ func (t *Table) Get(id string, fields []string) (Document, error) {
 	return res[0], nil
 }
 
-func (t *Table) Count(cond map[string]any) (cnt int64, err error) {
+func (t *Table) Count(filter map[string]any) (cnt int64, err error) {
 	bdr := builder.Select("count(*)").From(t.Name)
 
-	for k, v := range cond {
-		bdr.Where(builder.Eq{k: v})
+	cs, err := t.condWhere(filter)
+	if err != nil {
+		return 0, err
+	}
+	for _, c := range cs {
+		bdr.Where(c)
 	}
 
 	res, err := db.Engine().QueryInterface(bdr)
