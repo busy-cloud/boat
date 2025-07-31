@@ -6,18 +6,13 @@ import (
 )
 
 func init() {
+	//api.RegisterUnAuthorized("POST", "login", login)
+	//api.Register("GET", "logout", logout)
 
-	api.RegisterUnAuthorized("GET", "oem", oem)
-	api.RegisterAdmin("POST", "oem/update", oemUpdate)
-	api.RegisterUnAuthorized("GET", "info", info)
-	api.RegisterUnAuthorized("POST", "login", login)
-	api.Register("GET", "me", me)
-	api.Register("GET", "logout", logout)
-	api.RegisterAdmin("POST", "password", password)
+	//api.Register("GET", "me", me)
 
-	//router.GET("/oem", apis2.oem)
-	//router.GET("/info", apis2.info)
-	//apis2.oemRouter(router.Group("/oem"))
+	//api.RegisterAdmin("POST", "password", password)
+
 }
 
 func me(ctx *gin.Context) {

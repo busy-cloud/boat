@@ -9,7 +9,7 @@ import (
 func init() {
 	boot.Register("table", &boot.Task{
 		Startup: Startup,
-		Depends: []string{"config", "database"},
+		Depends: []string{"config", "database", "apps"},
 	})
 }
 

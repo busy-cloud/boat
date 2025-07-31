@@ -2,9 +2,11 @@ package apps
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/busy-cloud/boat/app"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/store"
+	"github.com/busy-cloud/boat/table"
 	"github.com/busy-cloud/boat/web"
 	"github.com/gin-gonic/gin"
 	"net"
@@ -21,6 +23,7 @@ type App struct {
 	//资源
 	AssetsFS store.FS
 	PagesFS  store.FS
+	TablesFS store.FS
 
 	//可执行文件
 	process *os.Process
@@ -69,12 +72,36 @@ func (a *App) Open() (err error) {
 	//附件
 	//assets := filepath.Join(dir, "assets")
 	//a.Assets = os.DirFS(assets)
-	if a.Assets != "" {
+	if a.AssetsFS == nil && a.Assets != "" {
 		a.AssetsFS = store.Dir(a.Assets)
 	}
-	if a.Pages != "" {
+	if a.PagesFS == nil && a.Pages != "" {
 		a.PagesFS = store.Dir(a.Pages)
-		pages.Add(a.PagesFS) //添加页面目录
+	}
+	if a.TablesFS == nil && a.Tables != "" {
+		a.TablesFS = store.Dir(a.Tables)
+	}
+
+	//注册表
+	if a.TablesFS != nil {
+		es, err := a.TablesFS.ReadDir("")
+		if err != nil {
+			return err
+		}
+		for _, e := range es {
+			if filepath.Ext(e.Name()) == ".json" {
+				var t table.Table
+				buf, err := a.TablesFS.ReadFile(e.Name())
+				if err != nil {
+					return err
+				}
+				err = json.Unmarshal(buf, &t)
+				if err != nil {
+					return err
+				}
+				table.Register(&t)
+			}
+		}
 	}
 
 	//前端页面
@@ -115,9 +142,16 @@ func (a *App) Close() error {
 		//return a.process.Release()
 	}
 
-	//需要从pages store中移除
-	if a.PagesFS != nil {
-		pages.Remove(a.PagesFS)
+	if a.TablesFS != nil {
+		es, err := a.TablesFS.ReadDir("")
+		if err != nil {
+			return err
+		}
+		for _, e := range es {
+			if filepath.Ext(e.Name()) == ".json" {
+				//TODO 移除表
+			}
+		}
 	}
 
 	return nil

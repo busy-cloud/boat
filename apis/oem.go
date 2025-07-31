@@ -6,6 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func init() {
+	api.RegisterUnAuthorized("GET", "oem", oem)
+	api.RegisterAdmin("POST", "oem/update", oemUpdate)
+}
+
 type OEM struct {
 	Name string `json:"name,omitempty"`
 	Logo string `json:"logo,omitempty"`
@@ -43,8 +48,4 @@ func oemUpdate(ctx *gin.Context) {
 		return
 	}
 	api.OK(ctx, nil)
-}
-
-func oemRouter(app *gin.RouterGroup) {
-	app.POST("", oemUpdate)
 }

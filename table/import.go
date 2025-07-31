@@ -63,7 +63,7 @@ func ApiImport(ctx *gin.Context) {
 	}
 
 	//多租户默认
-	tid := ctx.GetString("tid")
+	tid := ctx.GetString("tenant_id")
 	if tid != "" {
 		field := table.Field("tenant_id")
 		if field != nil {

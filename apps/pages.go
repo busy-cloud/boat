@@ -2,16 +2,9 @@ package apps
 
 import (
 	"github.com/busy-cloud/boat/api"
-	"github.com/busy-cloud/boat/store"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
-
-var pages store.Store
-
-func Pages() *store.Store {
-	return &pages
-}
 
 func init() {
 	api.Register("GET", "page/:app/*page", func(ctx *gin.Context) {

@@ -7,6 +7,13 @@ import (
 	"github.com/spf13/viper"
 )
 
+func init() {
+	api.Register("POST", "setting/:module", settingSet)
+	api.Register("GET", "setting/:module", settingGet)
+	api.Register("GET", "setting/:module/form", settingForm)
+	api.Register("GET", "settings", settingModules)
+}
+
 // @Summary 查询配置
 // @Schemes
 // @Description 查询配置
@@ -81,11 +88,4 @@ func settingForm(ctx *gin.Context) {
 func settingModules(ctx *gin.Context) {
 	ms := config.GetModules()
 	api.OK(ctx, ms)
-}
-
-func init() {
-	api.Register("POST", "setting/:module", settingSet)
-	api.Register("GET", "setting/:module", settingGet)
-	api.Register("GET", "setting/:module/form", settingForm)
-	api.Register("GET", "settings", settingModules)
 }

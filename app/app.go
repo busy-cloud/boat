@@ -34,6 +34,7 @@ type App struct {
 	//资源目录
 	Assets string `json:"assets,omitempty"` //资源
 	Pages  string `json:"pages,omitempty"`  //页面
+	Tables string `json:"tables,omitempty"` //数据表
 
 	//扩展信息
 	Type     string `json:"type,omitempty"` //类型
