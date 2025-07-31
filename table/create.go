@@ -2,7 +2,6 @@ package table
 
 import (
 	"github.com/gin-gonic/gin"
-	"slices"
 )
 
 func ApiCreate(ctx *gin.Context) {
@@ -22,10 +21,8 @@ func ApiCreate(ctx *gin.Context) {
 	//多租户创建数据，用默认租户id
 	tid := ctx.GetString("tid")
 	if tid != "" {
-		tenantId := slices.IndexFunc(table.Fields, func(field *Field) bool {
-			return field.Name == "tenant_id"
-		})
-		if tenantId > -1 {
+		field := table.Field("tenant_id")
+		if field != nil {
 			//只有未传值tenant_id时，才会赋值用户所在的tenant_id
 			if _, ok := doc["tenant_id"]; !ok {
 				doc["tenant_id"] = tid
