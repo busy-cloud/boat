@@ -46,6 +46,7 @@ func TypeToSqlType(t string) (st schemas.SQLType) {
 
 type Field struct {
 	Name       string `json:"name,omitempty"`
+	Comment    string `json:"comment,omitempty"`
 	Type       string `json:"type,omitempty"`
 	Default    string `json:"default,omitempty"`
 	NotNull    bool   `json:"not_null,omitempty"`
@@ -145,6 +146,7 @@ func (f *Field) Condition(val string) (cond builder.Cond, err error) {
 
 type Table struct {
 	Name          string   `json:"name,omitempty"`
+	Comment       string   `json:"comment,omitempty"`
 	Fields        []*Field `json:"fields,omitempty"`
 	DisableInsert bool     `json:"disable_insert,omitempty"`
 	DisableUpdate bool     `json:"disable_update,omitempty"`
@@ -237,6 +239,7 @@ func (t *Table) Schema() *schemas.Table {
 	//构建xorm schema
 	var table schemas.Table
 	table.Name = t.Name
+	table.Comment = t.Comment
 
 	//转化列
 	for _, field := range t.Fields {
@@ -249,6 +252,7 @@ func (t *Table) Schema() *schemas.Table {
 		if field.Indexed {
 			col.Indexes[field.Name] = schemas.IndexType
 		}
+		col.Comment = field.Comment
 		table.AddColumn(col)
 	}
 

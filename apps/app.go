@@ -40,12 +40,6 @@ func (a *App) Opened() bool {
 
 func (a *App) Open() (err error) {
 
-	//内部插件不用打开
-	if a.Internal {
-		a.opened = true
-		return nil
-	}
-
 	//打开标志
 	if a.opened {
 		return nil
@@ -53,10 +47,10 @@ func (a *App) Open() (err error) {
 	a.opened = true
 
 	//基础路径
-	dir := filepath.Join("app", a.Id)
+	dir := filepath.Join(RootPath, a.Id)
 
 	//启动子进程
-	if a.Executable != "" {
+	if !a.Internal && a.Executable != "" {
 		attr := &os.ProcAttr{}
 		attr.Dir = dir
 		attr.Env = os.Environ()
@@ -73,13 +67,13 @@ func (a *App) Open() (err error) {
 	//assets := filepath.Join(dir, "assets")
 	//a.Assets = os.DirFS(assets)
 	if a.AssetsFS == nil && a.Assets != "" {
-		a.AssetsFS = store.Dir(a.Assets)
+		a.AssetsFS = store.Dir(filepath.Join(dir, a.Assets))
 	}
 	if a.PagesFS == nil && a.Pages != "" {
-		a.PagesFS = store.Dir(a.Pages)
+		a.PagesFS = store.Dir(filepath.Join(dir, a.Pages))
 	}
 	if a.TablesFS == nil && a.Tables != "" {
-		a.TablesFS = store.Dir(a.Tables)
+		a.TablesFS = store.Dir(filepath.Join(dir, a.Tables))
 	}
 
 	//注册表
@@ -114,7 +108,7 @@ func (a *App) Open() (err error) {
 	}
 
 	//接口代理
-	if a.ApiUrl != "" {
+	if !a.Internal && a.ApiUrl != "" {
 		u, err := url.Parse(a.ApiUrl)
 		if err != nil {
 			return err
@@ -122,7 +116,7 @@ func (a *App) Open() (err error) {
 		a.proxy = httputil.NewSingleHostReverseProxy(u)
 	}
 	//UnixSocket方式（速度更快）
-	if a.UnixSocket != "" {
+	if !a.Internal && a.UnixSocket != "" {
 		a.proxy = &httputil.ReverseProxy{
 			Transport: &http.Transport{
 				DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
