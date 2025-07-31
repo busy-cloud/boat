@@ -1,4 +1,4 @@
-package apis
+package oem
 
 import (
 	"github.com/busy-cloud/boat/api"
