@@ -1,6 +1,8 @@
 package table
 
-import "github.com/busy-cloud/boat/javascript"
+import (
+	"github.com/busy-cloud/boat/javascript"
+)
 
 type Hook struct {
 	BeforeInsert func(doc Document) error
@@ -22,6 +24,16 @@ type HookScripts struct {
 	AfterDelete  string `json:"after_delete,omitempty"`
 }
 
+var globalValues = map[string]any{}
+
+func SetHookValues(name string, value any) {
+	globalValues[name] = value
+}
+
+func RemoveHookValues(name string) {
+	delete(globalValues, name)
+}
+
 func (h *Hook) Compile() error {
 	if h.BeforeInsert == nil && h.Scripts.BeforeInsert != "" {
 		program, err := javascript.Compile(h.Scripts.BeforeInsert)
@@ -30,7 +42,10 @@ func (h *Hook) Compile() error {
 		}
 		h.BeforeInsert = func(doc Document) error {
 			rt := javascript.Runtime()
-			_ = rt.Set(`doc`, doc)
+			for k, v := range globalValues {
+				_ = rt.Set(k, v)
+			}
+			_ = rt.Set(`document`, doc)
 			_, err := rt.RunProgram(program)
 			return err
 		}
@@ -43,8 +58,11 @@ func (h *Hook) Compile() error {
 		}
 		h.AfterInsert = func(id any, doc Document) error {
 			rt := javascript.Runtime()
+			for k, v := range globalValues {
+				_ = rt.Set(k, v)
+			}
 			_ = rt.Set(`id`, id)
-			_ = rt.Set(`doc`, doc)
+			_ = rt.Set(`document`, doc)
 			_, err := rt.RunProgram(program)
 			return err
 		}
@@ -57,8 +75,11 @@ func (h *Hook) Compile() error {
 		}
 		h.BeforeUpdate = func(id any, doc Document) error {
 			rt := javascript.Runtime()
+			for k, v := range globalValues {
+				_ = rt.Set(k, v)
+			}
 			_ = rt.Set(`id`, id)
-			_ = rt.Set(`doc`, doc)
+			_ = rt.Set(`document`, doc)
 			_, err := rt.RunProgram(program)
 			return err
 		}
@@ -71,9 +92,12 @@ func (h *Hook) Compile() error {
 		}
 		h.AfterUpdate = func(id any, update Document, base Document) error {
 			rt := javascript.Runtime()
+			for k, v := range globalValues {
+				_ = rt.Set(k, v)
+			}
 			_ = rt.Set(`id`, id)
 			_ = rt.Set(`update`, update)
-			_ = rt.Set(`doc`, base)
+			_ = rt.Set(`document`, base)
 			_, err := rt.RunProgram(program)
 			return err
 		}
@@ -86,6 +110,9 @@ func (h *Hook) Compile() error {
 		}
 		h.BeforeDelete = func(id any) error {
 			rt := javascript.Runtime()
+			for k, v := range globalValues {
+				_ = rt.Set(k, v)
+			}
 			_ = rt.Set(`id`, id)
 			_, err := rt.RunProgram(program)
 			return err
@@ -99,8 +126,11 @@ func (h *Hook) Compile() error {
 		}
 		h.AfterDelete = func(id any, doc Document) error {
 			rt := javascript.Runtime()
+			for k, v := range globalValues {
+				_ = rt.Set(k, v)
+			}
 			_ = rt.Set(`id`, id)
-			_ = rt.Set(`doc`, doc)
+			_ = rt.Set(`document`, doc)
 			_, err := rt.RunProgram(program)
 			return err
 		}
