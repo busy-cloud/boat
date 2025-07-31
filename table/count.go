@@ -4,6 +4,7 @@ import (
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-gonic/gin"
+	"slices"
 )
 
 func ApiCount(ctx *gin.Context) {
@@ -18,6 +19,20 @@ func ApiCount(ctx *gin.Context) {
 	if err != nil {
 		api.Error(ctx, err)
 		return
+	}
+
+	//多租户过滤
+	tid := ctx.GetString("tid")
+	if tid != "" {
+		tenantId := slices.IndexFunc(table.Fields, func(field *Field) bool {
+			return field.Name == "tenant_id"
+		})
+		if tenantId > -1 {
+			//只有未传值tenant_id时，才会赋值用户所在的tenant_id
+			if _, ok := body.Filter["tenant_id"]; !ok {
+				body.Filter["tenant_id"] = tid
+			}
+		}
 	}
 
 	ret, err := table.Count(body.Filter)

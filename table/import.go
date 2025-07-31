@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"io"
 	"mime/multipart"
+	"slices"
 )
 
 func FormFiles(ctx *gin.Context) (files []*multipart.FileHeader, err error) {
@@ -62,6 +63,23 @@ func ApiImport(ctx *gin.Context) {
 		}
 	}
 
+	//多租户默认
+	tid := ctx.GetString("tid")
+	if tid != "" {
+		tenantId := slices.IndexFunc(table.Fields, func(field *Field) bool {
+			return field.Name == "tenant_id"
+		})
+		if tenantId > -1 {
+			for _, doc := range docs {
+				//只有未传值tenant_id时，才会赋值用户所在的tenant_id
+				if _, ok := doc["tenant_id"]; !ok {
+					doc["tenant_id"] = tid
+				}
+			}
+		}
+	}
+
+	//依次写入
 	var ids []any
 	for _, doc := range docs {
 		id, err := table.Insert(doc)
