@@ -35,6 +35,10 @@ func RemoveHookValues(name string) {
 }
 
 func (h *Hook) Compile() error {
+	if h.Scripts == nil {
+		return nil
+	}
+
 	if h.BeforeInsert == nil && h.Scripts.BeforeInsert != "" {
 		program, err := javascript.Compile(h.Scripts.BeforeInsert)
 		if err != nil {
