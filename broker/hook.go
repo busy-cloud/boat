@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/mochi-mqtt/server/v2"
 	"github.com/mochi-mqtt/server/v2/packets"
+	"net"
 )
 
 type Hook struct {
@@ -16,12 +17,21 @@ func (h *Hook) ID() string {
 func (h *Hook) Provides(b byte) bool {
 	//高效吗？
 	return bytes.Contains([]byte{
+		mqtt.OnConnect,
 		mqtt.OnConnectAuthenticate,
 		mqtt.OnACLCheck,
 		mqtt.OnDisconnect,
 		mqtt.OnSubscribed,
 		mqtt.OnUnsubscribed,
 	}, []byte{b})
+}
+
+func (h *Hook) OnConnect(cl *mqtt.Client, pk packets.Packet) error {
+	if conn, ok := cl.Net.Conn.(*net.TCPConn); ok {
+		//_ = conn.SetKeepAlivePeriod(240 * time.Second) //4分钟
+		_ = conn.SetKeepAlive(false) //避免服务器主动下发rst，导致设备无法低功耗
+	}
+	return nil
 }
 
 func (h *Hook) OnConnectAuthenticate(cl *mqtt.Client, pk packets.Packet) bool {
