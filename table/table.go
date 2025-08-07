@@ -2,6 +2,7 @@ package table
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/busy-cloud/boat/db"
@@ -57,6 +58,7 @@ type Field struct {
 	Indexed    bool   `json:"indexed,omitempty"`
 	Created    bool   `json:"created,omitempty"`
 	Updated    bool   `json:"updated,omitempty"`
+	Json       bool   `json:"json,omitempty"`
 }
 
 func (f *Field) Cast(v any) (ret any, err error) {
@@ -324,6 +326,10 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 		if field.Created {
 			values[field.Name] = time.Now()
 		}
+
+		if field.Json {
+			values[field.Name], _ = json.Marshal(values[field.Name])
+		}
 	}
 
 	if t.BeforeInsert != nil {
@@ -362,6 +368,12 @@ func (t *Table) Update(filter map[string]any, values map[string]any) (rows int64
 		if field.Updated {
 			values[field.Name] = time.Now()
 		}
+
+		if field.Json {
+			if val, ok := values[field.Name]; ok {
+				values[field.Name], _ = json.Marshal(val)
+			}
+		}
 	}
 
 	var updates []builder.Cond
@@ -391,6 +403,12 @@ func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error
 	for _, field := range t.Fields {
 		if field.Updated {
 			values[field.Name] = time.Now()
+		}
+
+		if field.Json {
+			if val, ok := values[field.Name]; ok {
+				values[field.Name], _ = json.Marshal(val)
+			}
 		}
 	}
 
@@ -488,7 +506,28 @@ func (t *Table) Find(filter map[string]any, fields []string, skip, limit int) (r
 
 	bdr.Limit(limit, skip)
 
-	return db.Engine().QueryInterface(bdr)
+	rows, err = db.Engine().QueryInterface(bdr)
+	if err != nil {
+		return
+	}
+
+	//解析JSON
+	for _, row := range rows {
+		for _, field := range t.Fields {
+			if field.Json {
+				if val, ok := row[field.Name]; ok {
+					if str, ok := val.(string); ok {
+						var v any
+						err = json.Unmarshal([]byte(str), &v)
+						if err == nil {
+							row[field.Name] = v
+						}
+					}
+				}
+			}
+		}
+	}
+	return
 }
 
 func (t *Table) Get(id any, fields []string) (Document, error) {
@@ -501,14 +540,31 @@ func (t *Table) Get(id any, fields []string) (Document, error) {
 	}
 	bdr.Where(cond)
 
-	res, err := db.Engine().QueryInterface(bdr)
+	rows, err := db.Engine().QueryInterface(bdr)
 	if err != nil {
 		return nil, err
 	}
-	if len(res) == 0 {
-		return nil, nil //TODO 记录不存在
+	if len(rows) == 0 {
+		return nil, errors.New("记录不存在") //TODO 记录不存在
 	}
-	return res[0], nil
+	row := rows[0]
+
+	//解析
+	for _, field := range t.Fields {
+		if field.Json {
+			if val, ok := row[field.Name]; ok {
+				if str, ok := val.(string); ok {
+					var v any
+					err = json.Unmarshal([]byte(str), &v)
+					if err == nil {
+						row[field.Name] = v
+					}
+				}
+			}
+		}
+	}
+
+	return row, nil
 }
 
 func (t *Table) Count(filter map[string]any) (cnt int64, err error) {
