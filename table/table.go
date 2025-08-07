@@ -257,6 +257,9 @@ func (t *Table) Schema() *schemas.Table {
 		if field.Indexed {
 			col.Indexes[field.Name] = schemas.IndexType
 		}
+		if field.PrimaryKey {
+			col.Nullable = false //主键不能为空
+		}
 		col.Comment = field.Comment
 		table.AddColumn(col)
 	}
