@@ -1,1 +1,0 @@
-启用第三方json解析器，需要在编译时添加tags，比如： go build -tags=sonic .
