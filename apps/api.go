@@ -125,4 +125,13 @@ func init() {
 
 	})
 
+	api.RegisterAdmin("GET", "app/privileges", func(ctx *gin.Context) {
+		var ps []*app.Privilege
+		_apps.Range(func(name string, item *App) bool {
+			ps = append(ps, item.Privileges...)
+			return true
+		})
+		api.OK(ctx, ps)
+	})
+
 }

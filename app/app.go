@@ -28,6 +28,12 @@ type Entry struct {
 	Privileges []string `json:"privileges,omitempty"`
 }
 
+type Privilege struct {
+	Key         string `json:"key"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+}
+
 type App struct {
 	Base //继承基础信息
 
@@ -43,8 +49,9 @@ type App struct {
 	Homepage string `json:"homepage,omitempty"`
 
 	//资源
-	Shortcuts []*Entry `json:"shortcuts,omitempty"` //桌面快捷方式
-	Menus     []*Menu  `json:"menus,omitempty"`     //菜单项
+	Shortcuts  []*Entry     `json:"shortcuts,omitempty"`  //桌面快捷方式
+	Menus      []*Menu      `json:"menus,omitempty"`      //菜单项
+	Privileges []*Privilege `json:"privileges,omitempty"` //权限集合
 
 	//前端文件
 	Static string `json:"static,omitempty"` //静态目录
