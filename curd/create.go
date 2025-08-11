@@ -26,7 +26,7 @@ func ApiCreate[T any]() gin.HandlerFunc {
 		}
 
 		//多租户处理
-		tid := ctx.GetString("tenant_id")
+		tid := ctx.GetString("tenant")
 		if tid != "" {
 			field := reflect.ValueOf(&data).Elem().FieldByName("TenantId")
 			if field.IsValid() && field.IsZero() && field.Kind() == reflect.String {
@@ -61,7 +61,7 @@ func ApiCreateHook[T any](before, after func(m *T) error) gin.HandlerFunc {
 		}
 
 		//多租户处理
-		tid := ctx.GetString("tenant_id")
+		tid := ctx.GetString("tenant")
 		if tid != "" {
 			field := reflect.ValueOf(&data).Elem().FieldByName("TenantId")
 			if field.IsValid() && field.IsZero() && field.Kind() == reflect.String {

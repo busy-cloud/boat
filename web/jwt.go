@@ -7,16 +7,22 @@ import (
 
 type Claims struct {
 	jwt.RegisteredClaims
+
+	//管理员
 	Admin bool `json:"admin,omitempty"`
+
+	//租户
+	Tenant string `json:"tenant,omitempty"`
 }
 
 var JwtKey = []byte("boat")
 var JwtExpire = time.Hour * 24 * 30
 
-func JwtGenerate(id string, admin bool) (string, error) {
+func JwtGenerate(id string, admin bool, tenant string) (string, error) {
 	var claims Claims
 	claims.ID = id
 	claims.Admin = admin
+	claims.Tenant = tenant
 	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(JwtExpire))
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(JwtKey))
@@ -28,6 +34,9 @@ func JwtVerify(str string) (*Claims, error) {
 		return []byte(JwtKey), nil
 		//return config.GetString(MODULE, "jwt_key"), nil
 	})
+	if err != nil {
+		return nil, err
+	}
 	if token.Valid {
 		return &claims, nil
 	} else {

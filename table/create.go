@@ -19,7 +19,7 @@ func ApiCreate(ctx *gin.Context) {
 	}
 
 	//多租户创建数据，用默认租户id
-	tid := ctx.GetString("tenant_id")
+	tid := ctx.GetString("tenant")
 	if tid != "" {
 		field := table.Field("tenant_id")
 		if field != nil {
