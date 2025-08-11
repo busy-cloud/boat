@@ -2,6 +2,7 @@ package table
 
 import (
 	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 func ApiUpdate(ctx *gin.Context) {
@@ -18,7 +19,8 @@ func ApiUpdate(ctx *gin.Context) {
 		return
 	}
 
-	cnt, err := table.UpdateById(ctx.Param("id"), update)
+	id := strings.TrimLeft(ctx.Param("id"), "/")
+	cnt, err := table.UpdateById(id, update)
 	if err != nil {
 		Error(ctx, err)
 		return

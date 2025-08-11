@@ -2,6 +2,7 @@ package table
 
 import (
 	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 func ApiDelete(ctx *gin.Context) {
@@ -11,9 +12,8 @@ func ApiDelete(ctx *gin.Context) {
 		return
 	}
 
-	//ids := ctx.QueryArray("id") //依次删除
-
-	cnt, err := table.Delete(Document{"id": ctx.Param("id")})
+	id := strings.TrimLeft(ctx.Param("id"), "/")
+	cnt, err := table.DeleteById(id)
 	if err != nil {
 		Error(ctx, err)
 		return
