@@ -381,7 +381,7 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 		}
 
 		if field.Created {
-			values[field.Name] = time.Now()
+			values[field.Name] = time.Now().Format(time.DateTime) //直接格式化
 		}
 
 		if field.Json {
@@ -423,7 +423,7 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 func (t *Table) Update(filter map[string]any, values map[string]any) (rows int64, err error) {
 	for _, field := range t.Fields {
 		if field.Updated {
-			values[field.Name] = time.Now()
+			values[field.Name] = time.Now().Format(time.DateTime) //直接格式化
 		}
 
 		if field.Json {
@@ -459,7 +459,7 @@ func (t *Table) Update(filter map[string]any, values map[string]any) (rows int64
 func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error) {
 	for _, field := range t.Fields {
 		if field.Updated {
-			values[field.Name] = time.Now()
+			values[field.Name] = time.Now().Format(time.DateTime) //直接格式化
 		}
 
 		if field.Json {
