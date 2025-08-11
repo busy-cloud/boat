@@ -9,6 +9,7 @@ import (
 	"github.com/rs/xid"
 	"github.com/spf13/cast"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 	"xorm.io/builder"
@@ -551,7 +552,7 @@ func (t *Table) DeleteById(id any) (rows int64, err error) {
 	return res.RowsAffected()
 }
 
-func (t *Table) Find(body ParamSearch) (rows []map[string]any, err error) {
+func (t *Table) Find(body *ParamSearch) (rows []map[string]any, err error) {
 	fields := body.Fields
 	if len(fields) == 0 {
 		fields = []string{"*"}
@@ -609,40 +610,34 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 	if len(joins) == 0 {
 		joins = t.Joins //默认使用表定义的关联
 	}
-	hasJoins := len(joins) > 0
+	if len(joins) == 0 {
+		return t.Find(body) //直接使用基础
+	}
 
 	bdr := builder.Dialect(db.Engine().DriverName())
 
 	var fields []string
 
-	if hasJoins {
-		if len(body.Fields) == 0 {
-			fields = append(fields, "t.*")
-		} else {
-			for _, f := range body.Fields {
-				fields = append(fields, "t."+db.Engine().Quote(f))
-			}
-		}
-		for _, join := range body.Joins {
-			//body.Fields = append(body.Fields)
-			if slices.Index(body.Fields, join.LocaleField) < 0 {
-				lf := db.Engine().Quote(t.Name) + "." + db.Engine().Quote(join.LocaleField)
-				fields = append(fields, lf)
-			}
-			ff := db.Engine().Quote(join.Table) + "." + db.Engine().Quote(join.ForeignField)
-			fields = append(fields, ff+" AS "+db.Engine().Quote(join.As))
-		}
+	if len(body.Fields) == 0 {
+		fields = append(fields, "t.*")
 	} else {
-		if len(body.Fields) == 0 {
-			fields = append(fields, "*")
-		} else {
-			fields = body.Fields
+		for _, f := range body.Fields {
+			fields = append(fields, "t."+db.Engine().Quote(f))
 		}
 	}
+	for _, join := range body.Joins {
+		//body.Fields = append(body.Fields)
+		if slices.Index(body.Fields, join.LocaleField) < 0 {
+			lf := db.Engine().Quote(t.Name) + "." + db.Engine().Quote(join.LocaleField)
+			fields = append(fields, lf)
+		}
+		ff := db.Engine().Quote(join.Table) + "." + db.Engine().Quote(join.ForeignField)
+		fields = append(fields, ff+" AS "+db.Engine().Quote(join.As))
+	}
 
-	bdr.Select(fields...).From(t.Name)
+	bdr.Select(fields...).From(builder.As(t.Name, "t"))
 
-	cs, err := t.condWhere(body.Filter, hasJoins)
+	cs, err := t.condWhere(body.Filter, true)
 	if err != nil {
 		return nil, err
 	}
@@ -650,21 +645,17 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 		bdr.Where(c)
 	}
 
-	if hasJoins {
-		for _, join := range body.Joins {
-			lf := db.Engine().Quote(t.Name) + "." + db.Engine().Quote(join.LocaleField)
-			ff := db.Engine().Quote(join.Table) + "." + db.Engine().Quote(join.ForeignField)
-			bdr.LeftJoin(join.Table, builder.Eq{lf: ff})
-		}
+	for i, join := range body.Joins {
+		as := "t" + strconv.Itoa(i+1)
+		lf := "t." + db.Engine().Quote(join.LocaleField)
+		ff := as + "." + db.Engine().Quote(join.ForeignField)
+		bdr.LeftJoin(builder.As(join.Table, as), builder.Eq{lf: ff})
 	}
 
 	//排序
 	if len(body.Sort) > 0 {
 		for k, v := range body.Sort {
-			f := k
-			if hasJoins {
-				f = db.Engine().Quote(t.Name) + "." + db.Engine().Quote(f)
-			}
+			f := db.Engine().Quote(t.Name) + "." + db.Engine().Quote(k)
 			if v > 0 {
 				bdr.OrderBy(f + " ASC")
 			} else {

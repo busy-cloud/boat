@@ -23,7 +23,7 @@ func ApiExport(ctx *gin.Context) {
 	}
 
 	//查询
-	results, err := table.Find(body)
+	results, err := table.Find(&body)
 	if err != nil {
 		Error(ctx, err)
 		return
