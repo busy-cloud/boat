@@ -21,7 +21,7 @@ func ApiCount(ctx *gin.Context) {
 	}
 
 	//多租户过滤
-	tid := ctx.GetString("tid")
+	tid := ctx.GetString("tenant")
 	if tid != "" {
 		tenantId := slices.IndexFunc(table.Fields, func(field *Field) bool {
 			return field.Name == "tenant_id"
