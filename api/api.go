@@ -83,6 +83,7 @@ func mustLogin(ctx *gin.Context) {
 		} else {
 			ctx.Set("user", claims.ID) //与session统一
 			ctx.Set("admin", claims.Admin)
+			ctx.Set("tenant", claims.Tenant)
 			ctx.Next()
 		}
 		return
@@ -93,6 +94,7 @@ func mustLogin(ctx *gin.Context) {
 	if user := session.Get("user"); user != nil {
 		ctx.Set("user", user)
 		ctx.Set("admin", session.Get("admin"))
+		ctx.Set("tenant", session.Get("tenant"))
 		ctx.Next()
 	} else {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})

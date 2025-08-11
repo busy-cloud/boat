@@ -18,7 +18,7 @@ func ApiCount[T any]() gin.HandlerFunc {
 
 		var d T
 		//多租户处理
-		tid := ctx.GetString("tenant_id")
+		tid := ctx.GetString("tenant")
 		if tid != "" {
 			//只有未传值tenant_id时，才会赋值用户所在的tenant_id
 			if _, ok := body.Filter["tenant_id"]; !ok {

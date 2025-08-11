@@ -35,7 +35,7 @@ func ApiSearch(ctx *gin.Context) {
 	}
 
 	//多租户过滤
-	tid := ctx.GetString("tenant_id")
+	tid := ctx.GetString("tenant")
 	if tid != "" {
 		field := table.Field("tenant_id")
 		if field != nil {
