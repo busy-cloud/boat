@@ -28,18 +28,24 @@ func TypeToSqlType(t string) (st schemas.SQLType) {
 		st = schemas.SQLType{schemas.Float, 0, 0}
 	case "float64", "double":
 		st = schemas.SQLType{schemas.Double, 0, 0}
+	case "decimal":
+		st = schemas.SQLType{schemas.Decimal, 0, 0}
 	case "complex64", "complex128":
 		st = schemas.SQLType{schemas.Varchar, 64, 0}
 	case "blob":
 		st = schemas.SQLType{schemas.Blob, 0, 0}
 	case "text":
 		st = schemas.SQLType{schemas.Text, 0, 0}
+	case "longtext":
+		st = schemas.SQLType{schemas.LongText, 0, 0}
 	case "bool", "boolean":
 		st = schemas.SQLType{schemas.Bool, 0, 0}
 	case "string":
 		st = schemas.SQLType{schemas.Varchar, 255, 0}
 	case "datetime":
 		st = schemas.SQLType{schemas.DateTime, 0, 0}
+	case "timestamp":
+		st = schemas.SQLType{schemas.TimeStamp, 0, 0}
 	default:
 		st = schemas.SQLType{schemas.Text, 0, 0}
 	}
@@ -47,19 +53,19 @@ func TypeToSqlType(t string) (st schemas.SQLType) {
 }
 
 type Field struct {
-	Name       string `json:"name,omitempty"`
-	Comment    string `json:"comment,omitempty"`
-	Type       string `json:"type,omitempty"`
-	Default    string `json:"default,omitempty"`
-	NotNull    bool   `json:"not_null,omitempty"`
-	Length     int64  `json:"length,omitempty"`
-	Length2    int64  `json:"length2,omitempty"`
-	PrimaryKey bool   `json:"primary_key,omitempty"`
-	Increment  bool   `json:"increment,omitempty"`
-	Indexed    bool   `json:"indexed,omitempty"`
-	Created    bool   `json:"created,omitempty"`
-	Updated    bool   `json:"updated,omitempty"`
-	Json       bool   `json:"json,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Comment   string `json:"comment,omitempty"`
+	Type      string `json:"type,omitempty"`
+	Default   string `json:"default,omitempty"`
+	NotNull   bool   `json:"not_null,omitempty"`
+	Length    int64  `json:"length,omitempty"`
+	Length2   int64  `json:"length2,omitempty"`
+	Primary   bool   `json:"primary,omitempty"`
+	Increment bool   `json:"increment,omitempty"`
+	Indexed   bool   `json:"indexed,omitempty"`
+	Created   bool   `json:"created,omitempty"`
+	Updated   bool   `json:"updated,omitempty"`
+	Json      bool   `json:"json,omitempty"`
 }
 
 func (f *Field) Cast(v any) (ret any, err error) {
@@ -177,7 +183,7 @@ func (t *Table) Field(name string) *Field {
 func (t *Table) PrimaryKeys() []*Field {
 	var fields []*Field
 	for _, field := range t.Fields {
-		if field.PrimaryKey {
+		if field.Primary {
 			fields = append(fields, field)
 		}
 	}
@@ -272,7 +278,7 @@ func (t *Table) Schema() *schemas.Table {
 	//转化列
 	for _, field := range t.Fields {
 		col := schemas.NewColumn(field.Name, "", TypeToSqlType(field.Type), field.Length, field.Length2, !field.NotNull)
-		col.IsPrimaryKey = field.PrimaryKey
+		col.IsPrimaryKey = field.Primary
 		col.IsAutoIncrement = field.Increment
 		col.Default = field.Default
 		col.IsCreated = field.Created
@@ -280,7 +286,7 @@ func (t *Table) Schema() *schemas.Table {
 		if field.Indexed {
 			col.Indexes[field.Name] = schemas.IndexType
 		}
-		if field.PrimaryKey {
+		if field.Primary {
 			col.Nullable = false //主键不能为空
 		}
 		col.Comment = field.Comment
@@ -332,12 +338,12 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 
 	for _, field := range t.Fields {
 		//查询自增主键
-		if field.PrimaryKey && field.Increment {
+		if field.Primary && field.Increment {
 			increment = true
 		}
 
 		//主键，生成默认ID
-		if field.PrimaryKey && field.Name == "id" && field.Type == "string" {
+		if field.Primary && field.Name == "id" && field.Type == "string" {
 			if val, ok := values[field.Name]; ok {
 				if v, ok := val.(string); ok && v == "" {
 					id = xid.New().String()
