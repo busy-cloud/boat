@@ -8,6 +8,7 @@ import (
 	"github.com/busy-cloud/boat/db"
 	"github.com/rs/xid"
 	"github.com/spf13/cast"
+	"strings"
 	"time"
 	"xorm.io/builder"
 	"xorm.io/xorm/schemas"
@@ -183,29 +184,51 @@ func (t *Table) PrimaryKeys() []*Field {
 	return fields
 }
 
-func (t *Table) condId(id any) (builder.Cond, error) {
+func (t *Table) condId(id any) (conds []builder.Cond, err error) {
+	var keys []*Field
+
 	//取id列
 	field := t.Field("id")
+	if field != nil {
+		keys = append(keys, field)
+	} else {
+		//取主键
+		keys = t.PrimaryKeys()
+	}
 
-	//取主键
-	if field == nil {
-		keys := t.PrimaryKeys()
-		if len(keys) == 0 {
-			return nil, errors.New("table has no primary key")
-		}
-		if len(keys) > 1 {
-			return nil, errors.New("table has more than one primary key")
-		}
+	if len(keys) == 0 {
+		return nil, errors.New("表没有主键")
+	}
+
+	var ids []any
+	if len(keys) == 1 {
 		field = keys[0]
+		val, err := field.Cast(id)
+		if err != nil {
+			return nil, err
+		}
+		conds = append(conds, builder.Eq{field.Name: val})
+	} else {
+		//多主键的情况
+		if str, ok := id.(string); !ok {
+			return nil, errors.New("多主键id需是string类型")
+		} else {
+			ss := strings.Split(str, "/")
+			if len(ids) != len(keys) {
+				return nil, errors.New("主键数量不匹配")
+			}
+
+			for i, field := range keys {
+				val, err := field.Cast(ss[i])
+				if err != nil {
+					return nil, err
+				}
+				conds = append(conds, builder.Eq{field.Name: val})
+			}
+		}
 	}
 
-	//转换（有需要的情况下，字符串转数值）
-	val, err := field.Cast(id)
-	if err != nil {
-		return nil, err
-	}
-
-	return builder.Eq{field.Name: val}, nil
+	return
 }
 
 func (t *Table) condWhere(filter map[string]any) (conds []builder.Cond, err error) {
@@ -429,11 +452,13 @@ func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error
 	bdr := builder.Dialect(db.Engine().DriverName()).Update(updates...).From(t.Name)
 
 	//bdr.Where(builder.Eq{"id": id})
-	cond, err := t.condId(id)
+	cs, err := t.condId(id)
 	if err != nil {
 		return 0, err
 	}
-	bdr.Where(cond)
+	for _, c := range cs {
+		bdr.Where(c)
+	}
 
 	res, err := db.Engine().ID(id).Exec(bdr)
 	if err != nil {
@@ -473,11 +498,13 @@ func (t *Table) DeleteById(id any) (rows int64, err error) {
 		}
 	}
 
-	cond, err := t.condId(id)
+	cs, err := t.condId(id)
 	if err != nil {
 		return 0, err
 	}
-	bdr.Where(cond)
+	for _, c := range cs {
+		bdr.Where(c)
+	}
 
 	res, err := db.Engine().Exec(bdr)
 	if err != nil {
@@ -537,11 +564,13 @@ func (t *Table) Get(id any, fields []string) (Document, error) {
 	bdr := builder.Dialect(db.Engine().DriverName()).Select(fields...).From(t.Name)
 
 	//bdr.Where(builder.Eq{"id": id})
-	cond, err := t.condId(id)
+	cs, err := t.condId(id)
 	if err != nil {
 		return nil, err
 	}
-	bdr.Where(cond)
+	for _, c := range cs {
+		bdr.Where(c)
+	}
 
 	rows, err := db.Engine().QueryInterface(bdr)
 	if err != nil {
