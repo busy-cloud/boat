@@ -350,6 +350,14 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 		return
 	}
 
+	//删除冗余字段
+	for k, _ := range values {
+		field := t.Field(k)
+		if field == nil {
+			delete(values, k)
+		}
+	}
+
 	var increment bool
 
 	for _, field := range t.Fields {
