@@ -2,7 +2,6 @@ package table
 
 import (
 	"github.com/busy-cloud/boat/api"
-	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-gonic/gin"
 	"slices"
 )
@@ -14,7 +13,7 @@ func ApiCount(ctx *gin.Context) {
 		return
 	}
 
-	var body curd.ParamSearch
+	var body ParamSearch
 	err = ctx.ShouldBindJSON(&body)
 	if err != nil {
 		api.Error(ctx, err)

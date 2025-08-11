@@ -163,6 +163,7 @@ type Table struct {
 	Name          string   `json:"name,omitempty"`
 	Comment       string   `json:"comment,omitempty"`
 	Fields        []*Field `json:"fields,omitempty"`
+	Joins         []*Join  `json:"joins,omitempty"`
 	DisableInsert bool     `json:"disable_insert,omitempty"`
 	DisableUpdate bool     `json:"disable_update,omitempty"`
 	DisableDelete bool     `json:"disable_delete,omitempty"`
@@ -542,10 +543,14 @@ func (t *Table) DeleteById(id any) (rows int64, err error) {
 	return res.RowsAffected()
 }
 
-func (t *Table) _Find(filter map[string]any, fields []string, skip, limit int) (rows []map[string]any, err error) {
+func (t *Table) Find(body ParamSearch) (rows []map[string]any, err error) {
+	fields := body.Fields
+	if len(fields) == 0 {
+		fields = []string{"*"}
+	}
 	bdr := builder.Dialect(db.Engine().DriverName()).Select(fields...).From(t.Name)
 
-	cs, err := t.condWhere(filter, false)
+	cs, err := t.condWhere(body.Filter, false)
 	if err != nil {
 		return nil, err
 	}
@@ -553,9 +558,19 @@ func (t *Table) _Find(filter map[string]any, fields []string, skip, limit int) (
 		bdr.Where(c)
 	}
 
-	//bdr.OrderBy()
+	//排序
+	if len(body.Sort) > 0 {
+		for k, v := range body.Sort {
+			f := db.Engine().Quote(k)
+			if v > 0 {
+				bdr.OrderBy(f + " ASC")
+			} else {
+				bdr.OrderBy(f + " DESC")
+			}
+		}
+	}
 
-	bdr.Limit(limit, skip)
+	bdr.Limit(body.Limit, body.Skip)
 
 	rows, err = db.Engine().QueryInterface(bdr)
 	if err != nil {
@@ -581,8 +596,12 @@ func (t *Table) _Find(filter map[string]any, fields []string, skip, limit int) (
 	return
 }
 
-func (t *Table) Find(body *ParamSearch) (rows []map[string]any, err error) {
-	hasJoins := len(body.Joins) > 0
+func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
+	joins := body.Joins
+	if len(joins) == 0 {
+		joins = t.Joins //默认使用表定义的关联
+	}
+	hasJoins := len(joins) > 0
 
 	bdr := builder.Dialect(db.Engine().DriverName())
 
@@ -631,8 +650,20 @@ func (t *Table) Find(body *ParamSearch) (rows []map[string]any, err error) {
 		}
 	}
 
-	//TODO 排序
-	//bdr.OrderBy()
+	//排序
+	if len(body.Sort) > 0 {
+		for k, v := range body.Sort {
+			f := k
+			if hasJoins {
+				f = db.Engine().Quote(t.Name) + "." + db.Engine().Quote(f)
+			}
+			if v > 0 {
+				bdr.OrderBy(f + " ASC")
+			} else {
+				bdr.OrderBy(f + " DESC")
+			}
+		}
+	}
 
 	bdr.Limit(body.Limit, body.Skip)
 
@@ -677,7 +708,7 @@ func (t *Table) Get(id any, fields []string) (Document, error) {
 		return nil, err
 	}
 	if len(rows) == 0 {
-		return nil, errors.New("记录不存在") //TODO 记录不存在
+		return nil, errors.New("记录不存在")
 	}
 	row := rows[0]
 

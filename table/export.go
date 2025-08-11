@@ -2,7 +2,6 @@ package table
 
 import (
 	"encoding/json"
-	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -16,7 +15,7 @@ func ApiExport(ctx *gin.Context) {
 		return
 	}
 
-	var body curd.ParamSearch
+	var body ParamSearch
 	err = ctx.ShouldBindJSON(&body)
 	if err != nil {
 		Error(ctx, err)
@@ -24,7 +23,7 @@ func ApiExport(ctx *gin.Context) {
 	}
 
 	//查询
-	results, err := table.Find(body.Filter, []string{"*"}, int(body.Skip), int(body.Limit))
+	results, err := table.Find(body)
 	if err != nil {
 		Error(ctx, err)
 		return
