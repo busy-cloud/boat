@@ -1,9 +1,25 @@
 package table
 
 import (
-	"github.com/busy-cloud/boat/curd"
 	"github.com/gin-gonic/gin"
 )
+
+type Join struct {
+	Table        string `json:"table,omitempty"`         //表名
+	LocaleField  string `json:"locale_field,omitempty"`  //主表字段
+	ForeignField string `json:"foreign_field,omitempty"` //附表字段（外键）
+	Field        string `json:"field,omitempty"`         //取字段 TODO 可以改为数组
+	As           string `json:"as,omitempty"`            //赋值
+}
+
+type ParamSearch struct {
+	Skip   int            `form:"skip" json:"skip"`     //越过条数
+	Limit  int            `form:"limit" json:"limit"`   //限制条数
+	Sort   map[string]int `form:"sort" json:"sort"`     //排序 TODO 有序
+	Filter map[string]any `form:"filter" json:"filter"` //条件
+	Joins  []*Join        `form:"joins" json:"joins"`   //联合查询的字段
+	Fields []string       `form:"fields" json:"fields"` //要查询的字段
+}
 
 func ApiSearch(ctx *gin.Context) {
 	table, err := Get(ctx.Param("table"))
@@ -11,7 +27,7 @@ func ApiSearch(ctx *gin.Context) {
 		Error(ctx, err)
 		return
 	}
-	var body curd.ParamSearch
+	var body ParamSearch
 	err = ctx.ShouldBindJSON(&body)
 	if err != nil {
 		Error(ctx, err)
@@ -36,7 +52,7 @@ func ApiSearch(ctx *gin.Context) {
 		return
 	}
 
-	results, err := table.Find(body.Filter, []string{"*"}, body.Skip, body.Limit)
+	results, err := table.Find(&body)
 	if err != nil {
 		Error(ctx, err)
 		return

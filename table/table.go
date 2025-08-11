@@ -8,6 +8,7 @@ import (
 	"github.com/busy-cloud/boat/db"
 	"github.com/rs/xid"
 	"github.com/spf13/cast"
+	"slices"
 	"strings"
 	"time"
 	"xorm.io/builder"
@@ -82,7 +83,12 @@ func (f *Field) Cast(v any) (ret any, err error) {
 	return
 }
 
-func (f *Field) Condition(val string) (cond builder.Cond, err error) {
+func (f *Field) Condition(val string, tb string) (cond builder.Cond, err error) {
+	fn := f.Name
+	if tb != "" {
+		fn = db.Engine().Quote(tb) + "." + db.Engine().Quote(fn)
+	}
+
 	var v any
 	switch val[0] {
 	case '>':
@@ -91,13 +97,13 @@ func (f *Field) Condition(val string) (cond builder.Cond, err error) {
 			if err != nil {
 				return
 			}
-			cond = builder.Gte{f.Name: v}
+			cond = builder.Gte{fn: v}
 		} else {
 			v, err = f.Cast(val[1:])
 			if err != nil {
 				return
 			}
-			cond = builder.Gt{f.Name: v}
+			cond = builder.Gt{fn: v}
 		}
 	case '<':
 		if val[1] == '=' {
@@ -105,13 +111,13 @@ func (f *Field) Condition(val string) (cond builder.Cond, err error) {
 			if err != nil {
 				return
 			}
-			cond = builder.Lte{f.Name: v}
+			cond = builder.Lte{fn: v}
 		} else {
 			v, err = f.Cast(val[1:])
 			if err != nil {
 				return
 			}
-			cond = builder.Lt{f.Name: v}
+			cond = builder.Lt{fn: v}
 		}
 	case '=': //此处冗余了
 		if val[1] == '=' {
@@ -119,13 +125,13 @@ func (f *Field) Condition(val string) (cond builder.Cond, err error) {
 			if err != nil {
 				return
 			}
-			cond = builder.Eq{f.Name: v}
+			cond = builder.Eq{fn: v}
 		} else {
 			v, err = f.Cast(val[1:])
 			if err != nil {
 				return
 			}
-			cond = builder.Eq{f.Name: v}
+			cond = builder.Eq{fn: v}
 		}
 	case '!', '~':
 		if val[1] == '=' {
@@ -133,22 +139,22 @@ func (f *Field) Condition(val string) (cond builder.Cond, err error) {
 			if err != nil {
 				return
 			}
-			cond = builder.Neq{f.Name: v}
+			cond = builder.Neq{fn: v}
 		} else {
 			v, err = f.Cast(val[1:])
 			if err != nil {
 				return
 			}
-			cond = builder.Neq{f.Name: v}
+			cond = builder.Neq{fn: v}
 		}
 	case '%':
 		v, err = f.Cast(val[2:])
 		if err != nil {
 			return
 		}
-		cond = builder.Like{f.Name, val}
+		cond = builder.Like{fn, val}
 	default:
-		cond = builder.Eq{f.Name: v}
+		cond = builder.Eq{fn: v}
 	}
 	return
 }
@@ -237,7 +243,12 @@ func (t *Table) condId(id any) (conds []builder.Cond, err error) {
 	return
 }
 
-func (t *Table) condWhere(filter map[string]any) (conds []builder.Cond, err error) {
+func (t *Table) condWhere(filter map[string]any, hasJoin bool) (conds []builder.Cond, err error) {
+	tb := ""
+	if hasJoin {
+		tb = t.Name
+	}
+
 	for k, v := range filter {
 		field := t.Field(k)
 		if field == nil {
@@ -247,20 +258,24 @@ func (t *Table) condWhere(filter map[string]any) (conds []builder.Cond, err erro
 		switch val := v.(type) {
 		case []string:
 			for _, s := range val {
-				cond, err := field.Condition(s)
+				cond, err := field.Condition(s, tb)
 				if err != nil {
 					return nil, err
 				}
 				conds = append(conds, cond)
 			}
 		case string:
-			cond, err := field.Condition(val)
+			cond, err := field.Condition(val, tb)
 			if err != nil {
 				return nil, err
 			}
 			conds = append(conds, cond)
 		default:
-			conds = append(conds, builder.Eq{field.Name: val})
+			fn := field.Name
+			if hasJoin {
+				fn = db.Engine().Quote(t.Name) + "." + db.Engine().Quote(field.Name)
+			}
+			conds = append(conds, builder.Eq{fn: val})
 		}
 	}
 	return
@@ -415,7 +430,7 @@ func (t *Table) Update(filter map[string]any, values map[string]any) (rows int64
 
 	bdr := builder.Dialect(db.Engine().DriverName()).Update(updates...).From(t.Name)
 
-	cs, err := t.condWhere(filter)
+	cs, err := t.condWhere(filter, false)
 	if err != nil {
 		return 0, err
 	}
@@ -479,7 +494,7 @@ func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error
 }
 
 func (t *Table) Delete(filter map[string]any) (rows int64, err error) {
-	cs, err := t.condWhere(filter)
+	cs, err := t.condWhere(filter, false)
 	if err != nil {
 		return 0, err
 	}
@@ -527,10 +542,10 @@ func (t *Table) DeleteById(id any) (rows int64, err error) {
 	return res.RowsAffected()
 }
 
-func (t *Table) Find(filter map[string]any, fields []string, skip, limit int) (rows []map[string]any, err error) {
+func (t *Table) _Find(filter map[string]any, fields []string, skip, limit int) (rows []map[string]any, err error) {
 	bdr := builder.Dialect(db.Engine().DriverName()).Select(fields...).From(t.Name)
 
-	cs, err := t.condWhere(filter)
+	cs, err := t.condWhere(filter, false)
 	if err != nil {
 		return nil, err
 	}
@@ -541,6 +556,85 @@ func (t *Table) Find(filter map[string]any, fields []string, skip, limit int) (r
 	//bdr.OrderBy()
 
 	bdr.Limit(limit, skip)
+
+	rows, err = db.Engine().QueryInterface(bdr)
+	if err != nil {
+		return
+	}
+
+	//解析JSON
+	for _, row := range rows {
+		for _, field := range t.Fields {
+			if field.Json {
+				if val, ok := row[field.Name]; ok {
+					if str, ok := val.(string); ok {
+						var v any
+						err = json.Unmarshal([]byte(str), &v)
+						if err == nil {
+							row[field.Name] = v
+						}
+					}
+				}
+			}
+		}
+	}
+	return
+}
+
+func (t *Table) Find(body *ParamSearch) (rows []map[string]any, err error) {
+	hasJoins := len(body.Joins) > 0
+
+	bdr := builder.Dialect(db.Engine().DriverName())
+
+	var fields []string
+
+	if hasJoins {
+		if len(body.Fields) == 0 {
+			fields = append(fields, "t.*")
+		} else {
+			for _, f := range body.Fields {
+				fields = append(fields, "t."+db.Engine().Quote(f))
+			}
+		}
+		for _, join := range body.Joins {
+			//body.Fields = append(body.Fields)
+			if slices.Index(body.Fields, join.LocaleField) < 0 {
+				lf := db.Engine().Quote(t.Name) + "." + db.Engine().Quote(join.LocaleField)
+				fields = append(fields, lf)
+			}
+			ff := db.Engine().Quote(join.Table) + "." + db.Engine().Quote(join.ForeignField)
+			fields = append(fields, ff+" AS "+db.Engine().Quote(join.As))
+		}
+	} else {
+		if len(body.Fields) == 0 {
+			fields = append(fields, "*")
+		} else {
+			fields = body.Fields
+		}
+	}
+
+	bdr.Select(fields...).From(t.Name)
+
+	cs, err := t.condWhere(body.Filter, hasJoins)
+	if err != nil {
+		return nil, err
+	}
+	for _, c := range cs {
+		bdr.Where(c)
+	}
+
+	if hasJoins {
+		for _, join := range body.Joins {
+			lf := db.Engine().Quote(t.Name) + "." + db.Engine().Quote(join.LocaleField)
+			ff := db.Engine().Quote(join.Table) + "." + db.Engine().Quote(join.ForeignField)
+			bdr.LeftJoin(join.Table, builder.Eq{lf: ff})
+		}
+	}
+
+	//TODO 排序
+	//bdr.OrderBy()
+
+	bdr.Limit(body.Limit, body.Skip)
 
 	rows, err = db.Engine().QueryInterface(bdr)
 	if err != nil {
@@ -608,7 +702,7 @@ func (t *Table) Get(id any, fields []string) (Document, error) {
 func (t *Table) Count(filter map[string]any) (cnt int64, err error) {
 	bdr := builder.Dialect(db.Engine().DriverName()).Select("count(*)").From(t.Name)
 
-	cs, err := t.condWhere(filter)
+	cs, err := t.condWhere(filter, false)
 	if err != nil {
 		return 0, err
 	}
