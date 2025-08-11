@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/busy-cloud/dash v0.5.0
-	github.com/busy-cloud/user v0.6.1
+	github.com/busy-cloud/user v0.6.5
 	github.com/dop251/goja v0.0.0-20250630131328-58d95d85e994
 	github.com/dop251/goja_nodejs v0.0.0-20250409162600-f7acab6894b0
 	github.com/eclipse/paho.mqtt.golang v1.5.0
@@ -86,7 +86,6 @@ require (
 	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/text v0.28.0 // indirect
-	golang.org/x/tools v0.35.0 // indirect
 	google.golang.org/protobuf v1.36.7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
