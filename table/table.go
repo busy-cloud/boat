@@ -625,13 +625,14 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 			fields = append(fields, "t."+db.Engine().Quote(f))
 		}
 	}
-	for _, join := range body.Joins {
+	for i, join := range body.Joins {
 		//body.Fields = append(body.Fields)
 		if slices.Index(body.Fields, join.LocaleField) < 0 {
-			lf := db.Engine().Quote(t.Name) + "." + db.Engine().Quote(join.LocaleField)
+			lf := "t." + db.Engine().Quote(join.LocaleField)
 			fields = append(fields, lf)
 		}
-		ff := db.Engine().Quote(join.Table) + "." + db.Engine().Quote(join.ForeignField)
+		as := "t" + strconv.Itoa(i+1)
+		ff := as + "." + db.Engine().Quote(join.ForeignField)
 		fields = append(fields, ff+" AS "+db.Engine().Quote(join.As))
 	}
 
