@@ -153,9 +153,9 @@ func (f *Field) Condition(val string, hasJoin bool) (cond builder.Cond, err erro
 		if err != nil {
 			return
 		}
-		cond = builder.Like{fn, val}
+		cond = builder.Like{fn, val} //使用原始
 	default:
-		cond = builder.Eq{fn: v}
+		cond = builder.Eq{fn: val}
 	}
 	return
 }
