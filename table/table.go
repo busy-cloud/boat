@@ -84,10 +84,10 @@ func (f *Field) Cast(v any) (ret any, err error) {
 	return
 }
 
-func (f *Field) Condition(val string, tb string) (cond builder.Cond, err error) {
+func (f *Field) Condition(val string, hasJoin bool) (cond builder.Cond, err error) {
 	fn := f.Name
-	if tb != "" {
-		fn = db.Engine().Quote(tb) + "." + db.Engine().Quote(fn)
+	if hasJoin {
+		fn = "t." + db.Engine().Quote(fn)
 	}
 
 	var v any
@@ -246,11 +246,6 @@ func (t *Table) condId(id any) (conds []builder.Cond, err error) {
 }
 
 func (t *Table) condWhere(filter map[string]any, hasJoin bool) (conds []builder.Cond, err error) {
-	tb := ""
-	if hasJoin {
-		tb = t.Name
-	}
-
 	for k, v := range filter {
 		field := t.Field(k)
 		if field == nil {
@@ -260,14 +255,14 @@ func (t *Table) condWhere(filter map[string]any, hasJoin bool) (conds []builder.
 		switch val := v.(type) {
 		case []string:
 			for _, s := range val {
-				cond, err := field.Condition(s, tb)
+				cond, err := field.Condition(s, hasJoin)
 				if err != nil {
 					return nil, err
 				}
 				conds = append(conds, cond)
 			}
 		case string:
-			cond, err := field.Condition(val, tb)
+			cond, err := field.Condition(val, hasJoin)
 			if err != nil {
 				return nil, err
 			}
@@ -275,7 +270,7 @@ func (t *Table) condWhere(filter map[string]any, hasJoin bool) (conds []builder.
 		default:
 			fn := field.Name
 			if hasJoin {
-				fn = db.Engine().Quote(t.Name) + "." + db.Engine().Quote(field.Name)
+				fn = "t." + db.Engine().Quote(field.Name)
 			}
 			conds = append(conds, builder.Eq{fn: val})
 		}
