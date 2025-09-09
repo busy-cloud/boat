@@ -61,10 +61,8 @@ type Field struct {
 	Pattern string `json:"pattern,omitempty"`
 
 	Upload string `json:"upload,omitempty"` //上传路径
-}
 
-type Form struct {
-	Fields []Field `json:"fields"`
+	//TODO 这里要及时补充，与前端保持一致
 }
 
 type AutoOption struct {

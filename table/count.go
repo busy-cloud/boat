@@ -2,6 +2,7 @@ package table
 
 import (
 	"github.com/busy-cloud/boat/api"
+	"github.com/busy-cloud/boat/smart"
 	"github.com/gin-gonic/gin"
 	"slices"
 )
@@ -23,7 +24,7 @@ func ApiCount(ctx *gin.Context) {
 	//多租户过滤
 	tid := ctx.GetString("tenant")
 	if tid != "" {
-		tenantId := slices.IndexFunc(table.Fields, func(field *Field) bool {
+		tenantId := slices.IndexFunc(table.Fields, func(field *smart.Column) bool {
 			return field.Name == "tenant_id"
 		})
 		if tenantId > -1 {
