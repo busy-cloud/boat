@@ -15,7 +15,7 @@ func ApiTableList(ctx *gin.Context) {
 	//&InfoEx{
 	//	Name:          tab.Name,
 	//	Label:         tab.Name,
-	//	Fields:        len(tab.Fields),
+	//	Columns:        len(tab.Columns),
 	//	Schema:        tab.Schema != nil,
 	//	Scripts:       len(tab.Scripts),
 	//	Accumulations: len(tab.Accumulations),

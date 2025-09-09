@@ -65,8 +65,8 @@ func ApiImport(ctx *gin.Context) {
 	//多租户默认
 	tid := ctx.GetString("tenant")
 	if tid != "" {
-		field := table.Field("tenant_id")
-		if field != nil {
+		column := table.Column("tenant_id")
+		if column != nil {
 			for _, doc := range docs {
 				//只有未传值tenant_id时，才会赋值用户所在的tenant_id
 				if _, ok := doc["tenant_id"]; !ok {

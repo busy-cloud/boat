@@ -6,10 +6,9 @@ import (
 )
 
 type Form struct {
-	smart.Form
-
-	Title  string `json:"title"`
-	Module string `json:"module"`
+	Title  string        `json:"title"`
+	Module string        `json:"module"`
+	Fields []smart.Field `json:"fields"`
 }
 
 var modules lib.Map[Form]
@@ -30,7 +29,7 @@ func GetModules() []Form {
 	var ms []Form
 	modules.Range(func(_ string, item *Form) bool {
 		m := *item
-		m.Form.Fields = nil
+		m.Fields = nil
 		ms = append(ms, m)
 		return true
 	})

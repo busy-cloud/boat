@@ -24,8 +24,8 @@ func ApiCount(ctx *gin.Context) {
 	//多租户过滤
 	tid := ctx.GetString("tenant")
 	if tid != "" {
-		tenantId := slices.IndexFunc(table.Fields, func(field *smart.Column) bool {
-			return field.Name == "tenant_id"
+		tenantId := slices.IndexFunc(table.Columns, func(column *smart.Column) bool {
+			return column.Name == "tenant_id"
 		})
 		if tenantId > -1 {
 			//只有未传值tenant_id时，才会赋值用户所在的tenant_id

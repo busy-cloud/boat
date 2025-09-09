@@ -96,7 +96,7 @@ func ColumnToCondition(f *smart.Column, val string, hasJoin bool) (cond builder.
 type Table struct {
 	Name          string          `json:"name,omitempty"`
 	Comment       string          `json:"comment,omitempty"`
-	Fields        []*smart.Column `json:"fields,omitempty"`
+	Columns       []*smart.Column `json:"columns,omitempty"`
 	Joins         []*Join         `json:"joins,omitempty"`
 	DisableInsert bool            `json:"disable_insert,omitempty"`
 	DisableUpdate bool            `json:"disable_update,omitempty"`
@@ -105,39 +105,39 @@ type Table struct {
 	//原生钩子
 	Hook
 
-	indexedFields map[string]*smart.Column
+	indexedColumns map[string]*smart.Column
 }
 
 func (t *Table) Init() error {
-	t.indexedFields = make(map[string]*smart.Column)
-	for _, field := range t.Fields {
-		t.indexedFields[field.Name] = field
+	t.indexedColumns = make(map[string]*smart.Column)
+	for _, column := range t.Columns {
+		t.indexedColumns[column.Name] = column
 	}
 
 	return t.Hook.Compile()
 }
 
-func (t *Table) Field(name string) *smart.Column {
-	return t.indexedFields[name]
+func (t *Table) Column(name string) *smart.Column {
+	return t.indexedColumns[name]
 }
 
 func (t *Table) PrimaryKeys() []*smart.Column {
-	var fields []*smart.Column
-	for _, field := range t.Fields {
-		if field.Primary {
-			fields = append(fields, field)
+	var columns []*smart.Column
+	for _, column := range t.Columns {
+		if column.Primary {
+			columns = append(columns, column)
 		}
 	}
-	return fields
+	return columns
 }
 
 func (t *Table) condId(id any) (conds []builder.Cond, err error) {
 	var keys []*smart.Column
 
 	//取id列
-	field := t.Field("id")
-	if field != nil {
-		keys = append(keys, field)
+	column := t.Column("id")
+	if column != nil {
+		keys = append(keys, column)
 	} else {
 		//取主键
 		keys = t.PrimaryKeys()
@@ -149,12 +149,12 @@ func (t *Table) condId(id any) (conds []builder.Cond, err error) {
 
 	var ids []any
 	if len(keys) == 1 {
-		field = keys[0]
-		val, err := field.Cast(id)
+		column = keys[0]
+		val, err := column.Cast(id)
 		if err != nil {
 			return nil, err
 		}
-		conds = append(conds, builder.Eq{field.Name: val})
+		conds = append(conds, builder.Eq{column.Name: val})
 	} else {
 		//多主键的情况
 		if str, ok := id.(string); !ok {
@@ -165,12 +165,12 @@ func (t *Table) condId(id any) (conds []builder.Cond, err error) {
 				return nil, errors.New("主键数量不匹配")
 			}
 
-			for i, field := range keys {
-				val, err := field.Cast(ss[i])
+			for i, column := range keys {
+				val, err := column.Cast(ss[i])
 				if err != nil {
 					return nil, err
 				}
-				conds = append(conds, builder.Eq{field.Name: val})
+				conds = append(conds, builder.Eq{column.Name: val})
 			}
 		}
 	}
@@ -180,30 +180,30 @@ func (t *Table) condId(id any) (conds []builder.Cond, err error) {
 
 func (t *Table) condWhere(filter map[string]any, hasJoin bool) (conds []builder.Cond, err error) {
 	for k, v := range filter {
-		field := t.Field(k)
-		if field == nil {
-			return nil, fmt.Errorf("field %s not found", k)
+		column := t.Column(k)
+		if column == nil {
+			return nil, fmt.Errorf("column %s not found", k)
 		}
 
 		switch val := v.(type) {
 		case []string:
 			for _, s := range val {
-				cond, err := ColumnToCondition(field, s, hasJoin)
+				cond, err := ColumnToCondition(column, s, hasJoin)
 				if err != nil {
 					return nil, err
 				}
 				conds = append(conds, cond)
 			}
 		case string:
-			cond, err := ColumnToCondition(field, val, hasJoin)
+			cond, err := ColumnToCondition(column, val, hasJoin)
 			if err != nil {
 				return nil, err
 			}
 			conds = append(conds, cond)
 		default:
-			fn := field.Name
+			fn := column.Name
 			if hasJoin {
-				fn = "t." + db.Engine().Quote(field.Name)
+				fn = "t." + db.Engine().Quote(column.Name)
 			}
 			conds = append(conds, builder.Eq{fn: val})
 		}
@@ -221,8 +221,8 @@ func (t *Table) Schema() *schemas.Table {
 	table.Comment = t.Comment
 
 	//转化列
-	for _, field := range t.Fields {
-		col := field.ToColumn()
+	for _, column := range t.Columns {
+		col := column.ToColumn()
 		table.AddColumn(col)
 	}
 
@@ -269,39 +269,39 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 
 	//删除冗余字段
 	for k, _ := range values {
-		field := t.Field(k)
-		if field == nil {
+		column := t.Column(k)
+		if column == nil {
 			delete(values, k)
 		}
 	}
 
 	var increment bool
 
-	for _, field := range t.Fields {
+	for _, column := range t.Columns {
 		//查询自增主键
-		if field.Primary && field.Increment {
+		if column.Primary && column.Increment {
 			increment = true
 		}
 
 		//主键，生成默认ID
-		if field.Primary && field.Name == "id" && field.Type == "string" {
-			if val, ok := values[field.Name]; ok {
+		if column.Primary && column.Name == "id" && column.Type == "string" {
+			if val, ok := values[column.Name]; ok {
 				if v, ok := val.(string); ok && v == "" {
 					id = xid.New().String()
-					values[field.Name] = id
+					values[column.Name] = id
 				}
 			} else {
 				id = xid.New().String()
-				values[field.Name] = id
+				values[column.Name] = id
 			}
 		}
 
-		if field.Created {
-			values[field.Name] = time.Now().Format(time.DateTime) //直接格式化
+		if column.Created {
+			values[column.Name] = time.Now().Format(time.DateTime) //直接格式化
 		}
 
-		if field.Json {
-			values[field.Name], _ = json.Marshal(values[field.Name])
+		if column.Json {
+			values[column.Name], _ = json.Marshal(values[column.Name])
 		}
 	}
 
@@ -337,14 +337,14 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 }
 
 func (t *Table) Update(filter map[string]any, values map[string]any) (rows int64, err error) {
-	for _, field := range t.Fields {
-		if field.Updated {
-			values[field.Name] = time.Now().Format(time.DateTime) //直接格式化
+	for _, column := range t.Columns {
+		if column.Updated {
+			values[column.Name] = time.Now().Format(time.DateTime) //直接格式化
 		}
 
-		if field.Json {
-			if val, ok := values[field.Name]; ok {
-				values[field.Name], _ = json.Marshal(val)
+		if column.Json {
+			if val, ok := values[column.Name]; ok {
+				values[column.Name], _ = json.Marshal(val)
 			}
 		}
 	}
@@ -373,14 +373,14 @@ func (t *Table) Update(filter map[string]any, values map[string]any) (rows int64
 }
 
 func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error) {
-	for _, field := range t.Fields {
-		if field.Updated {
-			values[field.Name] = time.Now().Format(time.DateTime) //直接格式化
+	for _, column := range t.Columns {
+		if column.Updated {
+			values[column.Name] = time.Now().Format(time.DateTime) //直接格式化
 		}
 
-		if field.Json {
-			if val, ok := values[field.Name]; ok {
-				values[field.Name], _ = json.Marshal(val)
+		if column.Json {
+			if val, ok := values[column.Name]; ok {
+				values[column.Name], _ = json.Marshal(val)
 			}
 		}
 	}
@@ -469,11 +469,11 @@ func (t *Table) DeleteById(id any) (rows int64, err error) {
 }
 
 func (t *Table) Find(body *ParamSearch) (rows []map[string]any, err error) {
-	fields := body.Fields
-	if len(fields) == 0 {
-		fields = []string{"*"}
+	columns := body.Fields
+	if len(columns) == 0 {
+		columns = []string{"*"}
 	}
-	bdr := builder.Dialect(db.Engine().DriverName()).Select(fields...).From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Select(columns...).From(t.Name)
 
 	cs, err := t.condWhere(body.Filter, false)
 	if err != nil {
@@ -504,14 +504,14 @@ func (t *Table) Find(body *ParamSearch) (rows []map[string]any, err error) {
 
 	//解析JSON
 	for _, row := range rows {
-		for _, field := range t.Fields {
-			if field.Json {
-				if val, ok := row[field.Name]; ok {
+		for _, column := range t.Columns {
+			if column.Json {
+				if val, ok := row[column.Name]; ok {
 					if str, ok := val.(string); ok {
 						var v any
 						err = json.Unmarshal([]byte(str), &v)
 						if err == nil {
-							row[field.Name] = v
+							row[column.Name] = v
 						}
 					}
 				}
@@ -532,27 +532,27 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 
 	bdr := builder.Dialect(db.Engine().DriverName())
 
-	var fields []string
+	var columns []string
 
 	if len(body.Fields) == 0 {
-		fields = append(fields, "t.*")
+		columns = append(columns, "t.*")
 	} else {
 		for _, f := range body.Fields {
-			fields = append(fields, "t."+db.Engine().Quote(f))
+			columns = append(columns, "t."+db.Engine().Quote(f))
 		}
 	}
 	for i, join := range body.Joins {
-		//body.Fields = append(body.Fields)
+		//body.Columns = append(body.Columns)
 		if slices.Index(body.Fields, join.LocaleField) < 0 {
 			lf := "t." + db.Engine().Quote(join.LocaleField)
-			fields = append(fields, lf)
+			columns = append(columns, lf)
 		}
 		as := "t" + strconv.Itoa(i+1)
 		ff := as + "." + db.Engine().Quote(join.ForeignField)
-		fields = append(fields, ff+" AS "+db.Engine().Quote(join.As))
+		columns = append(columns, ff+" AS "+db.Engine().Quote(join.As))
 	}
 
-	bdr.Select(fields...).From(builder.As(t.Name, "t"))
+	bdr.Select(columns...).From(builder.As(t.Name, "t"))
 
 	cs, err := t.condWhere(body.Filter, true)
 	if err != nil {
@@ -590,14 +590,14 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 
 	//解析JSON
 	for _, row := range rows {
-		for _, field := range t.Fields {
-			if field.Json {
-				if val, ok := row[field.Name]; ok {
+		for _, column := range t.Columns {
+			if column.Json {
+				if val, ok := row[column.Name]; ok {
 					if str, ok := val.(string); ok {
 						var v any
 						err = json.Unmarshal([]byte(str), &v)
 						if err == nil {
-							row[field.Name] = v
+							row[column.Name] = v
 						}
 					}
 				}
@@ -607,8 +607,8 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 	return
 }
 
-func (t *Table) Get(id any, fields []string) (Document, error) {
-	bdr := builder.Dialect(db.Engine().DriverName()).Select(fields...).From(t.Name)
+func (t *Table) Get(id any, columns []string) (Document, error) {
+	bdr := builder.Dialect(db.Engine().DriverName()).Select(columns...).From(t.Name)
 
 	//bdr.Where(builder.Eq{"id": id})
 	cs, err := t.condId(id)
@@ -629,14 +629,14 @@ func (t *Table) Get(id any, fields []string) (Document, error) {
 	row := rows[0]
 
 	//解析
-	for _, field := range t.Fields {
-		if field.Json {
-			if val, ok := row[field.Name]; ok {
+	for _, column := range t.Columns {
+		if column.Json {
+			if val, ok := row[column.Name]; ok {
 				if str, ok := val.(string); ok {
 					var v any
 					err = json.Unmarshal([]byte(str), &v)
 					if err == nil {
-						row[field.Name] = v
+						row[column.Name] = v
 					}
 				}
 			}

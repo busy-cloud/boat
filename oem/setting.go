@@ -9,11 +9,9 @@ func init() {
 	config.Register(MODULE, &config.Form{
 		Title:  "OEM配置",
 		Module: MODULE,
-		Form: smart.Form{
-			Fields: []smart.Field{
-				{Key: "name", Label: "名称", Type: "text"},
-				{Key: "logo", Label: "图标", Type: "text"},
-			},
+		Fields: []smart.Field{
+			{Key: "name", Label: "名称", Type: "text"},
+			{Key: "logo", Label: "图标", Type: "text"},
 		},
 	})
 }
