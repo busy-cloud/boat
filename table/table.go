@@ -70,6 +70,23 @@ type Field struct {
 	Json      bool   `json:"json,omitempty"`
 }
 
+func (f *Field) ToColumn() *schemas.Column {
+	col := schemas.NewColumn(f.Name, "", TypeToSqlType(f.Type), f.Length, f.Length2, !f.NotNull)
+	col.IsPrimaryKey = f.Primary
+	col.IsAutoIncrement = f.Increment
+	col.Default = f.Default
+	col.IsCreated = f.Created
+	col.IsUpdated = f.Updated
+	if f.Indexed {
+		col.Indexes[f.Name] = schemas.IndexType
+	}
+	if f.Primary {
+		col.Nullable = false //主键不能为空
+	}
+	col.Comment = f.Comment
+	return col
+}
+
 func (f *Field) Cast(v any) (ret any, err error) {
 	switch f.Type {
 	case "int", "int8", "int16", "int32", "int64":
@@ -289,19 +306,7 @@ func (t *Table) Schema() *schemas.Table {
 
 	//转化列
 	for _, field := range t.Fields {
-		col := schemas.NewColumn(field.Name, "", TypeToSqlType(field.Type), field.Length, field.Length2, !field.NotNull)
-		col.IsPrimaryKey = field.Primary
-		col.IsAutoIncrement = field.Increment
-		col.Default = field.Default
-		col.IsCreated = field.Created
-		col.IsUpdated = field.Updated
-		if field.Indexed {
-			col.Indexes[field.Name] = schemas.IndexType
-		}
-		if field.Primary {
-			col.Nullable = false //主键不能为空
-		}
-		col.Comment = field.Comment
+		col := field.ToColumn()
 		table.AddColumn(col)
 	}
 
