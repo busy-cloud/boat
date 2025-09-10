@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/busy-cloud/boat/db"
-	"github.com/busy-cloud/boat/smart"
-	"github.com/rs/xid"
-	"github.com/spf13/cast"
 	"slices"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/busy-cloud/boat/db"
+	"github.com/busy-cloud/boat/smart"
+	"github.com/rs/xid"
+	"github.com/spf13/cast"
 	"xorm.io/builder"
 	"xorm.io/xorm/schemas"
 )
@@ -286,6 +287,8 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 		//主键，生成默认ID
 		if column.Primary && column.Name == "id" && column.Type == "string" {
 			if val, ok := values[column.Name]; ok {
+				id = val //记录原ID
+
 				if v, ok := val.(string); ok && v == "" {
 					id = xid.New().String()
 					values[column.Name] = id
