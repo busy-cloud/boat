@@ -230,6 +230,11 @@ func (t *Table) Schema() *schemas.Table {
 	return table
 }
 
+func (t *Table) AddColumn(column *smart.Column) {
+	t.indexedColumns[column.Name] = column
+	t.Columns = append(t.Columns, column)
+}
+
 func (t *Table) Create() error {
 	schema := t.Schema()
 
