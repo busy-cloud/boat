@@ -145,7 +145,6 @@ func (t *Table) condId(id any) (conds []builder.Cond, err error) {
 		return nil, errors.New("表没有主键")
 	}
 
-	var ids []any
 	if len(keys) == 1 {
 		column := keys[0]
 		val, err := column.Cast(id)
@@ -159,7 +158,7 @@ func (t *Table) condId(id any) (conds []builder.Cond, err error) {
 			return nil, errors.New("多主键id需是string类型")
 		} else {
 			ss := strings.Split(str, "/")
-			if len(ids) != len(keys) {
+			if len(ss) != len(keys) {
 				return nil, errors.New("主键数量不匹配")
 			}
 
