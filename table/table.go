@@ -19,9 +19,9 @@ import (
 )
 
 func ColumnToCondition(f *smart.Column, val string, hasJoin bool) (cond builder.Cond, err error) {
-	fn := f.Name
+	fn := db.Engine().Quote(f.Name)
 	if hasJoin {
-		fn = "t." + db.Engine().Quote(fn)
+		fn = "t." + db.Engine().Quote(f.Name)
 	}
 
 	var v any
@@ -171,7 +171,7 @@ func (t *Table) condId(id any) (conds []builder.Cond, err error) {
 				if err != nil {
 					return nil, err
 				}
-				conds = append(conds, builder.Eq{column.Name: val})
+				conds = append(conds, builder.Eq{db.Engine().Quote(column.Name): val})
 			}
 		}
 	}
@@ -202,7 +202,7 @@ func (t *Table) condWhere(filter map[string]any, hasJoin bool) (conds []builder.
 			}
 			conds = append(conds, cond)
 		default:
-			fn := column.Name
+			fn := db.Engine().Quote(column.Name)
 			if hasJoin {
 				fn = "t." + db.Engine().Quote(column.Name)
 			}
@@ -322,7 +322,7 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 
 	var vs []interface{}
 	for k, v := range values {
-		vs = append(vs, builder.Eq{k: v})
+		vs = append(vs, builder.Eq{db.Engine().Quote(k): v})
 	}
 	bdr := builder.Dialect(db.Engine().DriverName()).Insert(vs...).Into(t.Name)
 	res, err := db.Engine().Exec(bdr)
@@ -359,7 +359,7 @@ func (t *Table) Update(filter map[string]any, values map[string]any) (rows int64
 
 	var updates []builder.Cond
 	for k, v := range values {
-		updates = append(updates, builder.Eq{k: v})
+		updates = append(updates, builder.Eq{db.Engine().Quote(k): v})
 	}
 
 	bdr := builder.Dialect(db.Engine().DriverName()).Update(updates...).From(t.Name)
@@ -402,7 +402,7 @@ func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error
 
 	var updates []builder.Cond
 	for k, v := range values {
-		updates = append(updates, builder.Eq{k: v})
+		updates = append(updates, builder.Eq{db.Engine().Quote(k): v})
 	}
 	bdr := builder.Dialect(db.Engine().DriverName()).Update(updates...).From(t.Name)
 
