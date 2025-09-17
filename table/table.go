@@ -133,15 +133,12 @@ func (t *Table) PrimaryKeys() []*smart.Column {
 }
 
 func (t *Table) condId(id any) (conds []builder.Cond, err error) {
-	var keys []*smart.Column
-
-	//取id列
-	column := t.Column("id")
-	if column != nil {
-		keys = append(keys, column)
-	} else {
-		//取主键
-		keys = t.PrimaryKeys()
+	keys := t.PrimaryKeys()
+	if len(keys) == 0 {
+		column := t.Column("id")
+		if column != nil {
+			keys = append(keys, column)
+		}
 	}
 
 	if len(keys) == 0 {
@@ -150,7 +147,7 @@ func (t *Table) condId(id any) (conds []builder.Cond, err error) {
 
 	var ids []any
 	if len(keys) == 1 {
-		column = keys[0]
+		column := keys[0]
 		val, err := column.Cast(id)
 		if err != nil {
 			return nil, err
