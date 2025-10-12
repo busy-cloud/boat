@@ -2,9 +2,10 @@ package table
 
 import (
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"io"
 	"mime/multipart"
+
+	"github.com/gin-gonic/gin"
 )
 
 func FormFiles(ctx *gin.Context) (files []*multipart.FileHeader, err error) {

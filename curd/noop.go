@@ -1,8 +1,9 @@
 package curd
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Noop(ctx *gin.Context) {

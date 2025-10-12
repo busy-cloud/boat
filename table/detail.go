@@ -1,8 +1,9 @@
 package table
 
 import (
-	"github.com/gin-gonic/gin"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func ApiDetail(ctx *gin.Context) {

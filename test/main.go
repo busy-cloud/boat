@@ -1,6 +1,10 @@
 package main
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	_ "github.com/busy-cloud/boat/apis"
 	_ "github.com/busy-cloud/boat/apps"
 	"github.com/busy-cloud/boat/boot"
@@ -12,9 +16,6 @@ import (
 	_ "github.com/busy-cloud/dash"
 	_ "github.com/busy-cloud/user"
 	"github.com/spf13/viper"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func main() {

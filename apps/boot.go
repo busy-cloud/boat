@@ -2,14 +2,15 @@ package apps
 
 import (
 	"encoding/json"
+	"net/http"
+	"os"
+	"path"
+
 	"github.com/busy-cloud/boat/boot"
 	"github.com/busy-cloud/boat/log"
 	"github.com/busy-cloud/boat/web"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/multierr"
-	"net/http"
-	"os"
-	"path"
 )
 
 func init() {

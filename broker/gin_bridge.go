@@ -2,12 +2,13 @@ package broker
 
 import (
 	"errors"
-	"github.com/busy-cloud/boat/log"
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 	"io"
 	"net"
 	"net/http"
+
+	"github.com/busy-cloud/boat/log"
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 var upGrader = &websocket.Upgrader{

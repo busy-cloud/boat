@@ -3,9 +3,10 @@ package table
 import (
 	"encoding/json"
 	"errors"
-	"github.com/busy-cloud/boat/lib"
 	"os"
 	"path/filepath"
+
+	"github.com/busy-cloud/boat/lib"
 )
 
 var tables lib.Map[Table]

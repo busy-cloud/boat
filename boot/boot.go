@@ -2,11 +2,12 @@ package boot
 
 import (
 	"fmt"
-	"github.com/busy-cloud/boat/lib"
-	"go.uber.org/multierr"
 	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/busy-cloud/boat/lib"
+	"go.uber.org/multierr"
 )
 
 type Task struct {

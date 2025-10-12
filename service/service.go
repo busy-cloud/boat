@@ -1,9 +1,10 @@
 package service
 
 import (
+	"log"
+
 	"github.com/busy-cloud/boat/config"
 	"github.com/kardianos/service"
-	"log"
 )
 
 var svc service.Service

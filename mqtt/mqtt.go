@@ -3,14 +3,15 @@ package mqtt
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/busy-cloud/boat/config"
-	"github.com/busy-cloud/boat/log"
-	"github.com/busy-cloud/boat/pool"
-	paho "github.com/eclipse/paho.mqtt.golang"
 	"net/url"
 	"os"
 	"runtime"
 	"time"
+
+	"github.com/busy-cloud/boat/config"
+	"github.com/busy-cloud/boat/log"
+	"github.com/busy-cloud/boat/pool"
+	paho "github.com/eclipse/paho.mqtt.golang"
 )
 
 var CustomConnectionFunc paho.OpenConnectionFunc

@@ -1,10 +1,11 @@
 package web
 
 import (
+	"net/http"
+
 	"github.com/busy-cloud/boat/config"
 	"github.com/busy-cloud/boat/log"
 	"golang.org/x/crypto/acme/autocert"
-	"net/http"
 )
 
 func ServeTLS() error {

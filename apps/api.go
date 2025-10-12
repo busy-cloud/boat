@@ -2,12 +2,13 @@ package apps
 
 import (
 	_ "embed"
-	"github.com/busy-cloud/boat/api"
-	"github.com/busy-cloud/boat/app"
-	"github.com/gin-gonic/gin"
 	"io"
 	"os"
 	"time"
+
+	"github.com/busy-cloud/boat/api"
+	"github.com/busy-cloud/boat/app"
+	"github.com/gin-gonic/gin"
 )
 
 //go:embed icon.png

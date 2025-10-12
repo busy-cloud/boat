@@ -1,10 +1,11 @@
 package curd
 
 import (
+	"strings"
+
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/db"
 	"github.com/gin-gonic/gin"
-	"strings"
 )
 
 type Join struct {

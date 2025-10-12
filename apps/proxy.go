@@ -1,8 +1,9 @@
 package apps
 
 import (
-	"github.com/gin-gonic/gin"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Proxy(ctx *gin.Context) {

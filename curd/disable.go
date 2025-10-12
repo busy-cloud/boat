@@ -1,11 +1,12 @@
 package curd
 
 import (
+	"reflect"
+
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/db"
 	"github.com/busy-cloud/boat/log"
 	"github.com/gin-gonic/gin"
-	"reflect"
 )
 
 func ApiDisable[T any](disable bool) gin.HandlerFunc {

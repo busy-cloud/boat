@@ -1,13 +1,14 @@
 package curd
 
 import (
+	"reflect"
+
 	"github.com/busy-cloud/boat/config"
 	"github.com/busy-cloud/boat/web"
 	"github.com/google/uuid"
 	"github.com/lithammer/shortuuid"
 	"github.com/rs/xid"
 	"github.com/segmentio/ksuid"
-	"reflect"
 )
 
 func GenerateUuidKey(data interface{}) error {

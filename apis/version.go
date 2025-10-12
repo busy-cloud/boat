@@ -1,10 +1,11 @@
 package apis
 
 import (
+	"runtime"
+
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/version"
 	"github.com/gin-gonic/gin"
-	"runtime"
 )
 
 func init() {

@@ -1,10 +1,11 @@
 package lib
 
 import (
-	"go.uber.org/multierr"
 	"io"
 	"net"
 	"time"
+
+	"go.uber.org/multierr"
 )
 
 type vAddr struct {

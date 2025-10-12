@@ -1,11 +1,12 @@
 package api
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/busy-cloud/boat/web"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strings"
 )
 
 type API struct {

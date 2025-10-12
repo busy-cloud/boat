@@ -1,6 +1,11 @@
 package broker
 
 import (
+	"log/slog"
+	"net"
+	"net/url"
+	"os"
+
 	"github.com/busy-cloud/boat/boot"
 	"github.com/busy-cloud/boat/config"
 	"github.com/busy-cloud/boat/lib"
@@ -11,10 +16,6 @@ import (
 	mqtt "github.com/mochi-mqtt/server/v2"
 	"github.com/mochi-mqtt/server/v2/hooks/auth"
 	"github.com/mochi-mqtt/server/v2/listeners"
-	"log/slog"
-	"net"
-	"net/url"
-	"os"
 )
 
 func init() {

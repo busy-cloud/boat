@@ -3,18 +3,19 @@ package apps
 import (
 	"context"
 	"encoding/json"
-	"github.com/busy-cloud/boat/app"
-	"github.com/busy-cloud/boat/log"
-	"github.com/busy-cloud/boat/store"
-	"github.com/busy-cloud/boat/table"
-	"github.com/busy-cloud/boat/web"
-	"github.com/gin-gonic/gin"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
 	"path/filepath"
+
+	"github.com/busy-cloud/boat/app"
+	"github.com/busy-cloud/boat/log"
+	"github.com/busy-cloud/boat/store"
+	"github.com/busy-cloud/boat/table"
+	"github.com/busy-cloud/boat/web"
+	"github.com/gin-gonic/gin"
 )
 
 type App struct {

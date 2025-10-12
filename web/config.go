@@ -1,8 +1,9 @@
 package web
 
 import (
-	"github.com/busy-cloud/boat/config"
 	"math/rand/v2"
+
+	"github.com/busy-cloud/boat/config"
 )
 
 const MODULE = "web"

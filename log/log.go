@@ -3,10 +3,11 @@ package log
 import (
 	"bytes"
 	"fmt"
+	"os"
+
 	"github.com/busy-cloud/boat/config"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"os"
 )
 
 var logFile *lumberjack.Logger

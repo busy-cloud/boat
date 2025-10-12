@@ -2,10 +2,11 @@ package broker
 
 import (
 	"bytes"
-	"github.com/mochi-mqtt/server/v2"
-	"github.com/mochi-mqtt/server/v2/packets"
 	"net"
 	"time"
+
+	"github.com/mochi-mqtt/server/v2"
+	"github.com/mochi-mqtt/server/v2/packets"
 )
 
 type Hook struct {

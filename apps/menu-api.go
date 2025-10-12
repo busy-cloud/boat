@@ -1,10 +1,11 @@
 package apps
 
 import (
+	"slices"
+
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/app"
 	"github.com/gin-gonic/gin"
-	"slices"
 )
 
 func init() {

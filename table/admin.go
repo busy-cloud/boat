@@ -1,10 +1,11 @@
 package table
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
+
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 var Path = "tables"

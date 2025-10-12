@@ -1,9 +1,10 @@
 package broker
 
 import (
-	"github.com/busy-cloud/boat/config"
 	"os"
 	"runtime"
+
+	"github.com/busy-cloud/boat/config"
 )
 
 const MODULE = "broker"

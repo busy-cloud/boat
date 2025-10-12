@@ -1,9 +1,10 @@
 package curd
 
 import (
+	"reflect"
+
 	"github.com/busy-cloud/boat/api"
 	"github.com/gin-gonic/gin"
-	"reflect"
 )
 
 func ApiSearch[T any](fields ...string) gin.HandlerFunc {

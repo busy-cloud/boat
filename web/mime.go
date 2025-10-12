@@ -1,8 +1,9 @@
 package web
 
 import (
-	"github.com/busy-cloud/boat/log"
 	"mime"
+
+	"github.com/busy-cloud/boat/log"
 )
 
 func init() {

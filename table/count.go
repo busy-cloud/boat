@@ -1,10 +1,11 @@
 package table
 
 import (
+	"slices"
+
 	"github.com/busy-cloud/boat/api"
 	"github.com/busy-cloud/boat/smart"
 	"github.com/gin-gonic/gin"
-	"slices"
 )
 
 func ApiCount(ctx *gin.Context) {
