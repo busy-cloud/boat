@@ -6,7 +6,7 @@ import (
 
 type Join struct {
 	Table        string `json:"table,omitempty"`         //表名
-	LocaleField  string `json:"locale_field,omitempty"`  //主表字段
+	LocalField   string `json:"local_field,omitempty"`   //主表字段
 	ForeignField string `json:"foreign_field,omitempty"` //附表字段（外键）
 	Field        string `json:"field,omitempty"`         //取字段 TODO 可以改为数组
 	As           string `json:"as,omitempty"`            //赋值
