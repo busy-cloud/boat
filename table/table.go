@@ -552,7 +552,7 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 			columns = append(columns, lf)
 		}
 		as := "t" + strconv.Itoa(i+1)
-		ff := as + "." + db.Engine().Quote(join.ForeignField)
+		ff := as + "." + db.Engine().Quote(join.Field)
 		columns = append(columns, ff+" AS "+db.Engine().Quote(join.As))
 	}
 
