@@ -547,8 +547,8 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 	}
 	for i, join := range body.Joins {
 		//body.Columns = append(body.Columns)
-		if slices.Index(body.Fields, join.LocaleField) < 0 {
-			lf := "t." + db.Engine().Quote(join.LocaleField)
+		if slices.Index(body.Fields, join.LocalField) < 0 {
+			lf := "t." + db.Engine().Quote(join.LocalField)
 			columns = append(columns, lf)
 		}
 		as := "t" + strconv.Itoa(i+1)
@@ -568,7 +568,7 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 
 	for i, join := range body.Joins {
 		as := "t" + strconv.Itoa(i+1)
-		lf := "t." + db.Engine().Quote(join.LocaleField)
+		lf := "t." + db.Engine().Quote(join.LocalField)
 		ff := as + "." + db.Engine().Quote(join.ForeignField)
 		bdr.LeftJoin(builder.As(join.Table, as), builder.Eq{lf: ff})
 	}
