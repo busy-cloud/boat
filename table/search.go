@@ -5,20 +5,20 @@ import (
 )
 
 type Join struct {
-	Table        string `json:"table,omitempty"`          //表名
-	LocaleField  string `json:"locale_column,omitempty"`  //主表字段
-	ForeignField string `json:"foreign_column,omitempty"` //附表字段（外键）
-	Field        string `json:"column,omitempty"`         //取字段 TODO 可以改为数组
-	As           string `json:"as,omitempty"`             //赋值
+	Table        string `json:"table,omitempty"`         //表名
+	LocaleField  string `json:"locale_field,omitempty"`  //主表字段
+	ForeignField string `json:"foreign_field,omitempty"` //附表字段（外键）
+	Field        string `json:"field,omitempty"`         //取字段 TODO 可以改为数组
+	As           string `json:"as,omitempty"`            //赋值
 }
 
 type ParamSearch struct {
-	Skip   int            `form:"skip" json:"skip"`       //越过条数
-	Limit  int            `form:"limit" json:"limit"`     //限制条数
-	Sort   map[string]int `form:"sort" json:"sort"`       //排序 仅支持一个字段
-	Filter map[string]any `form:"filter" json:"filter"`   //条件
-	Joins  []*Join        `form:"joins" json:"joins"`     //联合查询的字段
-	Fields []string       `form:"columns" json:"columns"` //要查询的字段
+	Skip   int            `form:"skip" json:"skip"`     //越过条数
+	Limit  int            `form:"limit" json:"limit"`   //限制条数
+	Sort   map[string]int `form:"sort" json:"sort"`     //排序 仅支持一个字段
+	Filter map[string]any `form:"filter" json:"filter"` //条件
+	Joins  []*Join        `form:"joins" json:"joins"`   //联合查询的字段
+	Fields []string       `form:"fields" json:"fields"` //要查询的字段
 }
 
 func ApiSearch(ctx *gin.Context) {
