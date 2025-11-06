@@ -570,7 +570,8 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 		as := "t" + strconv.Itoa(i+1)
 		lf := "t." + db.Engine().Quote(join.LocalField)
 		ff := as + "." + db.Engine().Quote(join.ForeignField)
-		bdr.LeftJoin(builder.As(join.Table, as), builder.Eq{lf: ff})
+		//bdr.LeftJoin(builder.As(join.Table, as), builder.Eq{lf: ff})
+		bdr.LeftJoin(builder.As(join.Table, as), lf+"="+ff) //Eq会转化成字符串参数
 	}
 
 	//排序
