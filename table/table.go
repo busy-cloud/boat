@@ -498,7 +498,10 @@ func (t *Table) Find(body *ParamSearch) (rows []map[string]any, err error) {
 			}
 		}
 	}
-
+	
+	if body.Limit <= 0 {
+		body.Limit = 20
+	}
 	bdr.Limit(body.Limit, body.Skip)
 
 	rows, err = db.Engine().QueryInterface(bdr)
@@ -586,6 +589,9 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 		}
 	}
 
+	if body.Limit <= 0 {
+		body.Limit = 20
+	}
 	bdr.Limit(body.Limit, body.Skip)
 
 	rows, err = db.Engine().QueryInterface(bdr)
