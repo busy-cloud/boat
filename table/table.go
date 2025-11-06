@@ -320,7 +320,7 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 	for k, v := range values {
 		vs = append(vs, builder.Eq{db.Engine().Quote(k): v})
 	}
-	bdr := builder.Dialect(db.Engine().DriverName()).Insert(vs...).Into(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Insert(vs...).Into(db.Engine().Quote(t.Name))
 	res, err := db.Engine().Exec(bdr)
 	if err != nil {
 		return id, err
@@ -358,7 +358,7 @@ func (t *Table) Update(filter map[string]any, values map[string]any) (rows int64
 		updates = append(updates, builder.Eq{db.Engine().Quote(k): v})
 	}
 
-	bdr := builder.Dialect(db.Engine().DriverName()).Update(updates...).From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Update(updates...).From(db.Engine().Quote(t.Name))
 
 	cs, err := t.condWhere(filter, false)
 	if err != nil {
@@ -400,7 +400,7 @@ func (t *Table) UpdateById(id any, values map[string]any) (rows int64, err error
 	for k, v := range values {
 		updates = append(updates, builder.Eq{db.Engine().Quote(k): v})
 	}
-	bdr := builder.Dialect(db.Engine().DriverName()).Update(updates...).From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Update(updates...).From(db.Engine().Quote(t.Name))
 
 	//bdr.Where(builder.Eq{"id": id})
 	cs, err := t.condId(id)
@@ -429,7 +429,7 @@ func (t *Table) Delete(filter map[string]any) (rows int64, err error) {
 		return 0, err
 	}
 
-	bdr := builder.Dialect(db.Engine().DriverName()).Delete(cs...).From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Delete(cs...).From(db.Engine().Quote(t.Name))
 
 	res, err := db.Engine().Exec(bdr)
 	if err != nil {
@@ -440,7 +440,7 @@ func (t *Table) Delete(filter map[string]any) (rows int64, err error) {
 }
 
 func (t *Table) DeleteById(id any) (rows int64, err error) {
-	bdr := builder.Dialect(db.Engine().DriverName()).Delete().From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Delete().From(db.Engine().Quote(t.Name))
 
 	if t.BeforeDelete != nil {
 		err = t.BeforeDelete(id)
@@ -477,7 +477,7 @@ func (t *Table) Find(body *ParamSearch) (rows []map[string]any, err error) {
 	if len(columns) == 0 {
 		columns = []string{"*"}
 	}
-	bdr := builder.Dialect(db.Engine().DriverName()).Select(columns...).From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Select(columns...).From(db.Engine().Quote(t.Name))
 
 	cs, err := t.condWhere(body.Filter, false)
 	if err != nil {
@@ -556,7 +556,7 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 		columns = append(columns, ff+" AS "+db.Engine().Quote(join.As))
 	}
 
-	bdr.Select(columns...).From(builder.As(t.Name, "t"))
+	bdr.Select(columns...).From(builder.As(db.Engine().Quote(t.Name), "t"))
 
 	cs, err := t.condWhere(body.Filter, true)
 	if err != nil {
@@ -612,7 +612,7 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 }
 
 func (t *Table) Get(id any, columns []string) (Document, error) {
-	bdr := builder.Dialect(db.Engine().DriverName()).Select(columns...).From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Select(columns...).From(db.Engine().Quote(t.Name))
 
 	//bdr.Where(builder.Eq{"id": id})
 	cs, err := t.condId(id)
@@ -651,7 +651,7 @@ func (t *Table) Get(id any, columns []string) (Document, error) {
 }
 
 func (t *Table) Count(filter map[string]any) (cnt int64, err error) {
-	bdr := builder.Dialect(db.Engine().DriverName()).Select("count(*)").From(t.Name)
+	bdr := builder.Dialect(db.Engine().DriverName()).Select("count(*)").From(db.Engine().Quote(t.Name))
 
 	cs, err := t.condWhere(filter, false)
 	if err != nil {
