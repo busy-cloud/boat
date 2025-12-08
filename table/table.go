@@ -304,6 +304,10 @@ func (t *Table) Insert(values map[string]any) (id any, err error) {
 			values[column.Name] = time.Now().Format(time.DateTime) //直接格式化
 		}
 
+		if column.Updated {
+			values[column.Name] = time.Now().Format(time.DateTime) //直接格式化
+		}
+
 		if column.Json {
 			values[column.Name], _ = json.Marshal(values[column.Name])
 		}
@@ -498,7 +502,7 @@ func (t *Table) Find(body *ParamSearch) (rows []map[string]any, err error) {
 			}
 		}
 	}
-	
+
 	if body.Limit <= 0 {
 		body.Limit = 20
 	}
