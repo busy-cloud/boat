@@ -83,13 +83,14 @@ func ColumnToCondition(f *smart.Column, val string, hasJoin bool) (cond builder.
 			cond = builder.Neq{fn: v}
 		}
 	case '%':
-		v, err = f.Cast(val[2:])
-		if err != nil {
-			return
-		}
 		cond = builder.Like{fn, val} //使用原始
 	default:
-		cond = builder.Eq{fn: val}
+		//前缀
+		if val[len(val)-1] == '%' {
+			cond = builder.Like{fn, val} //使用原始
+		} else {
+			cond = builder.Eq{fn: val}
+		}
 	}
 	return
 }
