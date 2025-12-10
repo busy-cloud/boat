@@ -1,7 +1,6 @@
 package apis
 
 import (
-	"bufio"
 	"time"
 
 	"github.com/busy-cloud/boat/api"
@@ -10,61 +9,54 @@ import (
 )
 
 func init() {
-	api.Register("GET", "backup", backupGet)
-	api.Register("POST", "recover", recoverPost)
+	api.Register("GET", "backup", backup)
+	api.Register("POST", "recovery", recovery)
 }
 
 // 备份数据库
-func backupGet(ctx *gin.Context) {
-	engine := db.Engine()
-	if engine == nil {
-		api.Fail(ctx, "数据库未连接")
-		return
-	}
-
+func backup(ctx *gin.Context) {
 	// 设置响应头
 	filename := "backup_" + time.Now().Format("20060102150405") + ".sql"
 	ctx.Header("Content-Disposition", "attachment; filename="+filename)
 	ctx.Header("Content-Type", "application/sql")
 
-	writer := bufio.NewWriter(ctx.Writer)
-	if err := engine.DumpAll(writer); err != nil {
+	err := db.Engine().DumpAll(ctx.Writer)
+	if err != nil {
 		api.Error(ctx, err)
 		return
 	}
-	writer.Flush()
 }
 
 // 恢复数据库
-func recoverPost(ctx *gin.Context) {
-	engine := db.Engine()
-	if engine == nil {
-		api.Fail(ctx, "数据库未连接")
-		return
-	}
-
+func recovery(ctx *gin.Context) {
 	// 获取上传文件
-	file, err := ctx.FormFile("file")
+	header, err := ctx.FormFile("header")
 	if err != nil {
 		api.Error(ctx, err)
 		return
 	}
 
 	// 打开文件
-	src, err := file.Open()
+	file, err := header.Open()
 	if err != nil {
 		api.Error(ctx, err)
 		return
 	}
-	defer src.Close()
+	defer file.Close()
 
 	// 恢复数据
-	reader := bufio.NewReader(src)
-	_, err = engine.Import(reader)
+	rs, err := db.Engine().Import(file)
 	if err != nil {
 		api.Error(ctx, err)
 		return
 	}
 
-	api.OK(ctx, "恢复成功")
+	//统计结果
+	var count int64
+	for _, r := range rs {
+		n, _ := r.RowsAffected()
+		count += n
+	}
+
+	api.OK(ctx, count)
 }
