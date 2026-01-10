@@ -73,9 +73,9 @@ func (h *Hook) OnDisconnect(cl *mqtt.Client, err error, expire bool) {
 }
 
 func (h *Hook) OnSubscribed(cl *mqtt.Client, pk packets.Packet, reasonCodes []byte) {
-	_ = Publish("client/"+cl.ID+"/subscribe", pk.Payload)
+	//_ = Publish("client/"+cl.ID+"/subscribe", pk.Filters)
 }
 
 func (h *Hook) OnUnsubscribed(cl *mqtt.Client, pk packets.Packet) {
-	_ = Publish("client/"+cl.ID+"/unsubscribe", pk.Payload)
+	//_ = Publish("client/"+cl.ID+"/unsubscribe", pk.Payload)
 }

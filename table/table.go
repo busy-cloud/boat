@@ -178,6 +178,30 @@ func (t *Table) condId(id any) (conds []builder.Cond, err error) {
 
 func (t *Table) condWhere(filter map[string]any, hasJoin bool) (conds []builder.Cond, err error) {
 	for k, v := range filter {
+
+		//多级查询支持
+		if k == "$or" {
+			if sub, ok := v.(map[string]any); ok {
+				cs, err := t.condWhere(sub, hasJoin)
+				if err != nil {
+					return nil, err
+				}
+				or := builder.Or(cs...)
+				conds = append(conds, or)
+			}
+			return
+		} else if k == "$and" {
+			if sub, ok := v.(map[string]any); ok {
+				cs, err := t.condWhere(sub, hasJoin)
+				if err != nil {
+					return nil, err
+				}
+				and := builder.And(cs...)
+				conds = append(conds, and)
+			}
+			return
+		}
+
 		column := t.Column(k)
 		if column == nil {
 			return nil, fmt.Errorf("column %s not found", k)
