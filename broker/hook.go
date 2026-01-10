@@ -33,6 +33,8 @@ func (h *Hook) OnConnect(cl *mqtt.Client, pk packets.Packet) error {
 		//_ = conn.SetKeepAlive(false) //避免服务器主动下发rst，导致设备无法低功耗
 		_ = conn.SetKeepAlivePeriod(10 * time.Minute) //10分钟，慢了点
 	}
+
+	_ = Publish("client/"+cl.ID+"/connect", nil)
 	return nil
 }
 
@@ -67,13 +69,13 @@ func (h *Hook) OnACLCheck(cl *mqtt.Client, topic string, write bool) bool {
 
 func (h *Hook) OnDisconnect(cl *mqtt.Client, err error, expire bool) {
 	//执行unsubscribe
-
+	_ = Publish("client/"+cl.ID+"/disconnect", nil)
 }
 
 func (h *Hook) OnSubscribed(cl *mqtt.Client, pk packets.Packet, reasonCodes []byte) {
-
+	_ = Publish("client/"+cl.ID+"/subscribe", pk.Payload)
 }
 
 func (h *Hook) OnUnsubscribed(cl *mqtt.Client, pk packets.Packet) {
-
+	_ = Publish("client/"+cl.ID+"/unsubscribe", pk.Payload)
 }
