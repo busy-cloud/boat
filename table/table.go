@@ -181,7 +181,7 @@ func (t *Table) condWhere(filter map[string]any, hasJoin bool) (conds []builder.
 
 		//多级查询支持
 		if k == "$or" {
-			if sub, ok := v.(map[string]any); ok {
+			if sub, ok := v.(map[string]any); ok && len(sub) > 0 {
 				cs, err := t.condWhere(sub, hasJoin)
 				if err != nil {
 					return nil, err
@@ -189,9 +189,9 @@ func (t *Table) condWhere(filter map[string]any, hasJoin bool) (conds []builder.
 				or := builder.Or(cs...)
 				conds = append(conds, or)
 			}
-			return
+			continue
 		} else if k == "$and" {
-			if sub, ok := v.(map[string]any); ok {
+			if sub, ok := v.(map[string]any); ok && len(sub) > 0 {
 				cs, err := t.condWhere(sub, hasJoin)
 				if err != nil {
 					return nil, err
@@ -199,7 +199,7 @@ func (t *Table) condWhere(filter map[string]any, hasJoin bool) (conds []builder.
 				and := builder.And(cs...)
 				conds = append(conds, and)
 			}
-			return
+			continue
 		}
 
 		column := t.Column(k)
