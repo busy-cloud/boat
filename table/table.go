@@ -609,7 +609,7 @@ func (t *Table) Join(body *ParamSearch) (rows []map[string]any, err error) {
 	//排序
 	if len(body.Sort) > 0 {
 		for k, v := range body.Sort {
-			f := db.Engine().Quote(t.Name) + "." + db.Engine().Quote(k)
+			f := "t." + db.Engine().Quote(k)
 			if v > 0 {
 				bdr.OrderBy(f + " ASC")
 			} else {
